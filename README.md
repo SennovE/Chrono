@@ -1,177 +1,176 @@
 # Chrono
-# Chrono
 
-**Chrono** is a Python-based web application designed to help users create both individual and team schedules for the day based on natural language input. Leveraging the GPT API, Chrono generates personalized schedules, allowing users to efficiently manage their time and tasks.
+**Chrono** — веб-приложение на Python, разработанное для помощи пользователям в создании как индивидуальных, так и командных расписаний на день на основе естественного языкового ввода. Используя API GPT, Chrono генерирует персонализированные расписания, позволяя эффективно управлять временем и задачами.
 
-## Table of Contents
+## Содержание
 
-- [Features](#features)
-- [Demo](#demo)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Configuration](#configuration)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
+- [Особенности](#особенности)
+- [Демонстрация](#демонстрация)
+- [Установка](#установка)
+- [Использование](#использование)
+- [Настройка](#настройка)
+- [Вклад](#вклад)
+- [Лицензия](#лицензия)
+- [Контакты](#контакты)
 
-## Features
+## Особенности
 
-Chrono offers a robust set of features to streamline daily planning and task management:
+Chrono предлагает широкий набор функций для оптимизации ежедневного планирования и управления задачами:
 
-### 1. Task Calendar
+### 1. Календарь дел
 
-- **Daily Task Blocks**: Visualize tasks as blocks on a calendar by day.
-- **Manual & Automated Entry**: Add tasks manually or generate a full-day schedule using natural language prompts.
-- **Customizable Generation Parameters**: Tailor schedule generation based on personal preferences for each day.
-- **Customization Options**: Personalize the calendar's background and task block appearance.
+- **Ежедневные блоки задач**: Визуализация задач в виде блоков на календаре по дням.
+- **Ручное и автоматическое добавление**: Добавляйте задачи вручную или генерируйте расписание на весь день с помощью текстовых запросов.
+- **Настраиваемые параметры генерации**: Подстраивайте генерацию расписания под личные предпочтения для каждого дня.
+- **Опции кастомизации**: Персонализируйте фон календаря и внешний вид блоков задач.
 
-### 2. Deadlines Page
+### 2. Страница дедлайнов
 
-- **Deadline Management**: View deadlines organized by day through a list of cards.
-- **Automated Deadline Generation**: Create deadlines using free-form text input.
-- **Manual Addition**: Add specific deadlines manually as needed.
+- **Управление дедлайнами**: Просмотр дедлайнов, организованных по дням, в виде списка карточек.
+- **Автоматическая генерация дедлайнов**: Создавайте дедлайны с помощью свободного текстового ввода.
+- **Ручное добавление**: При необходимости добавляйте конкретные дедлайны вручную.
 
-### Additional Features
+### Дополнительные функции
 
-- **Default Settings**: Configure default schedule generation settings.
-- **Template Creation**: Compose and save schedule templates for recurring use.
-- **Multiple Calendars**: Manage several calendars (e.g., individual and team) within the application.
-- **Progress Tracking**: Mark tasks as completed or incomplete and monitor progress over time.
+- **Настройки по умолчанию**: Настройка параметров генерации расписания по умолчанию.
+- **Создание шаблонов**: Составляйте и сохраняйте шаблоны расписаний для повторного использования.
+- **Несколько календарей**: Управляйте несколькими календарями (например, рабочим для команды и индивидуальным) в рамках приложения.
+- **Отслеживание прогресса**: Отмечайте задачи как выполненные или невыполненные и отслеживайте прогресс.
 
-## Demo
+## Демонстрация
 
-![Chrono Demo](path_to_demo_image.png)
+![Демонстрация Chrono](path_to_demo_image.png)
 
-*Screenshot of Chrono's Task Calendar and Deadlines Page.*
+*Скриншот Календаря дел и страницы дедлайнов Chrono.*
 
-## Installation
+## Установка
 
-Follow these steps to set up Chrono on your local machine:
+Следуйте этим шагам, чтобы установить Chrono на вашем локальном компьютере:
 
-### Prerequisites
+### Требования
 
 - **Python 3.8+**
-- **pip** (Python package manager)
+- **pip** (менеджер пакетов Python)
 - **Git**
 
-### Steps
+### Шаги
 
-1. **Clone the Repository**
+1. **Клонируйте репозиторий**
 
-   ```bash
-   git clone https://github.com/yourusername/chrono.git
-   cd chrono
-   ```
+    ```bash
+    git clone https://github.com/yourusername/chrono.git
+    cd chrono
+    ```
 
-2. **Create a Virtual Environment**
+2. **Создайте виртуальное окружение**
 
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # В Windows: venv\Scripts\activate
+    ```
 
-3. **Install Dependencies**
+3. **Установите зависимости**
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-4. **Configure Environment Variables**
+4. **Настройте переменные окружения**
 
-   Create a `.env` file in the root directory and add your GPT API key:
+    Создайте файл `.env` в корневой директории и добавьте ваш GPT API ключ:
 
-   ```env
-   GPT_API_KEY=your_openai_api_key
-   ```
+    ```env
+    GPT_API_KEY=your_openai_api_key
+    ```
 
-5. **Run Database Migrations**
+5. **Запустите миграции базы данных**
 
-   ```bash
-   python manage.py migrate
-   ```
+    ```bash
+    python manage.py migrate
+    ```
 
-6. **Start the Development Server**
+6. **Запустите сервер разработки**
 
-   ```bash
-   python manage.py runserver
-   ```
+    ```bash
+    python manage.py runserver
+    ```
 
-7. **Access the Application**
+7. **Доступ к приложению**
 
-   Open your browser and navigate to `http://localhost:8000`.
+    Откройте браузер и перейдите по адресу `http://localhost:8000`.
 
-## Usage
+## Использование
 
-### Generating a Schedule
+### Генерация расписания
 
-1. Navigate to the **Task Calendar** page.
-2. Click on the **Generate Schedule** button.
-3. Enter your daily objectives or preferences in the text prompt.
-4. Adjust generation parameters as needed.
-5. Click **Generate** to create a schedule for the day.
+1. Перейдите на страницу **Календарь дел**.
+2. Нажмите кнопку **Сгенерировать расписание**.
+3. Введите свои ежедневные цели или предпочтения в текстовом поле.
+4. При необходимости настройте параметры генерации.
+5. Нажмите **Сгенерировать**, чтобы создать расписание на день.
 
-### Managing Deadlines
+### Управление дедлайнами
 
-1. Go to the **Deadlines** page.
-2. To add a deadline, click **Add Deadline** and enter the details manually or use the **Generate Deadline** option with a text prompt.
-3. Deadlines will appear as cards organized by their respective dates.
+1. Перейдите на страницу **Дедлайны**.
+2. Чтобы добавить дедлайн, нажмите **Добавить дедлайн** и введите детали вручную или используйте опцию **Сгенерировать дедлайн** с текстовым вводом.
+3. Дедлайны появятся в виде карточек, организованных по соответствующим датам.
 
-### Customizing Calendars
+### Кастомизация календарей
 
-1. Access the **Settings** page.
-2. Choose to create a new calendar (e.g., Team Calendar).
-3. Customize the appearance and default settings for each calendar.
-4. Switch between calendars as needed to manage different schedules.
+1. Перейдите на страницу **Настройки**.
+2. Выберите создание нового календаря (например, командного календаря).
+3. Настройте внешний вид и параметры по умолчанию для каждого календаря.
+4. Переключайтесь между календарями по мере необходимости для управления разными расписаниями.
 
-### Tracking Progress
+### Отслеживание прогресса
 
-- Mark tasks as **Completed** or **Incomplete** directly from the calendar or deadlines page.
-- View progress indicators to monitor your daily or team productivity.
+- Отмечайте задачи как **Выполненные** или **Невыполненные** прямо из календаря или страницы дедлайнов.
+- Просматривайте индикаторы прогресса, чтобы следить за ежедневной или командной продуктивностью.
 
-## Configuration
+## Настройка
 
-Chrono allows extensive customization to fit your workflow:
+Chrono позволяет широкую настройку для соответствия вашему рабочему процессу:
 
-- **Default Settings**: Set default preferences for schedule generation under the **Settings** page.
-- **Templates**: Create and save schedule templates for recurring use, enhancing consistency in planning.
-- **Customization**: Personalize the calendar's appearance, including background themes and task block styles.
+- **Настройки по умолчанию**: Установите предпочтительные параметры генерации расписания на странице **Настройки**.
+- **Шаблоны**: Создавайте и сохраняйте шаблоны расписаний для повторного использования, обеспечивая консистентность планирования.
+- **Кастомизация**: Персонализируйте внешний вид календаря, включая темы фона и стили блоков задач.
 
-## Contributing
+## Вклад
 
-Contributions are welcome! Please follow these steps to contribute to Chrono:
+Вклад приветствуется! Пожалуйста, следуйте этим шагам, чтобы внести свой вклад в проект Chrono:
 
-1. **Fork the Repository**
+1. **Форкните репозиторий**
 
-2. **Create a Feature Branch**
+2. **Создайте новую ветку для функции**
 
-   ```bash
-   git checkout -b feature/YourFeature
-   ```
+    ```bash
+    git checkout -b feature/YourFeature
+    ```
 
-3. **Commit Your Changes**
+3. **Зафиксируйте изменения**
 
-   ```bash
-   git commit -m "Add your feature"
-   ```
+    ```bash
+    git commit -m "Добавить вашу функцию"
+    ```
 
-4. **Push to the Branch**
+4. **Отправьте ветку на удалённый репозиторий**
 
-   ```bash
-   git push origin feature/YourFeature
-   ```
+    ```bash
+    git push origin feature/YourFeature
+    ```
 
-5. **Open a Pull Request**
+5. **Откройте Pull Request**
 
-Please ensure your code follows the project's coding standards and includes relevant tests.
+Пожалуйста, убедитесь, что ваш код соответствует стандартам кодирования проекта и включает соответствующие тесты.
 
-## License
+## Лицензия
 
-This project is licensed under the [MIT License](LICENSE).
+Этот проект лицензирован под [MIT License](LICENSE).
 
-## Contact
+## Контакты
 
-For any inquiries or support, please contact [your.email@example.com](mailto:your.email@example.com).
+По любым вопросам или для поддержки, пожалуйста, свяжитесь с [your.email@example.com](mailto:your.email@example.com).
 
 ---
 
-*Happy Scheduling with Chrono!*
+*Успешного планирования с Chrono!*
