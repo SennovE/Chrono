@@ -5,3 +5,6 @@ __pycache__/
 .vscode
 coverage-report-html/
 .idea
+
+# postgres dumps
+postgres/*.sql
