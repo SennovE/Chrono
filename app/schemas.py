@@ -1,7 +1,8 @@
 from pydantic import BaseModel, Field
 
 
-class UserBase(BaseModel):
+class User(BaseModel):
+    id: int = Field(primary_key=True, index=True)
     username: str = Field(index=True, unique=True)
     name: str
     email: str = Field(unique=True)
@@ -9,20 +10,12 @@ class UserBase(BaseModel):
     hashed_password: str
 
 
-class User(UserBase):
-    id: int = Field(primary_key=True, index=True)
-
-    class Config:
-        orm_mode = True
+class UserCreateForm(BaseModel):
+    email: str = Field(unique=True)
+    password: str = Field()
 
 
 class TaskBase(BaseModel):
-    author_id: int
-
-
-class Task(UserBase):
     id: int = Field(primary_key=True, index=True)
+    author_id: int
     author = User
-
-    class Config:
-        orm_mode = True

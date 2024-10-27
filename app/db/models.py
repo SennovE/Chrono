@@ -1,12 +1,13 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
-from database import Base
+from app.db import DeclarativeBase
+import uuid
 
 
-class User(Base, table=True):
+class User(DeclarativeBase, table=True):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id: uuid.UUID = Column(default_factory=uuid.uuid4, primary_key=True)
     username = Column(String, index=True, unique=True)
     name = Column(String)
     email = Column(String, unique=True)
@@ -14,10 +15,10 @@ class User(Base, table=True):
     hashed_password = Column(String)
 
 
-class Task(Base, table=True):
+class Task(DeclarativeBase, table=True):
     __tablename__ = "posts"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id: uuid.UUID = Column(default_factory=uuid.uuid4, primary_key=True)
     author_id = Column(Integer, ForeignKey("users.id"))
 
     author = relationship("User")
