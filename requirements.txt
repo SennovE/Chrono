@@ -1,4 +1,0 @@
-fastapi==0.115.3
-bcrypt==4.2.0
-pydantic==2.9.2
-SQLAlchemy~=2.0.36
