@@ -10,3 +10,6 @@ format:  ##@Code Reformat code with isort and black
 
 db:  ##@Database Create database with docker-compose
 	docker-compose -f docker-compose.yml up -d --remove-orphans
+
+migrate:  ##@Migrate database
+	cd db && alembic upgrade head

@@ -1,13 +1,19 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, UUID
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+
 from app.db import DeclarativeBase
-import uuid
 
 
-class User(DeclarativeBase, table=True):
+class User(DeclarativeBase):
     __tablename__ = "users"
 
-    id: uuid.UUID = Column(default_factory=uuid.uuid4, primary_key=True)
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        server_default=func.gen_random_uuid(),
+        unique=True,
+    )
     username = Column(String, index=True, unique=True)
     name = Column(String)
     email = Column(String, unique=True)
@@ -15,10 +21,15 @@ class User(DeclarativeBase, table=True):
     hashed_password = Column(String)
 
 
-class Task(DeclarativeBase, table=True):
+class Task(DeclarativeBase):
     __tablename__ = "posts"
 
-    id: uuid.UUID = Column(default_factory=uuid.uuid4, primary_key=True)
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        server_default=func.gen_random_uuid(),
+        unique=True
+    )
     author_id = Column(Integer, ForeignKey("users.id"))
 
     author = relationship("User")
