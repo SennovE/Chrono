@@ -8,8 +8,6 @@ from sqlalchemy import pool
 from dotenv import load_dotenv
 from alembic import context
 
-sys.path.append(os.path.join(os.getcwd(), os.pardir, os.pardir))
-
 from app.config import get_settings
 
 # this is the Alembic Config object, which provides

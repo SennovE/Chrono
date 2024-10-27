@@ -1,14 +1,18 @@
-from os import environ
-
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class DefaultSettings(BaseSettings):
-    POSTGRES_DB: str = environ.get("POSTGRES_DB", "database")
-    POSTGRES_HOST: str = environ.get("POSTGRES_HOST", "localhost")
-    POSTGRES_USER: str = environ.get("POSTGRES_USER", "user")
-    POSTGRES_PORT: int = int(environ.get("POSTGRES_PORT", "5432")[-4:])
-    POSTGRES_PASSWORD: str = environ.get("POSTGRES_PASSWORD", "password")
+    POSTGRES_DB: str
+    POSTGRES_HOST: str
+    POSTGRES_USER: str
+    POSTGRES_PORT: int
+    POSTGRES_PASSWORD: str
+
+    BACKEND_HOST: str
+    BACKEND_PORT: int
+    PATH_PREFIX : str
+
+    model_config = SettingsConfigDict(env_file="../.env")
 
     @property
     def database_settings(self) -> dict:
@@ -32,6 +36,6 @@ class DefaultSettings(BaseSettings):
             **self.database_settings,
         )
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+
+def get_settings() -> DefaultSettings:
+    return DefaultSettings()
