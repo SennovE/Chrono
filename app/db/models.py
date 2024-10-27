@@ -22,7 +22,7 @@ class User(DeclarativeBase):
 
 
 class Task(DeclarativeBase):
-    __tablename__ = "posts"
+    __tablename__ = "tasks"
 
     id = Column(
         UUID(as_uuid=True),
