@@ -1,5 +1,4 @@
-from .default import DefaultSettings
-from .utils import get_settings
+from .default import DefaultSettings, get_settings
 
 
 __all__ = [
