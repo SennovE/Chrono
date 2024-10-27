@@ -1,7 +1,7 @@
-from .session import SessionManager, getSession
+from .session import SessionManager, get_session
 
 
 __all__ = [
-    "getSession",
+    "get_session",
     "SessionManager",
 ]
