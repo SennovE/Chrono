@@ -4,3 +4,4 @@ __pycache__/
 .venv
 .vscode
 coverage-report-html/
+.idea
