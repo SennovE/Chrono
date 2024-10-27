@@ -12,4 +12,4 @@ db:  ##@Database Create database with docker-compose
 	docker-compose -f docker-compose.yml up -d --remove-orphans
 
 migrate:  ##@Migrate database
-	cd db && alembic upgrade head
+	cd app/db && alembic upgrade head
