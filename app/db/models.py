@@ -30,6 +30,6 @@ class Task(DeclarativeBase):
         server_default=func.gen_random_uuid(),
         unique=True
     )
-    author_id = Column(Integer, ForeignKey("users.id"))
+    author_id = Column(UUID, ForeignKey("users.id"))
 
     author = relationship("User")
