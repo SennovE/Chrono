@@ -12,7 +12,7 @@ class User(DeclarativeBase):
     id = Column(
         UUID(as_uuid=True),
         primary_key=True,
-        server_default=func.gen_random_uuid(),
+        default=uuid.uuid4,
         unique=True,
     )
     username = Column(String, index=True, unique=True)

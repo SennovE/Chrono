@@ -47,12 +47,11 @@ app = getApp()
 
 @app.post("/", response_model=UserResponse)
 def create_user(user: UserCreateForm, db: Session = Depends(get_session)):
-    db_user = User(email=user.email, hashed_password=hash_password(user.password), id=1)
+    db_user = User(email=user.email, hashed_password=hash_password(user.password), id=uuid.uuid4(), premium=True)
     db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
 
-    return UserResponse.from_orm(db_user)
+    out = UserResponse.from_orm(db_user)
+    return out
 
 
 if __name__ == "__main__":

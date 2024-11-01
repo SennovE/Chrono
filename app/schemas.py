@@ -1,9 +1,10 @@
 from pydantic import BaseModel, Field
+from sqlalchemy import UUID
 from uuid import UUID
 
 
 class UserResponse(BaseModel):
-    id: int
+    id: UUID
     email: str = Field(unique=True)
     hashed_password: str
 
