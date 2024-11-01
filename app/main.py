@@ -1,10 +1,24 @@
 from logging import getLogger
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from uvicorn import run
 
 from app.config import DefaultSettings, get_settings
 # from app.endpoints import list_of_routes
+from schemas import UserCreateForm, UserResponse
+from app.db.models import *
+
+
+from app.db.connection import get_session
+from sqlalchemy.orm import Session
+from sqlalchemy.sql import func
+
+
+from passlib.context import CryptContext
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
+
 
 
 logger = getLogger(__name__)
@@ -29,6 +43,17 @@ def getApp() -> FastAPI:
 
 
 app = getApp()
+
+
+@app.post("/", response_model=UserResponse)
+def create_user(user: UserCreateForm, db: Session = Depends(get_session)):
+    db_user = User(email=user.email, hashed_password=hash_password(user.password), id=1)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+
+    return UserResponse.from_orm(db_user)
+
 
 if __name__ == "__main__":
     settings_for_application = get_settings()
