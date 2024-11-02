@@ -5,7 +5,7 @@ from uvicorn import run
 
 from app.config import DefaultSettings, get_settings
 # from app.endpoints import list_of_routes
-from schemas import UserCreateForm, UserResponse
+from schemas import UserCreateForm, UserResponse, UserDebugResponse
 from app.db.models import *
 
 
@@ -14,11 +14,15 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
 
+from sqlalchemy.future import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from typing import List
 from passlib.context import CryptContext
+
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
-
 
 
 logger = getLogger(__name__)
@@ -45,13 +49,20 @@ def getApp() -> FastAPI:
 app = getApp()
 
 
-@app.post("/", response_model=UserResponse)
-def create_user(user: UserCreateForm, db: Session = Depends(get_session)):
-    db_user = User(email=user.email, hashed_password=hash_password(user.password), id=uuid.uuid4(), premium=True)
+@app.post("/")
+async def create_user(user: UserCreateForm, db: AsyncSession = Depends(get_session)):
+    db_user = User(email=user.email, hashed_password=hash_password(user.password))
     db.add(db_user)
+    await db.commit()
 
-    out = UserResponse.from_orm(db_user)
-    return out
+    return "User created"
+
+
+@app.get("/get_users_debug/", response_model=List[UserDebugResponse])
+async def get_users_debug(db: AsyncSession = Depends(get_session)):
+    result = await db.execute(select(User))
+    users = result.scalars().all()
+    return users
 
 
 if __name__ == "__main__":

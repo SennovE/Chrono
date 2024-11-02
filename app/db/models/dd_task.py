@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from app.db import DeclarativeBase
+import uuid
 
 
 class DDTask(DeclarativeBase):
@@ -11,7 +12,7 @@ class DDTask(DeclarativeBase):
     id = Column(
         UUID(as_uuid=True),
         primary_key=True,
-        server_default=func.gen_random_uuid(),
+        default=uuid.uuid4,
         unique=True
     )
     author_id = Column(UUID, ForeignKey("Users.id"))
