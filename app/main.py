@@ -1,6 +1,7 @@
 from logging import getLogger
 
 from fastapi import FastAPI, Depends
+from sqlalchemy import Sequence
 from uvicorn import run
 
 from app.config import DefaultSettings, get_settings
@@ -55,11 +56,11 @@ async def create_user(user: UserCreateForm, db: AsyncSession = Depends(get_sessi
     db.add(db_user)
     await db.commit()
 
-    return "User created"
+    return "a"
 
 
 @app.get("/debug/get_users/", response_model=List[UserDebugResponse])
-async def get_users_debug(db: AsyncSession = Depends(get_session)):
+async def get_users_debug(db: AsyncSession = Depends(get_session)) -> Sequence[User]:
     result = await db.execute(select(User))
     users = result.scalars().all()
     return users
