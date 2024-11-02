@@ -58,7 +58,7 @@ async def create_user(user: UserCreateForm, db: AsyncSession = Depends(get_sessi
     return "User created"
 
 
-@app.get("/get_users_debug/", response_model=List[UserDebugResponse])
+@app.get("/debug/get_users/", response_model=List[UserDebugResponse])
 async def get_users_debug(db: AsyncSession = Depends(get_session)):
     result = await db.execute(select(User))
     users = result.scalars().all()
