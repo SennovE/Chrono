@@ -1,32 +1,8 @@
 from logging import getLogger
-
-from fastapi import FastAPI, Depends
-from sqlalchemy import Sequence
+from fastapi import FastAPI
 from uvicorn import run
-
 from app.config import DefaultSettings, get_settings
-from app.db.models import User
 from app.endpoints import list_of_routes
-from schemas import UserCreateForm, UserResponse, UserDebugResponse
-from app.db.models import *
-
-
-from app.db.connection import get_session
-from sqlalchemy.orm import Session
-from sqlalchemy.sql import func
-
-
-from sqlalchemy.future import select
-from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List, Any, Coroutine
-from passlib.context import CryptContext
-
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
-
-
 logger = getLogger(__name__)
 
 
