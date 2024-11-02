@@ -1,13 +1,25 @@
 from pydantic import BaseModel, Field
+from uuid import UUID
 
 
-class User(BaseModel):
-    id: int = Field(primary_key=True, index=True)
-    username: str = Field(index=True, unique=True)
-    name: str
+class UserResponse(BaseModel):
     email: str = Field(unique=True)
-    premium: bool = Field(default=False)
     hashed_password: str
+
+    class Config:
+        from_attributes = True
+
+
+class UserDebugResponse(BaseModel):
+    id: UUID
+    email: str = Field(unique=True)
+    hashed_password: str
+    username: str | None
+    name: str | None
+    premium: bool
+
+    class Config:
+        from_attributes = True
 
 
 class UserCreateForm(BaseModel):
@@ -18,4 +30,3 @@ class UserCreateForm(BaseModel):
 class TaskBase(BaseModel):
     id: int = Field(primary_key=True, index=True)
     author_id: int
-    author = User
