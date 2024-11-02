@@ -50,13 +50,13 @@ def getApp() -> FastAPI:
 app = getApp()
 
 
-@app.post("/")
-async def create_user(user: UserCreateForm, db: AsyncSession = Depends(get_session)):
+@app.post("/user", response_model=UserResponse)
+async def create_user(user: UserCreateForm, db: AsyncSession = Depends(get_session)) -> User:
     db_user = User(email=user.email, hashed_password=hash_password(user.password))
     db.add(db_user)
     await db.commit()
 
-    return "a"
+    return db_user
 
 
 @app.get("/debug/get_users/", response_model=List[UserDebugResponse])
@@ -64,7 +64,12 @@ async def get_users_debug(db: AsyncSession = Depends(get_session)) -> Sequence[U
     result = await db.execute(select(User))
     users = result.scalars().all()
     return users
-
+@app.get("/debug/get_users_by_email/", response_model=UserResponse)
+async def get_user_by_email(email: str, db: AsyncSession = Depends(get_session)) -> User:
+    stmt = select(User).where(User.email == email)
+    result = await db.execute(stmt)
+    db_user = result.scalars().first()
+    return db_user
 
 if __name__ == "__main__":
     settings_for_application = get_settings()
