@@ -5,6 +5,7 @@ from sqlalchemy import Sequence
 from uvicorn import run
 
 from app.config import DefaultSettings, get_settings
+from app.db.models import User
 # from app.endpoints import list_of_routes
 from schemas import UserCreateForm, UserResponse, UserDebugResponse
 from app.db.models import *
@@ -17,7 +18,7 @@ from sqlalchemy.sql import func
 
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List
+from typing import List, Any, Coroutine
 from passlib.context import CryptContext
 
 
@@ -55,6 +56,7 @@ async def create_user(user: UserCreateForm, db: AsyncSession = Depends(get_sessi
     db_user = User(email=user.email, hashed_password=hash_password(user.password))
     db.add(db_user)
     await db.commit()
+    await db.refresh(db_user)
 
     return db_user
 
@@ -66,11 +68,22 @@ async def get_users_debug(db: AsyncSession = Depends(get_session)) -> Sequence[U
     return users
 @app.get("/debug/get_users_by_email/", response_model=UserResponse)
 async def get_user_by_email(email: str, db: AsyncSession = Depends(get_session)) -> User:
-    stmt = select(User).where(User.email == email)
+    stmt =select(User).where(User.email == email)
     result = await db.execute(stmt)
     db_user = result.scalars().first()
     return db_user
 
+async def get_user_by_email_fun(email: str, db: AsyncSession = Depends(get_session)) -> User:
+    stmt =select(User).where(User.email == email)
+    result = await db.execute(stmt)
+    db_user = result.scalars().first()
+    return db_user
+@app.delete("/user", response_model=UserResponse)
+async def delete_user_by_email(email: str, db: AsyncSession = Depends(get_session)) -> User:
+    db_user =await get_user_by_email_fun(email, db)
+    await db.delete(db_user)
+    await db.commit()
+    return db_user
 if __name__ == "__main__":
     settings_for_application = get_settings()
     run(
