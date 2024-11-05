@@ -3,9 +3,7 @@ from uuid import UUID
 
 
 class UserResponse(BaseModel):
-    id: UUID
     email: str = Field(unique=True)
-    hashed_password: str
     username: str | None
     name: str | None
     premium: bool
