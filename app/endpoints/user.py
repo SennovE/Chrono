@@ -35,40 +35,48 @@ logger = getLogger(__name__)
 
 
 @apiRouter.post("/user", response_model=UserResponse)
-async def create_user(user: UserCreateForm, db: AsyncSession = Depends(get_session)) -> User:
+async def create_user(user: UserCreateForm, db: AsyncSession = Depends(get_session)) -> UserResponse:
     db_user = User(email=user.email, hashed_password=hash_password(user.password))
     db.add(db_user)
     await db.commit()
     await db.refresh(db_user)
+    user_response = UserResponse.model_validate(db_user)
 
-    return db_user
+    return user_response
 
 
-@apiRouter.get("/debug/get_users/", response_model=List[UserDebugResponse])
-async def get_users_debug(db: AsyncSession = Depends(get_session)) -> Sequence[User]:
+@apiRouter.get("/debug/get_users/", response_model=List[UserResponse])
+async def get_users_debug(db: AsyncSession = Depends(get_session)) -> list[UserResponse]:
     result = await db.execute(select(User))
     users = result.scalars().all()
-    return users
+    users_response = [UserResponse.model_validate(user_) for user_ in users]
+    return users_response
 
 
 @apiRouter.get("/debug/get_users_by_email/", response_model=UserResponse)
-async def get_user_by_email(email: str, db: AsyncSession = Depends(get_session)) -> User:
+async def get_user_by_email(email: str, db: AsyncSession = Depends(get_session)) -> UserResponse:
     stmt = select(User).where(User.email == email)
     result = await db.execute(stmt)
     db_user = result.scalars().first()
-    return db_user
+    user_response = UserResponse.model_validate(db_user)
+
+    return user_response
 
 
-async def get_user_by_email_fun(email: str, db: AsyncSession = Depends(get_session)) -> User:
+async def get_user_by_email_fun(email: str, db: AsyncSession = Depends(get_session)) -> UserResponse:
     stmt = select(User).where(User.email == email)
     result = await db.execute(stmt)
     db_user = result.scalars().first()
-    return db_user
+    user_response = UserResponse.model_validate(db_user)
+
+    return user_response
 
 
 @apiRouter.delete("/user", response_model=UserResponse)
-async def delete_user_by_email(email: str, db: AsyncSession = Depends(get_session)) -> User:
+async def delete_user_by_email(email: str, db: AsyncSession = Depends(get_session)) -> UserResponse:
     db_user = await get_user_by_email_fun(email, db)
     await db.delete(db_user)
     await db.commit()
-    return db_user
+    user_response = UserResponse.model_validate(db_user)
+
+    return user_response
