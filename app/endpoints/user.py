@@ -7,7 +7,6 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.config import DefaultSettings, get_settings
 from app.db.models import User
 # from app.endpoints import list_of_routes
-from schemas import UserCreateForm, UserResponse, UserDebugResponse
 from app.db.models import *
 
 from app.db.connection import get_session
@@ -15,14 +14,17 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 from fastapi import APIRouter as api_router
 
-apiRouter = api_router(
-    prefix="/user",
-    tags=["User"]
-)
+from app.endpoints.schemas import UserResponse, UserDebugResponse, UserCreateForm
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Any, Coroutine
 from passlib.context import CryptContext
+
+
+apiRouter = api_router(
+    prefix="/user",
+    tags=["User"]
+)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -59,12 +61,11 @@ async def create_user(user: UserCreateForm, db: AsyncSession = Depends(get_sessi
         raise e
 
 
-@apiRouter.get("/debug/get_users/", response_model=List[UserResponse])
-async def get_users_debug(db: AsyncSession = Depends(get_session)) -> list[UserResponse]:
+@apiRouter.get("/debug/users_table/", response_model=List[UserDebugResponse])
+async def get_users_debug(db: AsyncSession = Depends(get_session)):
     result = await db.execute(select(User))
     users = result.scalars().all()
-    users_response = [UserResponse.model_validate(user_) for user_ in users]
-    return users_response
+    return users
 
 
 @apiRouter.get("/debug/get_users_by_email/", response_model=UserResponse)
@@ -86,7 +87,6 @@ async def get_user_by_email_fun(email: str, db: AsyncSession = Depends(get_sessi
 
     result = await db.execute(stmt)
     db_user = result.scalar_one_or_none()
-
 
     return db_user
 
