@@ -19,4 +19,4 @@ class User(DeclarativeBase):
     name = Column(String)
     email = Column(String, unique=True)
     premium = Column(Boolean, default=False)
-    hashed_password = Column(String)
+    password = Column(String)
