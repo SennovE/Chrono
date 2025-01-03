@@ -1,7 +1,7 @@
-from .user import apiRouter as api_router
+from .auth import api_router as auth_router
 
 list_of_routes = [
-    api_router,
+    auth_router,
 ]
 
 __all__ = [
