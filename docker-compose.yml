@@ -15,9 +15,34 @@ services:
       timeout: 5s
       retries: 5
     # volumes:
-    #   - ./app/postgres-data:/var/lib/postgresql/data
+    #   - ./postgres-data:/var/lib/postgresql/data
     networks:
-      - networkName
+      - network_name
+
+  backend:
+    container_name: ${BACKEND_HOST}
+    hostname: ${BACKEND_HOST}
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - '8001:8080'
+    env_file:
+      - ./.env
+    environment:
+      - BACKEND_HOST=${BACKEND_HOST}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./app:/backend/app
+    networks:
+      - network_name
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://${BACKEND_HOST}:8080/api/v1/health_check/ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
 
 networks:
-  networkName:
+  network_name:
