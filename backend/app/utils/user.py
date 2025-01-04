@@ -5,6 +5,7 @@ import jwt
 from fastapi import Depends, HTTPException, status
 from jwt.exceptions import InvalidTokenError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import exc, select
 
 from config import DefaultSettings, get_settings
 from db.connection import get_session
@@ -17,15 +18,27 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 async def get_user(session: AsyncSession, username: str) -> User | None:
-    pass
+    query = select(User).where(User.username == username)
+    return await session.scalar(query)
 
 
 async def register_user(session: AsyncSession, user_data: RegistrationForm) -> bool:
-    pass
+    user = User(**user_data.model_dump(exclude_unset=True))
+    session.add(user)
+    try:
+        await session.commit()
+    except exc.IntegrityError:
+        return False
+    return True
 
 
 async def authenticate_user(session: AsyncSession, username: str, password: str):
-    pass
+    user = await get_user(session, username)
+    if not user:
+        return False
+    if not verify_password(password, user.password):
+        return False
+    return user
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
