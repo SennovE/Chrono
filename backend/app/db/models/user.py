@@ -16,7 +16,6 @@ class User(DeclarativeBase):
         unique=True,
     )
     username = Column(String, index=True, unique=True)
-    name = Column(String)
     email = Column(String, unique=True)
     premium = Column(Boolean, default=False)
     password = Column(String)
