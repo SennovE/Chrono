@@ -5,7 +5,6 @@ from uuid import UUID
 class UserResponse(BaseModel):
     email: str = Field(unique=True)
     username: str | None
-    name: str | None
     premium: bool
 
     class Config:
@@ -17,7 +16,6 @@ class UserDebugResponse(BaseModel):
     email: str = Field(unique=True)
     hashed_password: str
     username: str | None
-    name: str | None
     premium: bool
 
     class Config:

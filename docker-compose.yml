@@ -26,7 +26,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
     ports:
-      - '8001:8080'
+      - '8080:8080'
     env_file:
       - ./.env
     environment:
@@ -35,7 +35,7 @@ services:
       db:
         condition: service_healthy
     volumes:
-      - ./app:/backend/app
+      - .backend/app:/backend/app
     networks:
       - network_name
     healthcheck:
