@@ -25,8 +25,10 @@ jobs:
           docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:latest ./Chrono/backend
           docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:latest
 
-      - name: Restart docker on VM
+      - name: Connect to VM
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      
+      - name: Restart docker on VM
         run: ssh -o StrictHostKeyChecking=no ${{ secrets.VM_NAME }}@${{ secrets.VM_IP }} "cd app && docker-compose pull && docker-compose up -d --remove-orphans"
