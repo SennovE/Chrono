@@ -12,10 +12,13 @@ def bindRoutes(application: FastAPI, setting: DefaultSettings) -> None:
 
 
 def getApp() -> FastAPI:
+    description = "Микросервис для создания расписания."
+
     application = FastAPI(
         docs_url="/api/swagger",
         openapi_url="/api/openapi",
         version="1.0.0",
+        description=description,
     )
 
     settings = get_settings()
