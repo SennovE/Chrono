@@ -4,11 +4,11 @@ WORKDIR /backend
 
 RUN pip install poetry
 
-COPY /backend/pyproject.toml /backend/poetry.lock /backend
+COPY pyproject.toml poetry.lock /backend
 
 RUN poetry config virtualenvs.create false && poetry install --no-root
 
-COPY /backend/app /backend/app
+COPY app /backend/app
 
 ENV PYTHONPATH=/backend
 
