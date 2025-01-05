@@ -18,6 +18,7 @@ def getApp() -> FastAPI:
         docs_url="/api/swagger",
         openapi_url="/api/openapi",
         version="1.0.0",
+        title="Chrono",
         description=description,
     )
 
