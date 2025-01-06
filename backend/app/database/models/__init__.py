@@ -1,9 +1,9 @@
 from .user import User
-from .cdar_task import CdarTask
-from .dd_task import DDTask
+from .task_in_calendar import TaskInCalendar
+from .deadline_task import DeadlineTask
 
 __all__ = [
     "User",
-    "CdarTask",
-    "DDTask",
+    "TaskInCalendar",
+    "DeadlineTask",
 ]
