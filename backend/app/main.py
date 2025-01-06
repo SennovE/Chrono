@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from uvicorn import run
 from app.config import DefaultSettings, get_settings
 from app.endpoints import list_of_routes
+from fastapi.middleware.cors import CORSMiddleware
 logger = getLogger(__name__)
 
 
@@ -30,6 +31,18 @@ def getApp() -> FastAPI:
 
 app = getApp()
 
+origins = [
+    "http://localhost:8081",
+    "http://127.0.0.1:8081"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 if __name__ == "__main__":
     settings_for_application = get_settings()

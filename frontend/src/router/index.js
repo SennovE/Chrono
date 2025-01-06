@@ -32,6 +32,11 @@ const routes = [
     component: () => import('../pages/settings/index.vue')
   },
   {
+    path: '/debug',
+    name: 'Debug',
+    component: () => import('../pages/debug/index.vue')
+  },
+  {
     path: '/404',
     name: '404',
     component: () => import('../pages/error404/index.vue')
