@@ -4,17 +4,37 @@ const routes = [
   {
     path: '/',
     name: 'Welcome',
-    component: () => import('../templates/start/index.vue')
+    component: () => import('../pages/start/index.vue')
   },
   {
     path: '/calendar',
     name: 'Calendar Page',
-    component: () => import('../templates/calendar/index.vue')
+    component: () => import('../pages/calendar/index.vue')
+  },
+  {
+    path: '/deadlines',
+    name: 'Deadlines Page',
+    component: () => import('../pages/deadlines/index.vue')
+  },
+  {
+    path: '/login',
+    name: 'Login Page',
+    component: () => import('../pages/login/index.vue')
+  },
+  {
+    path: '/profile',
+    name: 'Profile Page',
+    component: () => import('../pages/profile/index.vue')
+  },
+  {
+    path: '/settings',
+    name: 'Settings Page',
+    component: () => import('../pages/settings/index.vue')
   },
   {
     path: '/404',
     name: '404',
-    component: () => import('../templates/Error404/index.vue')
+    component: () => import('../pages/error404/index.vue')
   },
   {
     path: '/:pathMatch(.*)*',
