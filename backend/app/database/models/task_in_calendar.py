@@ -7,7 +7,7 @@ import uuid
 
 
 class TaskInCalendar(DeclarativeBase):
-    __tablename__ = "Cdar_tasks"
+    __tablename__ = "TaskInCalendar_tasks"
 
     id = Column(
         UUID(as_uuid=True),

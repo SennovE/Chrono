@@ -7,8 +7,7 @@ import uuid
 
 
 class DeadlineTask(DeclarativeBase):
-    __tablename__ = "DD_tasks"
-
+    __tablename__ = "Deadline_tasks"
     id = Column(
         UUID(as_uuid=True),
         primary_key=True,
@@ -19,5 +18,5 @@ class DeadlineTask(DeclarativeBase):
 
     author = relationship("User")
 
-    dd_time = Column(DateTime)
+    deadline_time = Column(DateTime)
     description = Column(String)
