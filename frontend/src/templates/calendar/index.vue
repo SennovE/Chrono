@@ -1,12 +1,12 @@
 <template>
   <div id="app">
-    <h1>Settings</h1>
+    <h1>Calendar</h1>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'App',
+  name: 'CalendarPage',
 };
 </script>
 

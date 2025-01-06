@@ -1,12 +1,12 @@
 <template>
   <div id="app">
-    <h1>Profile</h1>
+    <h1>Добро пожаловать в Chrono! Хотите зарегистрироваться?</h1>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'App',
+  name: 'StartPage',
 };
 </script>
 

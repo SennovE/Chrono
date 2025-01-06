@@ -1,12 +1,12 @@
 <template>
   <div id="app">
-    <h1>Login</h1>
+    <h1>Not found</h1>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'App',
+  name: 'ErrorPage',
 };
 </script>
 

@@ -1,15 +1,13 @@
 <template>
   <div id="app">
-    <h1>Calendar</h1>
+    <router-view></router-view> <!-- Здесь отображаются страницы -->
   </div>
 </template>
-
 <script>
 export default {
   name: 'App',
 };
 </script>
-
 <style>
 /* Добавьте стили, если нужно */
 </style>
