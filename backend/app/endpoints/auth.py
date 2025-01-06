@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from app.config import DefaultSettings, get_settings
-from app.db.connection import get_session
+from app.database.connection import get_session
 from app.schemas import (
     RegistrationForm,
     RegistrationSuccess,
