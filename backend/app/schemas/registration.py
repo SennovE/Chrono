@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, field_validator, EmailStr
 
-from config import DefaultSettings
+from app.config import DefaultSettings
 
 
 class RegistrationForm(BaseModel):
