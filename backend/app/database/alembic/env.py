@@ -29,8 +29,8 @@ if config.config_file_name is not None:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-from app.db import DeclarativeBase
-from app.db.models import *
+from app.database import DeclarativeBase
+from app.database.models import *
 target_metadata = DeclarativeBase.metadata
 
 # other values from the config, defined by the needs of env.py,

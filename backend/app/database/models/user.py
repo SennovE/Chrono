@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String, Boolean, UUID
 
-from app.db import DeclarativeBase
+from app.database import DeclarativeBase
 import uuid
 
 

@@ -1,5 +1,5 @@
-from app.db.models import User
-from app.db.connection import get_session
+from app.database.models import User
+from app.database.connection import get_session
 from app.schemas import UserResponse, UserDebugResponse
 
 from fastapi import APIRouter, Depends, status, HTTPException

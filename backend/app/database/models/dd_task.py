@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, UUID, DateT
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
-from app.db import DeclarativeBase
+from app.database import DeclarativeBase
 import uuid
 
 
