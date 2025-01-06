@@ -1,6 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, UUID
-from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func
+from sqlalchemy import Column, String, Boolean, UUID
 
 from app.db import DeclarativeBase
 import uuid

@@ -7,10 +7,10 @@ from jwt.exceptions import InvalidTokenError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import exc, select
 
-from config import DefaultSettings, get_settings
-from db.connection import get_session
-from db.models import User
-from schemas import RegistrationForm, TokenData
+from app.config import DefaultSettings, get_settings
+from app.db.connection import get_session
+from app.db.models import User
+from app.schemas import RegistrationForm, TokenData
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:

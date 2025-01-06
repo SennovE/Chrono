@@ -4,22 +4,16 @@ from uuid import UUID
 
 class UserResponse(BaseModel):
     email: str = Field(unique=True)
-    username: str | None
+    username: str
     premium: bool
-
-    class Config:
-        from_attributes = True
 
 
 class UserDebugResponse(BaseModel):
     id: UUID
     email: str = Field(unique=True)
-    hashed_password: str
-    username: str | None
+    username: str
     premium: bool
-
-    class Config:
-        from_attributes = True
+    password: str
 
 
 class UserCreateForm(BaseModel):
