@@ -25,7 +25,7 @@ async def get_users_debug(
     return result.all()
 
 
-@api_router.get("/debug/get_users_by_email/", response_model=UserResponse)
+@api_router.get("/debug/get_users_by_email1/", response_model=UserResponse)
 async def get_user_by_email(email: str, db: AsyncSession = Depends(get_session)) -> UserResponse:
     stmt = select(User).where(User.email == email)
     result = await db.execute(stmt)
