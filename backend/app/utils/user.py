@@ -8,8 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import exc, select
 
 from app.config import DefaultSettings, get_settings
-from app.db.connection import get_session
-from app.db.models import User
+from app.database.connection import get_session
+from app.database.models import User
 from app.schemas import RegistrationForm, TokenData
 
 
