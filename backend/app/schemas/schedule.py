@@ -34,3 +34,13 @@ class ScheduleUpdateForm(BaseModel):
     start_time: datetime | None = Field(default=None)
     end_time: datetime | None = Field(default=None)
     recurring: bool | None = Field(default=None)
+
+
+class ScheduleDebugForm(BaseModel):
+    id: UUID
+    text: str | None = Field(default=None)
+    start_time: datetime | None = Field(default=None)
+    end_time: datetime | None = Field(default=None)
+    recurring: bool | None = Field(default=None)
+    week_day: int | None = Field(default=None)
+    owner_id: UUID = Field(default=None)

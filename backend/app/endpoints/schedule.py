@@ -4,9 +4,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 
 from app.database.connection import get_session
-from app.schemas import ScheduleForm, ScheduleResponse, ScheduleUpdateForm
+from app.schemas import ScheduleForm, ScheduleResponse, ScheduleUpdateForm, ScheduleDebugForm
 from app.database.models import User
 from app.utils.user import get_current_user
+from app.database.models import Schedule
+from sqlalchemy.future import select
 from app.utils.schedule import (
     add_schedule_task,
     get_schedule_tasks,
@@ -95,3 +97,12 @@ async def update_user_task(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No task with with this ID",
         )
+    
+
+@api_router.get("/debug/shedule_tasks_table/", response_model=list[ScheduleDebugForm])
+async def get_deadline_tasks_debug(
+    session: AsyncSession = Depends(get_session)
+) -> list[ScheduleDebugForm]:
+    query = select(Schedule)
+    result = await session.scalars(query)
+    return result.all()

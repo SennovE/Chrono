@@ -1,25 +1,29 @@
 <template>
     <div>
-      <h1>Список пользователей</h1>
+      <h1>Список задач в календаре</h1>
       <table class="styled-table">
         <!-- Заголовки таблицы -->
         <thead>
           <tr>
             <th>ID</th>
-            <th>Email</th>
-            <th>Username</th>
-            <th>Premium</th>
-            <th>Password</th>
+            <th>Text</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Recurring</th>
+            <th>Week day</th>
+            <th>Owner ID</th>
           </tr>
         </thead>
         <!-- Тело таблицы -->
         <tbody>
-          <tr v-for="user in users" :key="user.id">
-            <td>{{ user.id }}</td>
-            <td>{{ user.email }}</td>
-            <td>{{ user.username }}</td>
-            <td>{{ user.premium ? 'Yes' : 'No' }}</td>
-            <td>{{ user.password }}</td>
+          <tr v-for="task in tasks" :key="task.id">
+            <td>{{ task.id }}</td>
+            <td>{{ task.text }}</td>
+            <td>{{ task.start_time }}</td>
+            <td>{{ task.end_time }}</td>
+            <td>{{ task.recurring ? 'Yes' : 'No' }}</td>
+            <td>{{ task.week_day }}</td>
+            <td>{{ task.owner_id }}</td>
           </tr>
         </tbody>
       </table>
@@ -31,21 +35,21 @@ import axios from 'axios';
 export default {
 data() {
     return {
-        users: []
+        tasks: []
     }
 },
 methods: {
-    async get_users() {
-        const response = await axios.get('http://localhost:8080/api/v1/user/debug/users_table/');
-        this.users = response.data;
+    async get_tasks() {
+        const response = await axios.get('http://localhost:8080/api/v1/schedule/debug/shedule_tasks_table/');
+        this.tasks = response.data;
     }
 },
 mounted() {
     // Загружаем пользователей при монтировании компонента
-    this.get_users();
+    this.get_tasks();
   },
 
-name: 'UserDebugComponent'  
+name: 'CalendarTaskDebugComponent'  
 };
 
 </script>
