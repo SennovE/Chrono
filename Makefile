@@ -65,3 +65,15 @@ upgrade:
 FRONT_DIR = frontend
 run_front:
 	cd $(FRONT_DIR) && npm run serve
+poetry:
+	cd backend && poetry install && poetry shell
+reboot:
+	cd .. && sudo rm -rf CHRONO && git clone git@github.com:SennovE/Chrono.git && cd backend && poetry install && poetry shell
+.PHONY: new_br
+new_br:
+	@if [ -z "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
+		echo "need a name of the branch"; \
+		exit 1; \
+	fi; \
+	branch_name="$(filter-out $@,$(MAKECMDGOALS))"; \
+	git branch "$$branch_name" && git checkout "$$branch_name" && git branch
