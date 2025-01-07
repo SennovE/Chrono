@@ -14,12 +14,12 @@ from app.schemas import DeadlineTaskCreateForm, TokenData
 from app.utils.user import User
 
 
-async def create_deadline_task(session: AsyncSession, task_data: DeadlineTaskCreateForm, user: User) -> bool:
+async def make_deadline_task(session: AsyncSession, task_data: DeadlineTaskCreateForm, user: User) -> bool:
     task_data = task_data.model_dump()
     task_data["author_id"] = user.id
     task_data["author"] = user.username
     task_data["status"] = 0
-    task = DeadlineTaskCreateForm(**task_data)
+    task = DeadlineTask(**task_data)
 
     session.add(task)
     try:

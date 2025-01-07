@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
 from fastapi import APIRouter, Body
 from app.utils.user import get_current_user, User
-
+from app.utils.deadline_task import make_deadline_task
 
 api_router = APIRouter(
     prefix="/deadline_task",
@@ -34,7 +34,7 @@ async def get_deadline_tasks_debug(
     },
     summary="Create a deadline task")
 async def create_deadline_task(create_task_form: Annotated[DeadlineTaskCreateForm,  Body()], current_user: Annotated[User, Depends(get_current_user)], session: AsyncSession = Depends(get_session)):
-    is_success = await create_deadline_task(session, create_task_form, current_user)
+    is_success = await make_deadline_task(session, create_task_form, current_user)
     if is_success:
         return {"message": "Task created"}
     raise HTTPException(

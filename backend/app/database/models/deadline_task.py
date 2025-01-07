@@ -15,7 +15,7 @@ class DeadlineTask(DeclarativeBase):
         default=uuid.uuid4,
         unique=True
     )
-    author_id = Column(UUID, ForeignKey("Users.id"))
+    author_id = Column(UUID)
 
     author = Column(String)
 
