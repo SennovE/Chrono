@@ -21,7 +21,9 @@ async def add_schedule_task(
 
 
 async def get_schedule_tasks(session: AsyncSession, current_user: User) -> list[Schedule]:
-    query = select(Schedule).where(Schedule.owner_id == current_user.id)
+    query = select(Schedule).\
+        where(Schedule.owner_id == current_user.id).\
+        order_by(Schedule.start_time, Schedule.end_time)
     result = await session.scalars(query)
     return result.all()
 
