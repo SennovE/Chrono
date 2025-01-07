@@ -19,7 +19,7 @@ const routes = [
   {
     path: '/login',
     name: 'Login Page',
-    component: () => import('../pages/login/index.vue')
+    component: () => import('../pages/login/LoginIndex.vue')
   },
   {
     path: '/profile',
