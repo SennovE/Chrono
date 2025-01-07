@@ -26,11 +26,10 @@ async def task_creation(
     task_info: Annotated[TaskInfo, Body()],
     current_user: Annotated[User, Depends(get_current_user)],
     session: AsyncSession = Depends(get_session),
-):
+):  
     try:
-       
         task_data = task_info.model_dump()
-        task_data["user_id"] = current_user.id 
+        task_data["author_id"] = current_user.id
         task_form = TaskForm(**task_data)
     except:
         raise HTTPException(
