@@ -3,11 +3,9 @@ from typing import Annotated
 from fastapi import APIRouter, Body, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
-from fastapi import Request
 from app.database.connection import get_session
 from app.utils.task import create_task
-from app.schemas.task import TaskForm
-from app.endpoints.schemas import TaskInfo
+from app.schemas.task import TaskForm, TaskInfo 
 from app.utils.user import (
     get_current_user,
     User
@@ -34,12 +32,12 @@ async def task_creation(
         task_data = task_info.model_dump()
         task_data["user_id"] = current_user.id 
         task_form = TaskForm(**task_data)
-    except Exception as e:
-        print(f"Error creating TaskForm: {e}")
+    except:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid task data",
         )
+    
     is_success = await create_task(session, task_form)
     if is_success:
         return {"message": "Task created!"}
