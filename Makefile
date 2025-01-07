@@ -68,7 +68,7 @@ run_front:
 poetry:
 	cd backend && poetry install && poetry shell
 reboot:
-	cd .. && sudo rm -rf CHRONO && git clone git@github.com:SennovE/Chrono.git && cd backend && poetry install && poetry shell
+	cd .. && sudo rm -rf Chrono && git clone git@github.com:SennovE/Chrono.git && cd Chrono/backend && poetry install && poetry shell
 .PHONY: new_br
 new_br:
 	@if [ -z "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
