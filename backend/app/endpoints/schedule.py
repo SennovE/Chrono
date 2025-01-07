@@ -46,8 +46,12 @@ async def new_schedule_task(
 async def get_users_tasks(
     session: Annotated[AsyncSession, Depends(get_session)],
     current_user: Annotated[User, Security(get_current_user)],
-) -> list[ScheduleResponse]:
-    return await get_schedule_tasks(session, current_user)
+) -> dict[int, list[ScheduleResponse]]:
+    result = await get_schedule_tasks(session, current_user)
+    tasks_by_weekday = {i: [] for i in range(0, 7)}
+    for task in result:
+        tasks_by_weekday[task.week_day].append(task)
+    return tasks_by_weekday
 
 
 @api_router.delete(
