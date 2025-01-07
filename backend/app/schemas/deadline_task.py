@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from uuid import UUID
+from datetime import datetime
 
 
 class DeadlineTaskDebugResponse(BaseModel):
@@ -12,5 +13,5 @@ class DeadlineTaskDebugResponse(BaseModel):
 
 
 class DeadlineTaskCreateForm(BaseModel):
-    deadline_time: str = Field()
+    deadline_time: datetime = Field()
     description: str = Field()

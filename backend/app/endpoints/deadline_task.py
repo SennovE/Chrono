@@ -7,7 +7,9 @@ from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
 from fastapi import APIRouter, Body
-'''
+from app.utils.user import get_current_user, User
+
+
 api_router = APIRouter(
     prefix="/deadline_task",
     tags=["Deadline_task"]
@@ -23,14 +25,19 @@ async def get_deadline_tasks_debug(
     return result.all()
 
 
-@api_router.post('/create_deadline_task')
-async def create_deadline_task(create_task_form: Annotated[DeadlineTaskCreateForm,  Body()], session: AsyncSession = Depends(get_session)):
-    is_success = await create_deadline_task(session, create_task_form)
+@api_router.post('/create_deadline_task',
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        status.HTTP_400_BAD_REQUEST: {
+            "description": "Task creation failed",
+        },
+    },
+    summary="Create a deadline task")
+async def create_deadline_task(create_task_form: Annotated[DeadlineTaskCreateForm,  Body()], current_user: Annotated[User, Depends(get_current_user)], session: AsyncSession = Depends(get_session)):
+    is_success = await create_deadline_task(session, create_task_form, current_user)
     if is_success:
         return {"message": "Task created"}
     raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
         detail="Task not created",
     )
-
-'''

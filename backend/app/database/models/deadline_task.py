@@ -17,7 +17,7 @@ class DeadlineTask(DeclarativeBase):
     )
     author_id = Column(UUID, ForeignKey("Users.id"))
 
-    author = relationship("User")
+    author = Column(String)
 
     deadline_time = Column(DateTime)
     description = Column(String)

@@ -11,10 +11,16 @@ from app.config import DefaultSettings, get_settings
 from app.database.connection import get_session
 from app.database.models import DeadlineTask
 from app.schemas import DeadlineTaskCreateForm, TokenData
+from app.utils.user import User
 
 
-async def create_deadline_task(session: AsyncSession, task_data: DeadlineTaskCreateForm) -> bool:
-    task = DeadlineTask(**task_data.model_dump(exclude_unset=True))
+async def create_deadline_task(session: AsyncSession, task_data: DeadlineTaskCreateForm, user: User) -> bool:
+    task_data = task_data.model_dump()
+    task_data["author_id"] = user.id
+    task_data["author"] = user.username
+    task_data["status"] = 0
+    task = DeadlineTaskCreateForm(**task_data)
+
     session.add(task)
     try:
         await session.commit()
