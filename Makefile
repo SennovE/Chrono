@@ -69,6 +69,9 @@ poetry:
 	cd backend && poetry install && poetry shell
 reboot:
 	cd .. && sudo rm -rf Chrono && git clone git@github.com:SennovE/Chrono.git && cd Chrono/backend && poetry install && poetry shell
+	$(MAKE) env
+	$(MAKE) run
+	$(MAKE) run_front
 .PHONY: new_br
 new_br:
 	@if [ -z "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
@@ -77,3 +80,19 @@ new_br:
 	fi; \
 	branch_name="$(filter-out $@,$(MAKECMDGOALS))"; \
 	git branch "$$branch_name" && git checkout "$$branch_name" && git branch
+.PHONY: create-env
+
+env:
+	@echo "POSTGRES_DB=database" > .env
+	@echo "POSTGRES_HOST=postgres" >> .env
+	@echo "POSTGRES_USER=user" >> .env
+	@echo "POSTGRES_PASSWORD=password" >> .env
+	@echo "POSTGRES_PORT=5432" >> .env
+	@echo "" >> .env
+	@echo "BACKEND_HOST=backend" >> .env
+	@echo "BACKEND_PORT=8080" >> .env
+	@echo "PATH_PREFIX=/api/v1" >> .env
+	@echo "" >> .env
+	@echo "SECRET_KEY=123" >> .env
+	@echo "ALGORITHM=HS256" >> .env
+	@echo "ACCESS_TOKEN_EXPIRE_MINUTES=10080" >> .env
