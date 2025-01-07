@@ -10,16 +10,15 @@ from app.config import DefaultSettings, get_settings
 from app.database.connection import get_session
 from app.schemas import (
     RegistrationForm,
-    RegistrationSuccess,
     Token,
     UserResponse,
 )
+from app.database.models import User
 from app.utils.user import (
     authenticate_user,
     create_access_token,
     get_current_user,
     register_user,
-    User
 )
 
 api_router = APIRouter(prefix="/user", tags=["User"])
@@ -30,21 +29,20 @@ api_router = APIRouter(prefix="/user", tags=["User"])
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_400_BAD_REQUEST: {
-            "description": "Username already exists",
+            "description": "Username or email already exists",
         },
     },
 )
 async def registration(
     registration_form: Annotated[RegistrationForm, Body()],
-    session: AsyncSession = Depends(get_session),
-) -> RegistrationSuccess:
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> None:
     is_success = await register_user(session, registration_form)
-    if is_success:
-        return {"message": "Registered!"}
-    raise HTTPException(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        detail="Username already exists",
-    )
+    if not is_success:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username or email already exists",
+        )
 
 
 @api_router.post(
