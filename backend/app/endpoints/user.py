@@ -26,7 +26,7 @@ async def get_users_debug(
 
 
 @api_router.get("/debug/get_users_by_email1/", response_model=UserResponse)
-async def get_user_by_email(email: str, db: AsyncSession = Depends(get_session)) -> UserResponse:
+async def get_user_by_email1(email: str, db: AsyncSession = Depends(get_session)) -> UserResponse:
     stmt = select(User).where(User.email == email)
     result = await db.execute(stmt)
     db_user = result.scalar_one_or_none()

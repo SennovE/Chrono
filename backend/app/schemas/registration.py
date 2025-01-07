@@ -12,7 +12,3 @@ class RegistrationForm(BaseModel):
     def validate_password(cls, password):
         password = DefaultSettings().PWD_CONTEXT.hash(password)
         return password
-
-
-class RegistrationSuccess(BaseModel):
-    message: str
