@@ -13,3 +13,10 @@ class ScheduleForm(BaseModel):
 class ScheduleResponse(ScheduleForm):
     id: UUID
     week_day: int
+
+
+class ScheduleUpdateForm(BaseModel):
+    text: str | None = Field(default=None)
+    start_time: datetime | None = Field(default=None)
+    end_time: datetime | None = Field(default=None)
+    recurring: bool | None = Field(default=None)
