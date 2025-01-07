@@ -6,8 +6,8 @@ from app.database import DeclarativeBase
 import uuid
 
 
-class TaskInCalendar(DeclarativeBase):
-    __tablename__ = "Cdar_tasks"
+class CalendarTask(DeclarativeBase):
+    __tablename__ = "Calendar_tasks"
 
     id = Column(
         UUID(as_uuid=True),

@@ -7,7 +7,7 @@ import uuid
 
 
 class DeadlineTask(DeclarativeBase):
-    __tablename__ = "DD_tasks"
+    __tablename__ = "Deadline_tasks"
 
     id = Column(
         UUID(as_uuid=True),
@@ -19,5 +19,6 @@ class DeadlineTask(DeclarativeBase):
 
     author = relationship("User")
 
-    dd_time = Column(DateTime)
+    deadline_time = Column(DateTime)
     description = Column(String)
+    status = Column(Integer)     #0 - активно, 1 - завершено, 2 - просрочено
