@@ -17,3 +17,47 @@ docker_clear:  ##@Clear all docker files
 	docker rmi $$(docker images -a -q)
 	docker volume rm $$(docker volume ls -q)
 	docker network prune -f
+
+ALEMBIC_CMD = alembic
+TARGET_DIR = backend/app/database
+.PHONY: migration
+ENV_FILE = .env
+BACKUP_FILE = .env.bak
+HOST_KEY = POSTGRES_HOST
+
+set-localhost:
+	@if grep -q "^$(HOST_KEY)=" $(ENV_FILE); then \
+		cp $(ENV_FILE) $(BACKUP_FILE); \
+		sed -i "s/^$(HOST_KEY)=.*/$(HOST_KEY)=localhost/" $(ENV_FILE); \
+		echo "$(HOST_KEY) временно установлен в localhost"; \
+	else \
+		echo "$(HOST_KEY) не найден в $(ENV_FILE)"; \
+		exit 1; \
+	fi
+reset-host:
+	@if [ -f $(BACKUP_FILE) ]; then \
+		mv $(BACKUP_FILE) $(ENV_FILE); \
+		echo "$(HOST_KEY) восстановлен в исходное состояние"; \
+	else \
+		echo "Резервная копия $(BACKUP_FILE) не найдена. Восстановление невозможно."; \
+		exit 1; \
+	fi
+migration_auto:
+	$(MAKE) set-localhost
+	$(MAKE) run 
+	@if [ -z "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
+		echo "Usage: make migration <migration_name>"; \
+		$(MAKE) reset-host; \
+		exit 1; \
+	fi; \
+	cd $(TARGET_DIR) && $(ALEMBIC_CMD) revision --autogenerate -m "$(filter-out $@,$(MAKECMDGOALS))"
+	$(MAKE) reset-host
+	$(MAKE) run 
+migration:
+	@if [ -z "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
+		echo "Usage: make mg <migration_message>"; \
+		exit 1; \
+	fi; \
+	cd $(TARGET_DIR) && $(ALEMBIC_CMD) revision --autogenerate -m "$(filter-out $@,$(MAKECMDGOALS))"
+upgrade:
+	cd $(TARGET_DIR) && $(ALEMBIC_CMD) upgrade head
