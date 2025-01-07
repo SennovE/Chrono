@@ -29,7 +29,9 @@ async def make_deadline_task(session: AsyncSession, task_data: DeadlineTaskCreat
     return True
 
 
-async def get_deadline_tasks(session: AsyncSession, current_user : User) -> list[DeadlineTask]:
-    query = select(DeadlineTask).where(DeadlineTask.author_id == current_user.id).order_by(DeadlineTask.deadline_time)
+async def get_deadline_tasks(session: AsyncSession, current_user : User) \
+    -> list[DeadlineTask]:
+    query = select(DeadlineTask).where(DeadlineTask.author_id == current_user.id)\
+        .order_by(DeadlineTask.deadline_time)
     result = await session.scalars(query)
     return result.all()
