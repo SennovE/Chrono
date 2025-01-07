@@ -18,5 +18,5 @@ class DeadlineTask(DeclarativeBase):
 
     author = relationship("User")
 
-    deadline_time = Column(DateTime)
+    deadline_time = Column(DateTime(timezone=True))
     description = Column(String)
