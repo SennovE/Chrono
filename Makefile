@@ -42,6 +42,7 @@ reset-host:
 		echo "Резервная копия $(BACKUP_FILE) не найдена. Восстановление невозможно."; \
 		exit 1; \
 	fi
+# возможно надо поменть в database/models/alembic sqlalchemy.url = postgresql://%(POSTGRES_USER)s:%(POSTGRES_PASSWORD)s@localhost:%(POSTGRES_PORT)s/%(POSTGRES_DB)s?target_session_attrs=read-write
 migration_auto:
 	$(MAKE) set-localhost
 	$(MAKE) run 
@@ -61,3 +62,6 @@ migration:
 	cd $(TARGET_DIR) && $(ALEMBIC_CMD) revision --autogenerate -m "$(filter-out $@,$(MAKECMDGOALS))"
 upgrade:
 	cd $(TARGET_DIR) && $(ALEMBIC_CMD) upgrade head
+FRONT_DIR = frontend
+run_front:
+	cd $(FRONT_DIR) && npm run serve
