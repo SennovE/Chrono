@@ -11,7 +11,7 @@
     padding: 1% 1% 1% 1%;
 }
 
-.welcomeText {
+.welcome-text {
     overflow: auto;
     text-align: left;
     padding: 5% 5% 5% 5%;
@@ -19,11 +19,7 @@
     width: 50%;
 }
 
-.chrono {
-    text-shadow: 0 0 20px #ff3700f7;
-}
-
-.inputContainer {
+.input-container {
     overflow: auto;
     text-align: center;
     padding: 2% 2% 2% 2%;
@@ -64,12 +60,13 @@ button:active {
     background: linear-gradient(to right, #d6d6d682, #d7cfcc83);
 }
 
-.bottomText {
+.bottom-text {
     transition: text-shadow 0.3s ease-in-out;
     padding: 1%;
     cursor: pointer;
 }
-.bottomText:hover {
+
+.bottom-text:hover, .chrono, .top-nav li a:hover {
     text-shadow: 0 0 20px #ff3700f7;
 }
 
