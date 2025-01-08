@@ -31,7 +31,7 @@
     visibility: hidden;
 }
 
-button, input {
+button, input, textarea {
     width: 100%;
     padding: 2%;
     font-size: 16px;
@@ -53,7 +53,7 @@ button {
     margin-bottom: 4%;
     cursor: pointer;
 }
-button:hover {
+button:hover, textarea:hover {
     box-shadow: 0 0 10px #867874;
 }
 button:active {
@@ -66,7 +66,7 @@ button:active {
     cursor: pointer;
 }
 
-.bottom-text:hover, .chrono, .top-nav li a:hover {
+.bottom-text:hover, .chrono, .top-nav li:hover {
     text-shadow: 0 0 20px #ff3700f7;
 }
 

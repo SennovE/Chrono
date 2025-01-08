@@ -1,13 +1,19 @@
 <script setup>
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 </script>
 
 <template>
     <div class='top-nav'>
         <ul>
-            <li><b><a href='#'>Главная</a></b></li>
-            <li><b><a href='#'>Расписание</a></b></li>
-            <li><b><a href='#'>Дедлайны</a></b></li>
-            <li class='right-button'><b><a href='#'>Профиль</a></b></li>
+            <li @click="router.push({name: 'Welcome'})"><b>Главная</b></li>
+            <li @click="router.push({name: 'Schedule Page'})"><b>Расписание</b></li>
+            <li @click="router.push({name: 'Deadlines Page'})"><b>Дедлайны</b></li>
+            <li
+                class='right-button'
+                @click="router.push({name: 'Profile Page'})"
+            ><b>Профиль</b></li>
         </ul>
     </div>
 </template>
@@ -22,6 +28,7 @@
     top: 0;
     left: 0;
     box-shadow: 0px 0px 20px #6a6a6aa8;
+    z-index: 999;
 }
 
 .top-nav ul {
@@ -30,7 +37,7 @@
     justify-content: flex-start;
 }
 
-.top-nav li a {
+.top-nav li {
     display: block;
     padding: 15px 20px;
     color: #000000;
@@ -41,7 +48,7 @@
 
 .right-button {
     margin-left: auto;
-    padding-right: 1%;
+    margin-right: 2%;
 }
 
 </style>

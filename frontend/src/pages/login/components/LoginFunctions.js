@@ -1,6 +1,5 @@
 import axios from 'axios'
 
-
 export async function registerUser(email, username, password) {
     try {
         await axios.post('http://localhost:8080/api/v1/user/register', {

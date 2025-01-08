@@ -1,18 +1,27 @@
 <script setup>
 import { useRouter } from 'vue-router'
-import { getToken } from './components/ScheduleFunctions';
+import { authUser } from './components/ScheduleFunctions';
+import { onMounted, ref } from 'vue';
+import navPanel from '../login/components/LoginNavPanel.vue';
+import schedulePage from './components/SchedulePage.vue';
 
 const router = useRouter()
+const user = ref('')
 
-function getTokenWrap() {
-    getToken(router)
+async function authUserWrap() {
+    user.value = await authUser(router)
 }
+
+onMounted(() => {
+    authUserWrap()
+})
 </script>
 
 
 <template>
     <div>
-        <h1 @click='getTokenWrap'>123</h1>
+        <schedulePage :user='user'/>
+        <navPanel />
     </div>
 </template>
 

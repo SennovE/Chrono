@@ -8,7 +8,7 @@ const routes = [
   },
   {
     path: '/schedule',
-    name: 'Calendar Page',
+    name: 'Schedule Page',
     component: () => import('../pages/schedule/ScheduleIndex.vue')
   },
   {
