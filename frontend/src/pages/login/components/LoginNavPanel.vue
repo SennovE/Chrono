@@ -2,18 +2,18 @@
 </script>
 
 <template>
-    <div class="top-nav">
+    <div class='top-nav'>
         <ul>
-            <li><b><a href="#">Главная</a></b></li>
-            <li><b><a href="#">Расписание</a></b></li>
-            <li><b><a href="#">Дедлайны</a></b></li>
-            <li class="right-button"><b><a href="#">Профиль</a></b></li>
+            <li><b><a href='#'>Главная</a></b></li>
+            <li><b><a href='#'>Расписание</a></b></li>
+            <li><b><a href='#'>Дедлайны</a></b></li>
+            <li class='right-button'><b><a href='#'>Профиль</a></b></li>
         </ul>
     </div>
 </template>
 
 <style>
-@import "./LoginStile.css";
+@import './LoginStile.css';
 
 .top-nav {
     width: 100%;
