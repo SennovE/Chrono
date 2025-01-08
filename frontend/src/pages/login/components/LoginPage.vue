@@ -1,6 +1,9 @@
 <script setup>
 import { ref, watch } from "vue"
 import { registerUser, loginUser } from "./LoginFunctions.js"
+import { useRouter } from "vue-router"
+
+const router = useRouter()
 
 const registration = ref(true)
 
@@ -11,10 +14,18 @@ const response = ref("")
 
 async function registerUserWrap() {
     response.value = await registerUser(email.value, username.value, password.value)
+    if (response.value === "") {
+        await loginUserWrap()
+    }
 }
 
 async function loginUserWrap() {
     response.value = await loginUser(username.value, password.value)
+    if (response.value === "") {
+        router.push({
+            name: "Profile Page"
+        })
+    }
 }
 
 function clearFields() {

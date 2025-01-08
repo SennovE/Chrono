@@ -1,10 +1,10 @@
 <script setup>
-import mainContainer from './components/LoginPage.vue'
-import navPanel from './components/LoginNavPanel.vue'
+import mainContainer from "./components/LoginPage.vue"
+import navPanel from "./components/LoginNavPanel.vue"
 </script>
 
 <template>
-    <div class="back">
+    <div>
         <mainContainer />
         <navPanel />
     </div>
@@ -13,12 +13,13 @@ import navPanel from './components/LoginNavPanel.vue'
 <style>
 body {
     overflow: hidden;
-    background: linear-gradient(to right, #d7ccc8, #a1887f);
-    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(to right, var(--color-briter-black), var(--color-black));
+    font-family: "Roboto", sans-serif;    
+    color: var(--color-grey);
 }
 ::selection {
-    color: #2e2e2ea0;
-    background: #cebeb8;
+    color: var(--color-deep-purple);
+    background: rgba(128, 128, 128, 0.087);
     border-radius: 5px;
 }
 </style>

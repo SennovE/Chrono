@@ -7,9 +7,9 @@ const routes = [
     component: () => import('../pages/start/index.vue')
   },
   {
-    path: '/calendar',
-    name: 'Calendar Page',
-    component: () => import('../pages/calendar/index.vue')
+    path: '/schedule',
+    name: 'Schedule Page',
+    component: () => import('../pages/schedule/ScheduleIndex.vue')
   },
   {
     path: '/deadlines',

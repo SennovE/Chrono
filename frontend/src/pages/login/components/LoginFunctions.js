@@ -1,6 +1,5 @@
 import axios from "axios"
 
-
 export async function registerUser(email, username, password) {
     try {
         await axios.post("http://localhost:8080/api/v1/user/register", {
@@ -13,7 +12,7 @@ export async function registerUser(email, username, password) {
                 "Content-Type": "application/json"
             }
         })
-        return "Успешная регистрация"
+        return ""
     } catch (error) {
         if (error.response) {          
             if (error.response.status === 400) {
@@ -38,8 +37,8 @@ export async function loginUser(username, password) {
             }
         })
         const token = res.data.access_token
-        localStorage.setItem('chronoJWTToken', token)
-        return "Успешный вход"
+        localStorage.setItem("chronoJWTToken", token)
+        return ""
     } catch (error) {
         if (error.response) {          
             if (error.response.status === 401) {
