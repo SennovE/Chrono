@@ -1,34 +1,20 @@
 <script setup>
-import { defineProps, ref } from 'vue'
+import { defineProps } from "vue"
+import modelWindow from "./ScheduleTaskSheet.vue"
 
 const props = defineProps({
     user: String,
 })
-
-const shortText = ref('')
-const descriptionText = ref('')
-const startDate = ref('')
-const endDate = ref('')
 </script>
 
 <template>
-    <div class='scheduleContainer'>
-        <div class='columnAddTask'>
-            <h1>
-                Добавить новое задание:
-            </h1>
-            <input placeholder="Название события" v-model="shortText" />
-            <textarea placeholder="Добавьте описание" v-model="descriptionText"></textarea>
-            <p>Начало события:</p>
-            <input type="datetime-local" v-model="startDate" />
-            <p>Конец события:</p>
-            <input type="datetime-local" v-model="endDate" />
-        </div>        
-        <div class='columnSchedule'>
+    <div class="scheduleContainer">
+        <div class="columnSchedule">
             <h1>
                 {{ props.user }}
             </h1>
         </div>
+        <modelWindow />
     </div>
 </template>
 
