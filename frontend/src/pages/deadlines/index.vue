@@ -3,23 +3,54 @@
     <NavBar :username="user.username" />
     <div class="content-container">
       <h1 class="title">My tasks</h1>
-      <!-- Секция с дедлайнами -->
       <div class="deadline-wrapper">
         <button class="scroll-button scroll-left" @click="scrollLeft">◀</button>
         <div ref="deadlineList" class="deadline-list">
-          <div v-for="(tasks, day) in allDaysWithTasks" :key="day" class="deadline-day">
+          <div
+            v-for="(tasks, day) in allDaysWithTasks"
+            :key="day"
+            class="deadline-day"
+          >
             <h2 class="day-title">{{ formatDate(day) }}</h2>
             <div class="tasks">
               <div v-if="tasks.length === 0" class="empty-task-card">
                 <p>No tasks for this day</p>
               </div>
-              <div v-else v-for="task in tasks" :key="task.description" class="task-card">
+              <div
+                v-else
+                v-for="task in tasks"
+                :key="task.description"
+                class="task-card"
+              >
                 <p class="task-name">{{ task.description }}</p>
                 <p class="task-time">{{ formatTime(task.deadline_time) }}</p>
                 <div class="task-status">
-                  <input type="radio" :name="`task-${day}`" />
+                  <input
+                    type="radio"
+                    @change="markTaskAsComplete(task.id)"
+                  />
                 </div>
               </div>
+            </div>
+            <div class="new-task-form">
+              <input
+                v-model="newTask[day].description"
+                class="new-task-input"
+                type="text"
+                placeholder="Task description"
+              />
+              <input
+                v-model="newTask[day].time"
+                class="new-task-time"
+                type="time"
+              />
+              <button
+                class="create-task-button"
+                @click="createTask(day)"
+                title="Add Task"
+              >
+                ↑
+              </button>
             </div>
           </div>
         </div>
@@ -40,7 +71,10 @@ export default {
   setup() {
     const user = ref({ username: "Loading..." });
     const deadlines = ref([]);
-    const deadlineListRef = ref(null); // Ссылка на список дедлайнов
+    const deadlineListRef = ref(null);
+
+    // Initialize tasks storage per day
+    const newTask = ref({});
 
     const getToken = () => {
       const token = localStorage.getItem("chronoJWTToken");
@@ -75,9 +109,37 @@ export default {
             },
           }
         );
-        deadlines.value = response.data;
+        deadlines.value = response.data.filter((task) => task.status === 0);
       } catch (error) {
         console.error("Error fetching deadlines:", error);
+      }
+    };
+
+    const createTask = async (day) => {
+      if (!newTask.value[day]) {
+        newTask.value[day] = { description: "", time: "" };
+      }
+      try {
+        const token = getToken();
+        const deadline_time = `${day}T${newTask.value[day].time}:00`;
+        const description = newTask.value[day].description;
+
+        const response = await axios.post(
+          "http://localhost:8080/api/v1/deadline_task/create_deadline_task",
+          { description, deadline_time },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        console.log("Task created:", response.data);
+
+        // Clear the form for this day
+        newTask.value[day] = { description: "", time: "" };
+        await fetchDeadlines();
+      } catch (error) {
+        console.error("Error creating task:", error);
       }
     };
 
@@ -93,13 +155,16 @@ export default {
     });
 
     const allDaysWithTasks = computed(() => {
-      const days = Array.from({ length: 7 }, (_, i) => {
+      const days = Array.from({ length: 30 }, (_, i) => {
         const date = new Date();
         date.setDate(date.getDate() + i);
         return date.toISOString().split("T")[0];
       });
 
       return days.reduce((result, day) => {
+        if (!newTask.value[day]) {
+          newTask.value[day] = { description: "", time: "" };
+        }
         result[day] = groupedDeadlines.value[day] || [];
         return result;
       }, {});
@@ -123,6 +188,31 @@ export default {
       });
     };
 
+    const markTaskAsComplete = async (taskId) => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error("Token is missing. Please log in.");
+      }
+
+      // Отправляем запрос для завершения задачи
+      await axios.post(
+        "http://localhost:8080/api/v1/deadline_task/complete_task",
+        { id: taskId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Обновляем список задач после выполнения
+      await fetchDeadlines();
+    } catch (error) {
+      console.error("Error completing task:", error);
+    }
+  };
+
     const scrollLeft = () => {
       const deadlineList = deadlineListRef.value;
       if (deadlineList) {
@@ -142,120 +232,182 @@ export default {
       await fetchDeadlines();
     });
 
-    return { user, allDaysWithTasks, formatDate, formatTime, scrollLeft, scrollRight, deadlineListRef };
+    return {
+      user,
+      allDaysWithTasks,
+      formatDate,
+      formatTime,
+      scrollLeft,
+      scrollRight,
+      deadlineListRef,
+      newTask,
+      createTask,
+      markTaskAsComplete
+    };
   },
 };
 </script>
 
-<style>
-/* Основной контейнер */
+<style scoped>
 .page-container {
   display: flex;
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
-/* Контейнер контента */
 .content-container {
   flex: 1;
   padding: 20px;
-  background-color: #f9f9f9;
-  overflow-y: auto;
+  box-sizing: border-box;
+  overflow: hidden;
+  background-color: #f8f9fa;
 }
 
 .title {
-  font-size: 36px; /* Увеличенный шрифт для заголовка */
-  font-family: "Poppins", sans-serif; /* Красивый современный шрифт */
-  font-weight: bold;
-  margin-bottom: 30px;
-  text-align: left;
-  color: #2c3e50; /* Темно-синий цвет */
+  margin-bottom: 20px;
 }
 
-/* Обёртка для списка дедлайнов и кнопок */
 .deadline-wrapper {
   display: flex;
   align-items: center;
-  margin-top: 20px;
   position: relative;
 }
 
-/* Список дедлайнов */
+.scroll-button {
+  background-color: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #2c3e50;
+  margin: 0 10px;
+}
+
 .deadline-list {
   display: flex;
-  gap: 20px;
-  overflow: hidden;
-  flex: 1;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  flex-wrap: nowrap;
+  width: 100%;
 }
 
-/* Колонка для каждого дня */
 .deadline-day {
-  flex: 0 0 300px; /* Увеличенная ширина */
-  background-color: #ffffff;
-  border-radius: 12px; /* Более мягкие края */
-  padding: 20px; /* Увеличенный внутренний отступ */
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
-  height: 400px; /* Фиксированная высота */
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-}
-
-.day-title {
-  font-size: 20px; /* Увеличенный размер текста */
-  font-weight: bold;
-  margin-bottom: 20px;
-  color: #333;
-  text-align: center;
-}
-
-/* Карточка задачи */
-.task-card {
-  background-color: #f5f5f5;
-  padding: 15px;
-  margin-bottom: 15px;
+  flex-shrink: 0; /* Удерживаем фиксированную ширину */
+  width: 300px;
+  margin-right: 20px;
+  background-color: #ffffff;
   border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  max-height: fit-content; /* Ограничиваем высоту только содержимым */
+  overflow: hidden; /* Убираем лишний скролл */
+}
+
+.tasks {
+  margin-top: 10px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 10px; /* Добавляем промежутки между карточками */
+  min-height: 50px; /* Минимальная высота для пустого состояния */
 }
 
 .empty-task-card {
-  background-color: #eef2f7;
-  padding: 15px;
-  margin-bottom: 15px;
-  border-radius: 8px;
-  text-align: center;
-  font-size: 14px;
-  color: #7f8c8d;
+  color: #aaa;
+  font-style: italic;
 }
 
-/* Кнопки прокрутки */
-.scroll-button {
-  width: 40px;
-  height: 40px;
-  background-color: #ffffff; /* Бело-серая кнопка */
-  border: 1px solid #ccc;
-  border-radius: 50%;
-  color: #2c3e50; /* Темно-синий цвет */
-  font-size: 20px;
+.task-card {
+  margin-bottom: 10px;
+  border: 1px solid #ebebeb;
+  border-radius: 5px;
+  padding: 10px;
+  background-color: #fafafa;
+}
+
+.task-name {
+  font-weight: bold;
+  margin: 0;
+}
+
+.task-time {
+  margin: 5px 0 0;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.new-task-form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.new-task-input {
+  flex: 2;
+  padding: 5px;
+  height: 35px; /* Уменьшаем высоту */
+  border: 2px solid #ccc; /* Толстая серая граница */
+  border-radius: 50px; /* Почти овальная форма */
+  font-size: 0.9rem; /* Уменьшаем шрифт */
+  color: #555;
+  background-color: white; /* Белый фон */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Лёгкая тень */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box;
+}
+
+.new-task-input:focus {
+  border-color: #3498db; /* Подсветка границы при фокусе */
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.5); /* Лёгкая подсветка */
+}
+
+.new-task-time {
+  flex: 1;
+  padding: 5px;
+  height: 35px; /* Такой же размер, как у описания */
+  border: 2px solid #ccc; /* Толстая серая граница */
+  border-radius: 50px; /* Почти овальная форма */
+  font-size: 0.9rem; /* Уменьшаем шрифт */
+  text-align: center; /* Центрируем текст */
+  color: #555; /* Серый цвет текста */
+  appearance: none; /* Убираем стандартное оформление браузера */
+  background-color: white; /* Белый фон */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Лёгкая тень */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box;
+}
+
+.new-task-time:focus {
+  border-color: #3498db; /* Подсветка границы при фокусе */
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.5); /* Лёгкая подсветка */
+}
+
+.new-task-time::placeholder {
+  color: #aaa; /* Цвет для `--:--` */
+  font-style: italic; /* Наклонный текст */
+}
+
+/* Убираем значок часов */
+.new-task-time::-webkit-calendar-picker-indicator {
+  display: none; /* Убираем значок в Chrome и Edge */
+}
+
+.create-task-button {
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 40px; /* Размер кнопки */
+  height: 40px; /* Размер кнопки */
+  color: gray; /* Серый цвет стрелки */
+  font-size: 1.2rem;
+  border: none; /* Убираем границы */
+  background-color: transparent; /* Убираем фон */
   cursor: pointer;
-  margin: 0 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  transition: transform 0.2s;
 }
 
-.scroll-button:hover {
-  background-color: #f0f0f0;
-  border-color: #b0b0b0;
-}
-
-.scroll-left {
-  margin-right: -50px;
-}
-
-.scroll-right {
-  margin-left: -50px;
+.create-task-button:hover {
+  transform: scale(1.1); /* Увеличиваем размер при наведении */
 }
 </style>
