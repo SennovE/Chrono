@@ -1,10 +1,12 @@
 <script setup>
-import ChildComp from './components/LoginPage.vue'
+import mainContainer from './components/LoginPage.vue'
+import navPanel from './components/LoginNavPanel.vue'
 </script>
 
 <template>
     <div class="back">
-        <ChildComp/>
+        <mainContainer />
+        <navPanel />
     </div>
 </template>
 
