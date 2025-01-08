@@ -18,6 +18,10 @@ class DeadlineTaskCreateForm(BaseModel):
 
 
 class DeadlineTaskResponse(BaseModel):
+    id: UUID
     deadline_time: datetime = Field(default=datetime.today())
     description: str = Field(default="Описание дедлайна")
     status: int = Field(default=0)
+
+class DeadlineTaskComplete(BaseModel):
+    id: UUID

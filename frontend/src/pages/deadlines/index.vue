@@ -4,57 +4,75 @@
     <div class="content-container">
       <h1 class="title">My tasks</h1>
       <div class="deadline-wrapper">
-        <button class="scroll-button scroll-left" @click="scrollLeft">◀</button>
-        <div ref="deadlineList" class="deadline-list">
+        <button class="scroll-button scroll-left" @click="scrollLeft" aria-label="Scroll Left">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15 18L9 12L15 6" stroke="#7f8c8d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div ref="deadlineListRef" class="deadline-list">
           <div
             v-for="(tasks, day) in allDaysWithTasks"
             :key="day"
-            class="deadline-day"
+            class="deadline-day-wrapper"
           >
-            <h2 class="day-title">{{ formatDate(day) }}</h2>
-            <div class="tasks">
-              <div v-if="tasks.length === 0" class="empty-task-card">
-                <p>No tasks for this day</p>
-              </div>
-              <div
-                v-else
-                v-for="task in tasks"
-                :key="task.description"
-                class="task-card"
-              >
-                <p class="task-name">{{ task.description }}</p>
-                <p class="task-time">{{ formatTime(task.deadline_time) }}</p>
-                <div class="task-status">
-                  <input
-                    type="radio"
-                    @change="markTaskAsComplete(task.id)"
-                  />
+            <h2 class="day-title">{{ formatDate(day) }}</h2> <!-- Вынесли заголовок -->
+            <div class="deadline-day">
+              <div class="tasks">
+                <div v-if="tasks.length === 0" class="empty-task-card">
+                  <p>Все задачи завершены!</p>
+                </div>
+                <div
+                  v-else
+                  v-for="task in tasks"
+                  :key="task.id"
+                  class="task-card"
+                >
+                  <div class="task-status">
+                    <input
+                      type="radio"
+                      @change="markTaskAsComplete(task.id)"
+                    />
+                  </div>
+                  <div class="task-details">
+                    <p class="task-name">{{ task.description }}</p>
+                    <div class="task-time-container">
+                      <svg class="time-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                      </svg>
+                      <p class="task-time">{{ formatTime(task.deadline_time) }}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="new-task-form">
-              <input
-                v-model="newTask[day].description"
-                class="new-task-input"
-                type="text"
-                placeholder="Task description"
-              />
-              <input
-                v-model="newTask[day].time"
-                class="new-task-time"
-                type="time"
-              />
-              <button
-                class="create-task-button"
-                @click="createTask(day)"
-                title="Add Task"
-              >
-                ↑
-              </button>
+              <div class="new-task-form">
+                <input
+                  v-model="newTask[day].description"
+                  class="new-task-input"
+                  type="text"
+                  placeholder="Add task"
+                />
+                <input
+                  v-model="newTask[day].time"
+                  class="new-task-time"
+                  type="time"
+                />
+                <button
+                  class="create-task-button"
+                  @click="createTask(day)"
+                  title="Add Task"
+                >
+                  ↑
+                </button>
+              </div>
             </div>
           </div>
         </div>
-        <button class="scroll-button scroll-right" @click="scrollRight">▶</button>
+        <button class="scroll-button scroll-right" @click="scrollRight" aria-label="Scroll Right">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 18L15 12L9 6" stroke="#7f8c8d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
       </div>
     </div>
   </div>
@@ -171,20 +189,32 @@ export default {
     });
 
     const formatDate = (dateString) => {
+      const today = new Date();
+      const tomorrow = new Date();
+      tomorrow.setDate(today.getDate() + 1);
+
       const date = new Date(dateString);
+
+      if (date.toDateString() === today.toDateString()) {
+        return `Today, ${date.toLocaleDateString("en-US", { month: "long", day: "numeric" })}`;
+      }
+
+      if (date.toDateString() === tomorrow.toDateString()) {
+        return `Tomorrow, ${date.toLocaleDateString("en-US", { month: "long", day: "numeric" })}`;
+      }
+
       return date.toLocaleDateString("en-US", {
         weekday: "long",
-        year: "numeric",
         month: "long",
         day: "numeric",
       });
     };
-
     const formatTime = (datetime) => {
       const time = new Date(datetime);
       return time.toLocaleTimeString("en-US", {
         hour: "2-digit",
         minute: "2-digit",
+        hour12: false,
       });
     };
 
@@ -216,14 +246,14 @@ export default {
     const scrollLeft = () => {
       const deadlineList = deadlineListRef.value;
       if (deadlineList) {
-        deadlineList.scrollBy({ left: -300, behavior: "smooth" });
+        deadlineList.scrollBy({ left: -500, behavior: "smooth" });
       }
     };
 
     const scrollRight = () => {
       const deadlineList = deadlineListRef.value;
       if (deadlineList) {
-        deadlineList.scrollBy({ left: 300, behavior: "smooth" });
+        deadlineList.scrollBy({ left: 500, behavior: "smooth" });
       }
     };
 
@@ -273,21 +303,21 @@ export default {
   position: relative;
 }
 
-.scroll-button {
-  background-color: transparent;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #2c3e50;
-  margin: 0 10px;
-}
-
 .deadline-list {
   display: flex;
-  overflow-x: hidden;
+  overflow-x: auto; /* Изменено с hidden на auto */
   scroll-behavior: smooth;
   flex-wrap: nowrap;
   width: 100%;
+  
+  /* Дополнительные стили для скрытия полосы прокрутки (опционально) */
+  -ms-overflow-style: none; /* Для IE и Edge */
+  scrollbar-width: none; /* Для Firefox */
+}
+
+/* Скрытие полосы прокрутки для WebKit-браузеров (Chrome, Safari, Edge) */
+.deadline-list::-webkit-scrollbar {
+  display: none;
 }
 
 .deadline-day {
@@ -300,34 +330,74 @@ export default {
   border-radius: 8px;
   padding: 15px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  max-height: fit-content; /* Ограничиваем высоту только содержимым */
-  overflow: hidden; /* Убираем лишний скролл */
 }
 
 .tasks {
   margin-top: 10px;
   display: flex;
   flex-direction: column;
-  gap: 10px; /* Добавляем промежутки между карточками */
-  min-height: 50px; /* Минимальная высота для пустого состояния */
+  gap: 10px;
+  min-height: 50px;
+  /* Добавляем: */
+  width: 100%;
 }
 
 .empty-task-card {
-  color: #aaa;
-  font-style: italic;
+  color: #9e9e9e; /* Темный серый цвет текста */
+  font-style: normal; /* Убираем курсив */
+  text-align: center; /* Центрируем текст */
+  display: flex; /* Добавляем flexbox для выравнивания */
+  justify-content: center; /* Горизонтальное выравнивание */
+  align-items: center; /* Вертикальное выравнивание */
+  min-height: 50px; /* Обеспечиваем минимальную высоту блока */
 }
 
 .task-card {
+  display: flex;
+  align-items: center; /* Изменено с center на flex-start для верхнего выравнивания */
   margin-bottom: 10px;
   border: 1px solid #ebebeb;
   border-radius: 5px;
   padding: 10px;
   background-color: #fafafa;
+  gap: 10px;
+  word-wrap: break-word;
+  
+  /* Добавляем flex-direction: column для вертикального расположения при необходимости */
+  flex-direction: row;
+  
+  /* Убираем фиксированную высоту, если есть */
+  height: auto;
 }
 
+.task-status {
+  flex-shrink: 0; /* Чекбокс фиксированного размера */
+  display: flex;
+  align-items: center;
+}
+
+.task-status input {
+  width: 15px;
+  height: 15px;
+  cursor: pointer; /* Курсор в виде руки */
+}
+
+.task-details {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow-wrap: break-word;
+  word-break: break-word; /* Добавлено для лучшего переноса */
+}
+
+/* Дополнительные улучшения для .task-name */
 .task-name {
   font-weight: bold;
   margin: 0;
+  word-wrap: break-word;
+  white-space: normal;
+  /* Добавляем: */
+  overflow: hidden;
 }
 
 .task-time {
@@ -409,5 +479,79 @@ export default {
 
 .create-task-button:hover {
   transform: scale(1.1); /* Увеличиваем размер при наведении */
+}
+
+.deadline-day-wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-right: 20px;
+}
+
+.day-title {
+  margin-bottom: 10px; /* Отступ между заголовком и карточкой */
+  font-size: 1.5rem; /* Размер шрифта */
+  color: #333; /* Цвет текста */
+  text-align: center; /* Центровка текста */
+}
+
+.deadline-day {
+  background-color: #ffffff;
+  border-radius: 20px;
+  padding: 15px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+  width: 300px;
+}
+.scroll-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  background-color: white;
+  border: 2px solid #bdc3c7; /* Серая граница */
+  border-radius: 50%; /* Круглая форма */
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 0;
+}
+
+.scroll-button:hover {
+  background-color: #ecf0f1; /* Немного серого при наведении */
+  transform: scale(1.05); /* Лёгкое увеличение при наведении */
+}
+
+.scroll-button:active {
+  transform: scale(0.95); /* Небольшое уменьшение при нажатии */
+}
+
+.scroll-left {
+  margin-right: 10px;
+}
+
+.scroll-right {
+  margin-left: 10px;
+}
+
+.task-time-container {
+  display: flex;
+  align-items: center; /* Выравниваем значок и текст по вертикали */
+  gap: 5px; /* Расстояние между значком и временем */
+}
+
+.time-icon {
+  width: 12px; /* Уменьшенный размер значка */
+  height: 12px; /* Уменьшенный размер значка */
+  color: #555; /* Цвет значка */
+  flex-shrink: 0; /* Убираем сжатие значка */
+}
+
+.task-time {
+  font-size: 0.9rem; /* Размер шрифта времени */
+  margin: 0; /* Убираем лишние отступы */
+  line-height: 1; /* Выравниваем текст по вертикали */
+  position: relative; /* Для выравнивания */
+  top: 0px; /* Поднимаем текст чуть выше */
 }
 </style>

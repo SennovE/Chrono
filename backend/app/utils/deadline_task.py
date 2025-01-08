@@ -9,7 +9,7 @@ from sqlalchemy import exc, select, delete
 
 from uuid import UUID
 from app.database.models import DeadlineTask
-from app.schemas import DeadlineTaskCreateForm, TokenData
+from app.schemas import DeadlineTaskCreateForm, TokenData, DeadlineTaskComplete
 from app.utils.user import User
 
 
@@ -39,3 +39,23 @@ async def delete_deadline_task(session: AsyncSession, task_id: UUID) -> None:
     query = delete(DeadlineTask).where(DeadlineTask.id == task_id)
     await session.execute(query)
     await session.commit()
+
+
+async def complete_deadline_task(task: DeadlineTaskComplete, session: AsyncSession) -> bool:
+    query = select(DeadlineTask).where(DeadlineTask.id == task.id)
+    result = await session.execute(query)
+    task = result.scalar_one_or_none()
+
+    '''if (task.author_id != current_user.id):
+        raise HTTPException(status_code=404, detail="You can't change this task")'''
+
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    task.status = 1  
+    try:
+        await session.commit()
+    except Exception as e:
+        await session.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+    return True
