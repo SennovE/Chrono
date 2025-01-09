@@ -19,15 +19,17 @@ const router = useRouter();
 </template>
 
 <style>
-@import "./LoginStile.css";
-
 .top-nav {
     width: 100%;
     background: linear-gradient(to left, var(--color-briter-black), var(--color-black));
     position: fixed;
     top: 0;
     left: 0;
-    box-shadow: 0px 0px 20px var(--color-deep-purple);
+    box-shadow: 
+        0px 0px 5px white,
+        0px 0px 10px var(--color-deep-purple),
+        0px 0px 20px var(--color-deep-purple),
+        0px 0px 50px var(--color-deep-purple);
     z-index: 999;
 }
 
@@ -50,5 +52,4 @@ const router = useRouter();
     margin-left: auto;
     margin-right: 2%;
 }
-
 </style>

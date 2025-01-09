@@ -43,7 +43,7 @@ watch(registration, clearFields)
         <div class="welcome-text">
             <h1>Добро пожаловать в <span class="chrono">Chrono!</span></h1>
             <h2>Зарегистрируйтесь или войдите в свой аккаунт</h2>
-            <p>{{ response }}</p>
+            <p class="error-msg" style="text-align: left;">{{ response }}</p>
         </div>
 
         <transition name="slide" mode="out-in">
@@ -79,5 +79,7 @@ watch(registration, clearFields)
 </template>
 
 <style>
-    @import "./LoginStile.css";
+.left-text {
+    text-align: left
+}
 </style>

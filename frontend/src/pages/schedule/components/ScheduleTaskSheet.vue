@@ -70,8 +70,8 @@ function modalClose() {
                         </label>
                     </div>
 
-                    <button class="creationButton" @click="addScheduleTaskWrap">Создать</button>
-                    <h3 class="errorMsg" v-show="response">{{ response }}</h3>
+                    <button class="creation-button" @click="addScheduleTaskWrap">Создать</button>
+                    <h3 class="error-msg" v-show="response">{{ response }}</h3>
                 </div>
             </div>
         </transition>
@@ -84,60 +84,9 @@ function modalClose() {
     color: var(--color-grey);
 }
 
-.errorMsg {
-    text-align: center;
-    font-size: medium;
-}
-
-.creationButton {
+.creation-button {
     margin-top: 2%;
     margin-bottom: 0;
-}
-
-.custom-checkbox {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    font-size: 16px;
-    user-select: none;
-    margin-left: 10%;
-}
-.custom-checkbox input {
-    display: none;
-}
-.checkmark {
-    width: 20px;
-    height: 20px;
-    border: 1px solid var(--color-grey);
-    border-radius: 4px;
-    position: relative;
-    margin-right: 10px;
-    transition: box-shadow 0.3s ease-in-out;
-}
-.custom-checkbox:hover .checkmark {
-    box-shadow:
-        0 0 10px var(--color-deep-purple),
-        0 0 10px var(--color-deep-purple),
-        0 0 10px var(--color-deep-purple);
-}
-.custom-checkbox input:checked + .checkmark {
-    background-color: var(--color-deep-purple);
-    border-color: var(--color-deep-purple);
-}
-.checkmark::after {
-    content: "";
-    position: absolute;
-    display: none;
-}
-.custom-checkbox input:checked + .checkmark::after {
-    display: block;
-    left: 7px;
-    top: 3px;
-    width: 5px;
-    height: 10px;
-    border: solid var(--color-black);
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
 }
 
 .modal-header {
@@ -147,12 +96,13 @@ function modalClose() {
     margin-bottom: 1%;
 }
 
-.close-button {
+.schedule-container .close-button {
     font-size: 24px;
     cursor: pointer;
     margin: 0;
     padding: 0;
     width: 10%;
+    z-index: 999;
 }
 
 .field-group {
@@ -188,7 +138,7 @@ function modalClose() {
     border: 1px solid var(--color-black);
     box-shadow: 0 0 10px var(--color-deep-purple);
 }
-textarea {
+.modal-overlay textarea {
     height: 200px;
     resize: none;
     overflow: auto;
