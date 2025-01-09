@@ -30,20 +30,26 @@ const navigateTo = (routeName) => {
 
 <style scoped>
 .top-nav {
-  width: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
-  
-  z-index: 999;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px; /* Отступы по бокам */
-  height: 80px; /* Фиксированная высота панели */
+    width: 100%;
+    background: linear-gradient(to left, var(--color-briter-black), var(--color-black));
+    position: fixed;
+    top: 0;
+    left: 0;
+    box-shadow: 
+        0px 0px 5px white,
+        0px 0px 10px var(--color-deep-purple),
+        0px 0px 20px var(--color-deep-purple),
+        0px 0px 50px var(--color-deep-purple);
+    z-index: 999;
+    align-items: center;
+    justify-content: space-between;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    height: 80px; 
 }
 
-/* Левое и правое меню */
 .nav-left {
 display: flex;
   list-style-type: none;
