@@ -2,7 +2,8 @@
   <div id="app">
     <nav class="navbar">
       <ul class="nav-links">
-        <li><router-link to="/login">Регистрация</router-link></li>
+        <li><router-link to="/register">Регистрация</router-link></li>
+        <li><router-link to="/login">Авторизация</router-link></li>
         <li><a href="#about">О нас</a></li>
         <li><a href="#services">Услуги</a></li>
         <li><a href="#contact">Контакты</a></li>
