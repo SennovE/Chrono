@@ -16,10 +16,12 @@ const router = useRouter();
 
 <style scoped>
 .get-started-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
+    display: flex; /* Включает flexbox */
+  justify-content: center; /* Центрирование по горизонтали */
+  align-items: center; /* Центрирование по вертикали */
+  height: 70vh; /* Высота контейнера на весь экран */
+  margin: 0; /* Убираем отступы */
+  padding: 0; /* Убираем внутренние отступы */
 }
 
 ul {
@@ -32,7 +34,7 @@ ul {
   background-color: #000000;
   color: #ffffff;
   border: none;
-  padding: 15px 30px;
+  padding: 30px 90px;
   font-size: 20px;
   font-weight: bold;
   text-transform: uppercase;

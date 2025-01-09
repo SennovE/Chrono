@@ -17,19 +17,7 @@ import StartButton from "./components/StartButton.vue"
 
 <style>
 
-  
-body {
-    overflow: hidden;
-    background: linear-gradient(to right, var(--color-briter-black), var(--color-black));
-    font-family: "Roboto", sans-serif;    
-    color: var(--color-grey);
-}
-::selection {
-    color: var(--color-deep-purple);
-    background: rgba(128, 128, 128, 0.087);
-    border-radius: 5px;
-}
-  @import "./components/styel.css";
+@import "../../components/Stiles.css";
 
   
   
