@@ -1,31 +1,34 @@
+<script setup>
+
+import navPanel from "./components/NavPanel.vue"
+import StartButton from "./components/StartButton.vue"
+</script>
 <template>
   <div id="app">
-    <nav class="navbar">
-      <ul class="nav-links">
-        <li><router-link to="/register">Регистрация</router-link></li>
-        <li><router-link to="/login">Авторизация</router-link></li>
-        <li><a href="#about">О нас</a></li>
-        <li><a href="#services">Услуги</a></li>
-        <li><a href="#contact">Контакты</a></li>
-      </ul>
-    </nav>
+    <navPanel />
     <h1>Добро пожаловать в Chrono!</h1>
+  </div>
+  <div class="content">
+    <StartButton />
   </div>
 </template>
 
-<script>
-export default {
-  name: 'StartPage',
-};
-</script>
+
 
 <style>
 
   
-  #app {
-    text-align: center;
-    padding: 20px;
-  }
+body {
+    overflow: hidden;
+    background: linear-gradient(to right, var(--color-briter-black), var(--color-black));
+    font-family: "Roboto", sans-serif;    
+    color: var(--color-grey);
+}
+::selection {
+    color: var(--color-deep-purple);
+    background: rgba(128, 128, 128, 0.087);
+    border-radius: 5px;
+}
   @import "./components/styel.css";
 
   
