@@ -10,31 +10,44 @@
           </svg>
         </button>
         <div ref="deadlineListRef" class="deadline-list">
-          <div
-            v-for="(tasks, day) in allDaysWithTasks"
-            :key="day"
-            class="deadline-day-wrapper"
-          >
-            <h2 class="day-title">{{ formatDate(day) }}</h2> <!-- Вынесли заголовок -->
+          <div v-for="(tasks, day) in allDaysWithTasks" :key="day" class="deadline-day-wrapper">
+            <div class="day-header">
+              <h2 class="day-title">{{ formatDate(day) }}</h2>
+            </div>
             <div class="deadline-day">
+              <div class="filter-buttons">
+                <button v-if="dayFilters[day] === 0" class="filter-button" @click="setFilterCompleted(day)">
+                  Завершенные
+                </button>
+                <button v-else class="filter-button" @click="setFilterCurrent(day)">
+                  Актуальные
+                </button>
+              </div>
               <div class="tasks">
                 <div v-if="tasks.length === 0" class="empty-task-card">
-                  <p>Все задачи завершены!</p>
+                  <p v-if="dayFilters[day] === 0">Все задачи завершены!</p>
+                  <p v-else>Нет завершенных задач.</p>
                 </div>
+                <!-- v-for по задачам -->
                 <div
                   v-else
                   v-for="task in tasks"
                   :key="task.id"
                   class="task-card"
+                  @mouseenter="hoveredTask = task.id"
+                  @mouseleave="hoveredTask = null"
+                  @click="dayFilters[day] === 0 ? openEditModal(task) : null"
                 >
                   <div class="task-status">
                     <input
                       type="radio"
                       @change="markTaskAsComplete(task.id)"
+                      @click.stop
+                      :checked="task.status === 1"
                     />
                   </div>
                   <div class="task-details">
-                    <p class="task-name">{{ task.description }}</p>
+                    <p class="task-name" :class="{ completed: dayFilters[day] === 1 }">{{ task.description }}</p>
                     <div class="task-time-container">
                       <svg class="time-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
@@ -43,27 +56,40 @@
                       <p class="task-time">{{ formatTime(task.deadline_time) }}</p>
                     </div>
                   </div>
+                  <!-- Кнопка редактирования / удаления -->
+                  <!-- Если dayFilters[day] === 0 -> показываем «Редактировать», иначе -> «Удалить» -->
+                  <button
+                    v-if="dayFilters[day] === 0 && hoveredTask === task.id"
+                    class="edit-button"
+                    @click.stop="openEditModal(task)"
+                    aria-label="Edit Task"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 20h9"></path>
+                      <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                    </svg>
+                  </button>
+                  <button
+                    v-else-if="dayFilters[day] === 1 && hoveredTask === task.id"
+                    class="edit-button"
+                    @click.stop="deleteTask(task.id)"
+                    aria-label="Delete Task"
+                  >
+                    <!-- Красная иконка корзины -->
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="3 6 5 6 21 6" />
+                      <path d="M19 6L17 18.5C16.89 19.33 16.22 20 15.38 20H8.63C7.79 20 7.11 19.33 7.01 18.5L5 6Z" />
+                      <path d="M14 10V16" />
+                      <path d="M10 10V16" />
+                      <path d="M15 4V6H9V4C9 3.47 9.21 2.96 9.59 2.59C9.96 2.21 10.47 2 11 2H13C13.53 2 14.04 2.21 14.41 2.59C14.79 2.96 15 3.47 15 4Z" />
+                    </svg>
+                  </button>
                 </div>
               </div>
               <div class="new-task-form">
-                <input
-                  v-model="newTask[day].description"
-                  class="new-task-input"
-                  type="text"
-                  placeholder="Add task"
-                />
-                <input
-                  v-model="newTask[day].time"
-                  class="new-task-time"
-                  type="time"
-                />
-                <button
-                  class="create-task-button"
-                  @click="createTask(day)"
-                  title="Add Task"
-                >
-                  ↑
-                </button>
+                <input v-model="newTask[day].description" class="new-task-input" type="text" placeholder="Add task" />
+                <input v-model="newTask[day].time" class="new-task-time" type="time" />
+                <button class="create-task-button" @click="createTask(day)" title="Add Task">↑</button>
               </div>
             </div>
           </div>
@@ -73,6 +99,27 @@
             <path d="M9 18L15 12L9 6" stroke="#7f8c8d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
+      </div>
+    </div>
+
+    <!-- Модальное окно для редактирования задачи -->
+    <div v-if="isModalOpen" class="modal-overlay" @click.self="closeEditModal">
+      <div class="modal-content">
+        <h2>Редактировать задачу</h2>
+        <form @submit.prevent="submitEdit">
+          <label>
+            Описание:
+            <input type="text" v-model="editTask.description" required />
+          </label>
+          <label>
+            Время дедлайна:
+            <input type="time" v-model="editTask.time" required />
+          </label>
+          <div class="modal-buttons">
+            <button type="button" @click="closeEditModal">Отмена</button>
+            <button type="submit">Сохранить</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -91,8 +138,23 @@ export default {
     const deadlines = ref([]);
     const deadlineListRef = ref(null);
 
-    // Initialize tasks storage per day
+    // Инициализация хранилища новых задач по дням
     const newTask = ref({});
+
+    // Состояние для управления модальным окном
+    const isModalOpen = ref(false);
+    const editTask = ref({
+      id: null,
+      description: "",
+      date: "",
+      time: "",
+    });
+
+    // Отслеживание наведённой задачи
+    const hoveredTask = ref(null);
+
+    // Состояние фильтров для каждого дня
+    const dayFilters = ref({}); // 0 = актуальные, 1 = завершённые
 
     const getToken = () => {
       const token = localStorage.getItem("chronoJWTToken");
@@ -127,7 +189,11 @@ export default {
             },
           }
         );
-        deadlines.value = response.data.filter((task) => task.status === 0);
+        // Предполагая, что сервер отправляет время в формате ISO
+        deadlines.value = response.data.map(task => ({
+          ...task,
+          deadline_time: new Date(task.deadline_time).toISOString(),
+        }));
       } catch (error) {
         console.error("Error fetching deadlines:", error);
       }
@@ -139,10 +205,15 @@ export default {
       }
       try {
         const token = getToken();
-        const deadline_time = `${day}T${newTask.value[day].time}:00`;
+        // Создаём объект Date с локальным временем
+        const [year, month, date] = day.split("-");
+        const [hours, minutes] = newTask.value[day].time.split(":");
+        const deadlineDate = new Date(year, month - 1, date, hours, minutes);
+        // Преобразуем в ISO-строку
+        const deadline_time = deadlineDate.toISOString();
         const description = newTask.value[day].description;
 
-        const response = await axios.post(
+        await axios.post(
           "http://localhost:8080/api/v1/deadline_task/create_deadline_task",
           { description, deadline_time },
           {
@@ -151,13 +222,53 @@ export default {
             },
           }
         );
-        console.log("Task created:", response.data);
 
-        // Clear the form for this day
+        // Очистить форму
         newTask.value[day] = { description: "", time: "" };
         await fetchDeadlines();
       } catch (error) {
         console.error("Error creating task:", error);
+      }
+    };
+
+    const markTaskAsComplete = async (taskId) => {
+      try {
+        const token = getToken();
+        // Отправляем запрос для завершения задачи
+        await axios.post(
+          "http://localhost:8080/api/v1/deadline_task/complete_task",
+          { id: taskId },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        // Обновляем список задач
+        await fetchDeadlines();
+      } catch (error) {
+        console.error("Error completing task:", error);
+      }
+    };
+
+    /**
+     * Удаление задачи
+     */
+    const deleteTask = async (taskId) => {
+      try {
+        const token = getToken();
+        // Важно: если на сервере другой маршрут или нужны query-параметры, адаптируйте запрос
+        await axios.post("http://localhost:8080/api/v1/deadline_task/delete_task",
+          { id: taskId },
+          {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        await fetchDeadlines();
+      } catch (error) {
+        console.error("Error deleting task:", error);
       }
     };
 
@@ -173,6 +284,7 @@ export default {
     });
 
     const allDaysWithTasks = computed(() => {
+      // Пример: показываем 30 ближайших дней
       const days = Array.from({ length: 30 }, (_, i) => {
         const date = new Date();
         date.setDate(date.getDate() + i);
@@ -183,7 +295,14 @@ export default {
         if (!newTask.value[day]) {
           newTask.value[day] = { description: "", time: "" };
         }
-        result[day] = groupedDeadlines.value[day] || [];
+        // Инициализируем фильтр, если ещё не задан
+        if (dayFilters.value[day] === undefined) {
+          dayFilters.value[day] = 0; // по умолчанию актуальные
+        }
+        // Фильтруем задачи по текущему фильтру (0 или 1)
+        result[day] = groupedDeadlines.value[day]
+          ? groupedDeadlines.value[day].filter(task => task.status === dayFilters.value[day])
+          : [];
         return result;
       }, {});
     });
@@ -209,39 +328,15 @@ export default {
         day: "numeric",
       });
     };
+
     const formatTime = (datetime) => {
       const time = new Date(datetime);
-      return time.toLocaleTimeString("en-US", {
+      return time.toLocaleTimeString("ru-RU", {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
       });
     };
-
-    const markTaskAsComplete = async (taskId) => {
-    try {
-      const token = getToken();
-      if (!token) {
-        throw new Error("Token is missing. Please log in.");
-      }
-
-      // Отправляем запрос для завершения задачи
-      await axios.post(
-        "http://localhost:8080/api/v1/deadline_task/complete_task",
-        { id: taskId },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      // Обновляем список задач после выполнения
-      await fetchDeadlines();
-    } catch (error) {
-      console.error("Error completing task:", error);
-    }
-  };
 
     const scrollLeft = () => {
       const deadlineList = deadlineListRef.value;
@@ -255,6 +350,67 @@ export default {
       if (deadlineList) {
         deadlineList.scrollBy({ left: 500, behavior: "smooth" });
       }
+    };
+
+    // Модальное окно (редактирование)
+    const openEditModal = (task) => {
+      // Если нужно, проверяем статус задачи здесь (но мы уже сделали проверку во вьюшке)
+      const deadlineDate = new Date(task.deadline_time);
+      const year = deadlineDate.getFullYear();
+      const month = String(deadlineDate.getMonth() + 1).padStart(2, "0");
+      const day = String(deadlineDate.getDate()).padStart(2, "0");
+      const hours = String(deadlineDate.getHours()).padStart(2, "0");
+      const minutes = String(deadlineDate.getMinutes()).padStart(2, "0");
+
+      editTask.value = {
+        id: task.id,
+        description: task.description,
+        date: `${year}-${month}-${day}`,
+        time: `${hours}:${minutes}`,
+      };
+
+      isModalOpen.value = true;
+    };
+
+    const closeEditModal = () => {
+      isModalOpen.value = false;
+      editTask.value = { id: null, description: "", date: "", time: "" };
+    };
+
+    const submitEdit = async () => {
+      try {
+        const token = getToken();
+        const { id, description, date, time } = editTask.value;
+        // Формируем новый Date
+        const [year, month, day] = date.split("-");
+        const [hours, minutes] = time.split(":");
+        const deadlineDate = new Date(year, month - 1, day, hours, minutes);
+        const deadline_time = deadlineDate.toISOString();
+
+        await axios.put(
+          "http://localhost:8080/api/v1/deadline_task/update_task",
+          { id, description, deadline_time },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        await fetchDeadlines();
+        closeEditModal();
+      } catch (error) {
+        console.error("Error updating task:", error);
+      }
+    };
+
+    // Функции для управления фильтрами
+    const setFilterCompleted = (day) => {
+      dayFilters.value[day] = 1;
+    };
+
+    const setFilterCurrent = (day) => {
+      dayFilters.value[day] = 0;
     };
 
     onMounted(async () => {
@@ -272,7 +428,17 @@ export default {
       deadlineListRef,
       newTask,
       createTask,
-      markTaskAsComplete
+      markTaskAsComplete,
+      deleteTask, // не забудьте экспортировать метод
+      isModalOpen,
+      editTask,
+      openEditModal,
+      closeEditModal,
+      submitEdit,
+      hoveredTask,
+      setFilterCompleted,
+      setFilterCurrent,
+      dayFilters,
     };
   },
 };
@@ -303,75 +469,155 @@ export default {
   position: relative;
 }
 
+.scroll-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  background-color: white;
+  border: 2px solid #bdc3c7;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 0;
+  z-index: 10;
+}
+
+.scroll-button:hover {
+  background-color: #ecf0f1;
+  transform: translateY(-50%) scale(1.05);
+}
+
+.scroll-button:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.scroll-left {
+  left: 10px;
+}
+
+.scroll-right {
+  right: 10px;
+}
+
 .deadline-list {
   display: flex;
-  overflow-x: auto; /* Изменено с hidden на auto */
+  overflow-x: auto;
   scroll-behavior: smooth;
   flex-wrap: nowrap;
   width: 100%;
-  
-  /* Дополнительные стили для скрытия полосы прокрутки (опционально) */
-  -ms-overflow-style: none; /* Для IE и Edge */
-  scrollbar-width: none; /* Для Firefox */
+  margin: 0 60px;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;      /* Firefox */
 }
 
-/* Скрытие полосы прокрутки для WebKit-браузеров (Chrome, Safari, Edge) */
 .deadline-list::-webkit-scrollbar {
   display: none;
 }
 
-.deadline-day {
+.deadline-day-wrapper {
   display: flex;
   flex-direction: column;
-  flex-shrink: 0; /* Удерживаем фиксированную ширину */
-  width: 300px;
   margin-right: 20px;
+  position: relative;
+}
+
+.deadline-day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   background-color: #ffffff;
-  border-radius: 8px;
+  border-radius: 20px;
   padding: 15px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  width: 300px;
+}
+
+.day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.day-title {
+  font-size: 1.5rem;
+  color: #333;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.filter-buttons {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 5px;
+  z-index: 10;
+}
+
+.filter-button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 15px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.filter-button:hover {
+  background-color: #2980b9;
+  transform: scale(1.05);
+}
+
+.filter-button:active {
+  transform: scale(0.95);
 }
 
 .tasks {
-  margin-top: 10px;
+  margin-top: 30px;
   display: flex;
   flex-direction: column;
   gap: 10px;
   min-height: 50px;
-  /* Добавляем: */
   width: 100%;
 }
 
 .empty-task-card {
-  color: #9e9e9e; /* Темный серый цвет текста */
-  font-style: normal; /* Убираем курсив */
-  text-align: center; /* Центрируем текст */
-  display: flex; /* Добавляем flexbox для выравнивания */
-  justify-content: center; /* Горизонтальное выравнивание */
-  align-items: center; /* Вертикальное выравнивание */
-  min-height: 50px; /* Обеспечиваем минимальную высоту блока */
+  color: #9e9e9e;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50px;
 }
 
 .task-card {
   display: flex;
-  align-items: center; /* Изменено с center на flex-start для верхнего выравнивания */
+  align-items: center;
   margin-bottom: 10px;
   border: 1px solid #ebebeb;
   border-radius: 5px;
   padding: 10px;
   background-color: #fafafa;
   gap: 10px;
-  word-wrap: break-word;
-  
-  /* Добавляем flex-direction: column для вертикального расположения при необходимости */
   flex-direction: row;
-  
-  /* Убираем фиксированную высоту, если есть */
-  height: auto;
+  position: relative;
+  transition: background-color 0.3s;
+}
+
+.task-card:hover {
+  background-color: #f0f8ff;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .task-status {
-  flex-shrink: 0; /* Чекбокс фиксированного размера */
+  flex-shrink: 0;
   display: flex;
   align-items: center;
 }
@@ -379,7 +625,7 @@ export default {
 .task-status input {
   width: 15px;
   height: 15px;
-  cursor: pointer; /* Курсор в виде руки */
+  cursor: pointer;
 }
 
 .task-details {
@@ -387,23 +633,38 @@ export default {
   flex-direction: column;
   flex-grow: 1;
   overflow-wrap: break-word;
-  word-break: break-word; /* Добавлено для лучшего переноса */
+  word-break: break-word;
 }
 
-/* Дополнительные улучшения для .task-name */
 .task-name {
   font-weight: bold;
   margin: 0;
-  word-wrap: break-word;
   white-space: normal;
-  /* Добавляем: */
   overflow: hidden;
 }
 
-.task-time {
-  margin: 5px 0 0;
-  font-size: 0.9rem;
+.task-name.completed {
+  text-decoration: line-through;
+  color: #7f8c8d;
+}
+
+.task-time-container {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.time-icon {
+  width: 12px;
+  height: 12px;
   color: #555;
+  flex-shrink: 0;
+}
+
+.task-time {
+  font-size: 0.9rem;
+  margin: 0;
+  line-height: 1;
 }
 
 .new-task-form {
@@ -416,142 +677,155 @@ export default {
 .new-task-input {
   flex: 2;
   padding: 5px;
-  height: 35px; /* Уменьшаем высоту */
-  border: 2px solid #ccc; /* Толстая серая граница */
-  border-radius: 50px; /* Почти овальная форма */
-  font-size: 0.9rem; /* Уменьшаем шрифт */
+  height: 35px;
+  border: 2px solid #ccc;
+  border-radius: 50px;
+  font-size: 0.9rem;
   color: #555;
-  background-color: white; /* Белый фон */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Лёгкая тень */
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s, box-shadow 0.3s;
   box-sizing: border-box;
 }
 
 .new-task-input:focus {
-  border-color: #3498db; /* Подсветка границы при фокусе */
-  box-shadow: 0 0 8px rgba(52, 152, 219, 0.5); /* Лёгкая подсветка */
+  border-color: #3498db;
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
 }
 
 .new-task-time {
   flex: 1;
   padding: 5px;
-  height: 35px; /* Такой же размер, как у описания */
-  border: 2px solid #ccc; /* Толстая серая граница */
-  border-radius: 50px; /* Почти овальная форма */
-  font-size: 0.9rem; /* Уменьшаем шрифт */
-  text-align: center; /* Центрируем текст */
-  color: #555; /* Серый цвет текста */
-  appearance: none; /* Убираем стандартное оформление браузера */
-  background-color: white; /* Белый фон */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Лёгкая тень */
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  height: 35px;
+  border: 2px solid #ccc;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  text-align: center;
+  color: #555;
+  appearance: none;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s, box-shadow 0.3s;
   box-sizing: border-box;
 }
 
 .new-task-time:focus {
-  border-color: #3498db; /* Подсветка границы при фокусе */
-  box-shadow: 0 0 8px rgba(52, 152, 219, 0.5); /* Лёгкая подсветка */
+  border-color: #3498db;
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
 }
 
 .new-task-time::placeholder {
-  color: #aaa; /* Цвет для `--:--` */
-  font-style: italic; /* Наклонный текст */
+  color: #aaa;
+  font-style: italic;
 }
 
-/* Убираем значок часов */
 .new-task-time::-webkit-calendar-picker-indicator {
-  display: none; /* Убираем значок в Chrome и Edge */
+  display: none;
 }
 
 .create-task-button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 40px; /* Размер кнопки */
-  height: 40px; /* Размер кнопки */
-  color: gray; /* Серый цвет стрелки */
+  width: 40px;
+  height: 40px;
+  color: gray;
   font-size: 1.2rem;
-  border: none; /* Убираем границы */
-  background-color: transparent; /* Убираем фон */
+  border: none;
+  background-color: transparent;
   cursor: pointer;
   transition: transform 0.2s;
 }
 
 .create-task-button:hover {
-  transform: scale(1.1); /* Увеличиваем размер при наведении */
+  transform: scale(1.1);
 }
 
-.deadline-day-wrapper {
-  display: flex;
-  flex-direction: column;
-  margin-right: 20px;
+/* Кнопка редактирования / удаления */
+.edit-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  transition: background-color 0.3s;
 }
 
-.day-title {
-  margin-bottom: 10px; /* Отступ между заголовком и карточкой */
-  font-size: 1.5rem; /* Размер шрифта */
-  color: #333; /* Цвет текста */
-  text-align: center; /* Центровка текста */
+.edit-button:hover {
+  background-color: rgba(52, 152, 219, 0.1);
 }
 
-.deadline-day {
-  background-color: #ffffff;
-  border-radius: 20px;
-  padding: 15px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  flex-shrink: 0;
-  width: 300px;
-}
-.scroll-button {
+/* Модальное окно */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 40px;
-  height: 40px;
-  background-color: white;
-  border: 2px solid #bdc3c7; /* Серая граница */
-  border-radius: 50%; /* Круглая форма */
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 0;
+  z-index: 1000;
 }
 
-.scroll-button:hover {
-  background-color: #ecf0f1; /* Немного серого при наведении */
-  transform: scale(1.05); /* Лёгкое увеличение при наведении */
+.modal-content {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  position: relative;
 }
 
-.scroll-button:active {
-  transform: scale(0.95); /* Небольшое уменьшение при нажатии */
+.modal-content h2 {
+  margin-top: 0;
 }
 
-.scroll-left {
-  margin-right: 10px;
-}
-
-.scroll-right {
-  margin-left: 10px;
-}
-
-.task-time-container {
+.modal-content form {
   display: flex;
-  align-items: center; /* Выравниваем значок и текст по вертикали */
-  gap: 5px; /* Расстояние между значком и временем */
+  flex-direction: column;
 }
 
-.time-icon {
-  width: 12px; /* Уменьшенный размер значка */
-  height: 12px; /* Уменьшенный размер значка */
-  color: #555; /* Цвет значка */
-  flex-shrink: 0; /* Убираем сжатие значка */
+.modal-content label {
+  margin-bottom: 15px;
 }
 
-.task-time {
-  font-size: 0.9rem; /* Размер шрифта времени */
-  margin: 0; /* Убираем лишние отступы */
-  line-height: 1; /* Выравниваем текст по вертикали */
-  position: relative; /* Для выравнивания */
-  top: 0px; /* Поднимаем текст чуть выше */
+.modal-content input[type="text"],
+.modal-content input[type="time"] {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modal-buttons button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.modal-buttons button[type="button"] {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.modal-buttons button[type="submit"] {
+  background-color: #3498db;
+  color: white;
+}
+
+.modal-buttons button:hover {
+  opacity: 0.9;
 }
 </style>
