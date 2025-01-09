@@ -2,7 +2,7 @@
 import { useRouter } from "vue-router"
 import { authUser } from "./components/ScheduleFunctions";
 import { onMounted, ref } from "vue";
-import navPanel from "../login/components/LoginNavPanel.vue";
+import navPanel from "../../components/LoginNavPanel.vue";
 import schedulePage from "./components/SchedulePage.vue";
 
 const router = useRouter()
@@ -26,15 +26,5 @@ onMounted(() => {
 </template>
 
 <style>
-body {
-    overflow: hidden;
-    background: linear-gradient(to right, var(--color-briter-black), var(--color-black));
-    font-family: "Roboto", sans-serif;
-    color: var(--color-grey);
-}
-::selection {
-    color: var(--color-deep-purple);
-    background: rgba(128, 128, 128, 0.087);
-    border-radius: 5px;
-}
+@import "../../components/Stiles.css";
 </style>

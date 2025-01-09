@@ -8,8 +8,8 @@ const props = defineProps({
 </script>
 
 <template>
-    <div class="scheduleContainer">
-        <div class="columnSchedule">
+    <div class="schedule-container">
+        <div class="column-schedule">
             <h1>
                 {{ props.user }}
             </h1>
@@ -19,7 +19,7 @@ const props = defineProps({
 </template>
 
 <style>
-.scheduleContainer {
+.schedule-container {
     display: flex;
     overflow: hidden;
     align-items: flex-start;
@@ -28,25 +28,19 @@ const props = defineProps({
     width: 95%;
     margin: 5% auto;
 }
-.columnAddTask, .columnSchedule {
+/* .column-add-task, .column-schedule {
     overflow: auto;
     height: 100%;
     box-sizing: border-box;
     padding: 0 20px;
 }
-.columnAddTask {
+.column-add-task {
     width: 30%;
 }
-.columnSchedule {
+.column-schedule {
     width: 70%;
-}
-h1 {
+} */
+.schedule-container h1 {
     text-align: center;
-}
-textarea {
-    height: 200px;
-    resize: none;
-    overflow: auto;
-    font-size: large;
 }
 </style>
