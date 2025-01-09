@@ -5,6 +5,7 @@ from uuid import UUID
 
 
 class ScheduleForm(BaseModel):
+    name: str = Field(example="Name for your event")
     text: str = Field(example="Meeting or task that you need to put to your schedule")
     start_time: datetime = Field(default=datetime.today())
     end_time: datetime = Field(default=datetime.today() + timedelta(hours=1))

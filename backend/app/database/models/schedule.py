@@ -14,11 +14,12 @@ class Schedule(DeclarativeBase):
         default=uuid.uuid4,
         unique=True
     )
-    text = Column(String)
+    name = Column(String)
+    text = Column(String, nullable=True)
     start_time = Column(DateTime(timezone=True))
     end_time = Column(DateTime(timezone=True))
     recurring = Column(Boolean)
     week_day = Column(Integer)
     
-    owner_id = Column(UUID, ForeignKey("Users.id"))
+    owner_id = Column(UUID, ForeignKey("Users.id"), index=True)
     author = relationship("User")
