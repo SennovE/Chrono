@@ -10,36 +10,3 @@ h1 {
   color: #f9f9f9; /* Мягкий приглушённый жёлтый */
   text-shadow: 2px 2px 5px rgba(244, 208, 111, 0.5); /* Мягкая жёлтая тень */
 }
-.navbar {
-  position: fixed; /* Закрепляем панель */
-  top: 0;          /* Размещаем её в верхней части окна */
-  left: 0;         /* Привязываем к левому краю */
-  width: 100%;  
-  background-color: linear-gradient(to right, #d7ccc8, #a1887f);
-  padding: 10px 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.nav-links {
-  list-style: none;
-  display: flex;
-  justify-content: left;
-  margin: 0;
-  padding: 0;
-}
-
-.nav-links li {
-  margin: 0 20px;
-}
-
-.nav-links a {
-  text-decoration: none;
-  color: #333;
-  font-family: Arial, sans-serif;
-  font-size: 16px;
-  transition: color 0.3s;
-}
-
-.nav-links a:hover {
-  color: #007BFF;
-}
