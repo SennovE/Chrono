@@ -3,14 +3,15 @@ from .healh_check import api_router as healh_check_router
 from .user import api_router as user_debag
 from .deadline_task import api_router as deadline_task_router
 from .schedule import api_router as schedule_route
+from .settings import api_router as settings_router
 
 list_of_routes = [
     auth_router,
     healh_check_router,
     user_debag,
     deadline_task_router,
-    schedule_route
-  
+    schedule_route,
+    settings_router,  
 ]
 
 __all__ = [
