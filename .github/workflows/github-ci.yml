@@ -29,4 +29,4 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       
       - name: Restart docker on VM
-        run: ssh -o StrictHostKeyChecking=no ${{ secrets.VM_NAME }}@${{ secrets.VM_IP }} "cd app && docker-compose pull && docker-compose up -d --remove-orphans"
+        run: ssh -o StrictHostKeyChecking=no ${{ secrets.VM_NAME }}@${{ secrets.VM_IP }} "cd app && docker-compose pull && docker-compose up -d --remove-orphans && docker logs backend"
