@@ -64,7 +64,7 @@ upgrade:
 	cd $(TARGET_DIR) && $(ALEMBIC_CMD) upgrade head
 FRONT_DIR = frontend
 run_front:
-	cd $(FRONT_DIR) && npm run serve
+	cd $(FRONT_DIR) && npm install && npm run serve
 poetry:
 	cd backend && poetry install && poetry shell
 reboot:

@@ -19,7 +19,20 @@ const routes = [
   {
     path: '/login',
     name: 'Login Page',
-    component: () => import('../pages/login/LoginIndex.vue')
+    component: () => import('../pages/login/LoginIndex.vue'),
+    meta: { isLogin: true }
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: () => import('../pages/login/LoginIndex.vue'),
+    meta: { isLogin: false }
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('../pages/login/LoginIndex.vue'),
+    meta: { isLogin: true }
   },
   {
     path: '/profile',
