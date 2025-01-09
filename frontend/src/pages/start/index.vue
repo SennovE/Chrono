@@ -1,6 +1,14 @@
 <template>
   <div id="app">
-    <h1>Добро пожаловать в Chrono! Хотите зарегистрироваться?</h1>
+    <nav class="navbar">
+      <ul class="nav-links">
+        <li><router-link to="/login">Регистрация</router-link></li>
+        <li><a href="#about">О нас</a></li>
+        <li><a href="#services">Услуги</a></li>
+        <li><a href="#contact">Контакты</a></li>
+      </ul>
+    </nav>
+    <h1>Добро пожаловать в Chrono!</h1>
   </div>
 </template>
 
@@ -11,5 +19,14 @@ export default {
 </script>
 
 <style>
-/* Добавьте стили, если нужно */
+
+  
+  #app {
+    text-align: center;
+    padding: 20px;
+  }
+  @import "./components/styel.css";
+
+  
+  
 </style>
