@@ -1,7 +1,7 @@
 from app.database.models import DeadlineTask
 from app.database.connection import get_session
 from app.schemas import DeadlineTaskDebugResponse, DeadlineTaskCreateForm, \
-DeadlineTaskResponse, DeadlineTaskComplete
+DeadlineTaskResponse, DeadlineTaksUpdateForm, DeadlineTaskID
 
 from fastapi import APIRouter, Depends, status, HTTPException, Security
 from sqlalchemy.future import select
@@ -13,7 +13,8 @@ from app.utils.deadline_task import (
     make_deadline_task,
     get_deadline_tasks, 
     delete_deadline_task,
-    complete_deadline_task
+    complete_deadline_task,
+    update_deadline_task
     )
 from uuid import UUID
 
@@ -84,8 +85,10 @@ async def get_user_tasks_debug(
 ) -> list[DeadlineTaskDebugResponse]:
     result = await get_deadline_tasks(session, current_user)
     return result
-@api_router.delete(
-    "/",
+
+
+@api_router.post(
+    "/delete_task",
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_401_UNAUTHORIZED: {
@@ -94,11 +97,16 @@ async def get_user_tasks_debug(
     },
 )
 async def delete_user_task(
-    task_id: Annotated[UUID, Body()],
-    session: Annotated[AsyncSession, Depends(get_session)],
-    _: Annotated[User, Security(get_current_user)],
-) -> None:
-    await delete_deadline_task(session, task_id)
+        task_data: Annotated[DeadlineTaskID, Body()],
+        current_user: Annotated[User, Depends(get_current_user)],\
+        session: AsyncSession = Security(get_session)) -> None:
+    is_success = await delete_deadline_task(session, task_data, current_user)
+    if is_success:
+        return {"message": "Task deleted"}
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Delete task error",
+    )
 
 
 @api_router.post(
@@ -110,12 +118,32 @@ async def delete_user_task(
         }
     },
 )
-async def complete_task(task: Annotated[DeadlineTaskComplete, Body()],\
-                        session: Annotated[AsyncSession, Depends(get_session)]) -> None:
+async def complete_task(task: Annotated[DeadlineTaskID, Body()],\
+                        session: Annotated[AsyncSession, Depends(get_session)])-> None:
     is_success = await complete_deadline_task(task, session)
     if is_success:
         return {"message": "Task completed"}
     raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
         detail="Complete task error",
+    )
+
+
+@api_router.put(
+    "/update_task",
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "Could not validate credentials",
+        }
+    },
+)
+async def update_task(task: Annotated[DeadlineTaksUpdateForm, Body()],\
+                        session: Annotated[AsyncSession, Depends(get_session)]) -> None:
+    is_success = await update_deadline_task(task, session)
+    if is_success:
+        return {"message": "Task updated"}
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Update task error",
     )

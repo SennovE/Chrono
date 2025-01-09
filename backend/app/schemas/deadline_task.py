@@ -23,5 +23,12 @@ class DeadlineTaskResponse(BaseModel):
     description: str = Field(default="Описание дедлайна")
     status: int = Field(default=0)
 
-class DeadlineTaskComplete(BaseModel):
+
+class DeadlineTaskID(BaseModel):
     id: UUID
+
+
+class DeadlineTaksUpdateForm(BaseModel):
+    id: UUID
+    deadline_time: datetime = Field()
+    description: str = Field()
