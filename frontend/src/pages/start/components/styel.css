@@ -1,12 +1,93 @@
+@import url('../../../components/variables.css');
 
-body {
-  overflow: hidden;
-  background: linear-gradient(to right, #d7ccc8, #a1887f);
-  font-family: 'Roboto', sans-serif;
+.container {
+    background: linear-gradient(to left, var(--color-briter-black), var(--color-black));
+    border-radius: 8px;
+    box-shadow: 0px 0px 20px var(--color-deep-purple);
+
+    display: flex;
+    overflow: hidden;
+
+    width: 80%;
+    margin: 15% auto;
+    padding: 1% 1% 1% 1%;
 }
-h1 {
-  font-family: 'Playfair Display', serif;
-  font-size: 48px;
-  color: #f9f9f9; /* Мягкий приглушённый жёлтый */
-  text-shadow: 2px 2px 5px rgba(244, 208, 111, 0.5); /* Мягкая жёлтая тень */
+
+.welcome-text {
+    overflow: auto;
+    text-align: left;
+    padding: 5% 5% 5% 5%;
+    color: var(--color-grey-purple);
+    width: 50%;
+}
+
+.input-container {
+    overflow: auto;
+    text-align: center;
+    padding: 2% 2% 2% 2%;
+    width: 50%;
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+button, input, textarea {
+    width: 100%;
+    padding: 2%;
+    font-size: 16px;
+    border: 1px solid black;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-bottom: 2%;
+    background: linear-gradient(to right, var(--color-briter-black), var(--color-black));
+    outline: none;
+    transition: box-shadow 0.3s ease-in-out;
+}
+button:hover,
+textarea:hover,
+input:hover,
+input:focus {
+    box-shadow: 0 0 10px var(--color-deep-purple);
+}
+
+button {
+    color: var(--color-grey);
+    font-size: 20px;
+    margin-bottom: 4%;
+    cursor: pointer;
+}
+
+button:active {
+    background: linear-gradient(to right, var(--color-dark-grey), var(--color-darker-grey));
+}
+
+.bottom-text {
+    transition: text-shadow 0.3s ease-in-out;
+    padding: 1%;
+    cursor: pointer;
+}
+
+.chrono {
+    text-shadow:
+        0 0 10px var(--color-deep-purple);
+}
+
+.bottom-text:hover, .top-nav li:hover {
+    text-shadow:
+        0 0 10px var(--color-deep-purple),
+        0 0 10px var(--color-deep-purple),
+        0 0 10px var(--color-deep-purple);
+}
+
+.slide-enter-active, .slide-leave-active {
+    transition: transform 0.5s ease, opacity 0.5s ease;
+}
+.slide-enter-from {
+    transform: translateX(100%);
+    opacity: 0;
+}
+.slide-leave-to {
+    transform: translateX(100%);
+    opacity: 0;
 }
