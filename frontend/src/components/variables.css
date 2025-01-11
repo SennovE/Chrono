@@ -4,6 +4,16 @@
     --color-darker-grey: #191919;
     --color-deep-purple: #8800ff;
     --color-black: #000000;
-    --color-briter-black: #1f1f1f;
+    --color-brighter-black: #1f1f1f;
     --color-red: #ff0000;
 }
+
+/* :root {
+    --color-grey: #BFBFBF;
+    --color-dark-grey: #282828;
+    --color-darker-grey: #2D2D2D;
+    --color-deep-purple: #AA33FF;
+    --color-black: #131313;
+    --color-brighter-black: #212121;
+    --color-red: #FF3333;
+} */

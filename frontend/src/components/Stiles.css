@@ -2,7 +2,7 @@
 
 body {
     overflow: hidden;
-    background: linear-gradient(to right, var(--color-briter-black), var(--color-black));
+    background: linear-gradient(to right, var(--color-brighter-black), var(--color-black));
     font-family: "Roboto", sans-serif;    
     color: var(--color-grey);
 }
@@ -12,11 +12,11 @@ body {
     border-radius: 5px;
 }
 ::placeholder {
-  color: var(--color-grey);
+    color: var(--color-grey);
 }
 
 .container {
-    background: linear-gradient(to left, var(--color-briter-black), var(--color-black));
+    background: linear-gradient(to left, var(--color-brighter-black), var(--color-black));
     border-radius: 8px;
     box-shadow:
         0px 0px 5px white,
@@ -38,9 +38,9 @@ body {
         text-align: center;
         font-size: medium;
         text-shadow:
-            0px 0px 5px red,
-            0px 0px 10px red,
-            0px 0px 20px red;
+            0px 0px 5px var(--color-red),
+            0px 0px 10px var(--color-red),
+            0px 0px 20px var(--color-red);
         color: white;
     }
 
@@ -71,7 +71,7 @@ body {
         border-radius: 4px;
         box-sizing: border-box;
         margin-bottom: 2%;
-        background: linear-gradient(to right, var(--color-briter-black), var(--color-black));
+        background: linear-gradient(to right, var(--color-brighter-black), var(--color-black));
         outline: none;
         transition: box-shadow 0.3s ease-in-out;
     }
@@ -79,7 +79,8 @@ body {
     button:hover,
     textarea:hover,
     input:hover,
-    input:focus {
+    input:focus,
+    .modal-content {
         box-shadow:
             0px 0px 3px white,
             0px 0px 8px var(--color-deep-purple),
@@ -132,7 +133,6 @@ body {
         border: 1px solid var(--color-grey);
         border-radius: 4px;
         position: relative;
-        margin-right: 10px;
         transition: box-shadow 0.3s ease-in-out;
     }
     .checkmark::after {
@@ -170,5 +170,29 @@ body {
         border: solid var(--color-black);
         border-width: 0 2px 2px 0;
         transform: rotate(45deg);
+    }
+    .form-button {
+        width: auto;
+        background: linear-gradient(to left, var(--color-brighter-black), var(--color-black));
+        box-shadow:
+            0px 0px 4px var(--color-deep-purple),
+            0px 0px 10px var(--color-deep-purple);
+        border-radius: 8px;
+        padding: 1%;
+    }
+    .form-button:hover {
+        box-shadow:
+            0px 0px 5px white,
+            0px 0px 10px var(--color-deep-purple),
+            0px 0px 20px var(--color-deep-purple),
+            0px 0px 50px var(--color-deep-purple);
+    }
+    .close-button {
+        font-size: 24px;
+        cursor: pointer;
+        margin: 0;
+        padding: 0;
+        width: 2rem;
+        height: 2rem;
     }
 }
