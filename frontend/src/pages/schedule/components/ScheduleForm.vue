@@ -15,16 +15,18 @@ const response = ref("")
 
 const isModalOpen = ref(false)
 
-// TODO: добавить shortText в backend
-
 async function addScheduleTaskWrap() {
     response.value = await addScheduleTask(
         router,
+        shortText.value,
         descriptionText.value,
         startDate.value,
         endDate.value,
         recurring.value
     )
+    if (response.value === "") {
+        modalClose()
+    }
 }
 
 function modalClose() {
@@ -35,7 +37,12 @@ function modalClose() {
 
 <template>
     <div>
-        <button @click="isModalOpen=true">Добавить событие</button>
+        <button
+            @click="isModalOpen=true"
+            class="form-button"
+        >
+            Добавить событие
+        </button>
         <transition name="overlay-fade">
             <div 
                 v-if="isModalOpen" 
@@ -80,8 +87,20 @@ function modalClose() {
 
 
 <style>
+.form-button {
+    position: fixed;
+    bottom: -3%;
+    right: 3%;
+    z-index: 99;
+}
+
 .date {
     color: var(--color-grey);
+}
+
+.date::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.6;
 }
 
 .creation-button {
@@ -94,15 +113,6 @@ function modalClose() {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1%;
-}
-
-.schedule-container .close-button {
-    font-size: 24px;
-    cursor: pointer;
-    margin: 0;
-    padding: 0;
-    width: 10%;
-    z-index: 999;
 }
 
 .field-group {
@@ -128,15 +138,16 @@ function modalClose() {
     align-items: center;
     justify-content: center;
     z-index: 9999;
+    overflow: hidden;
 }
 
 .modal-content {
-    background: linear-gradient(to left, var(--color-briter-black), var(--color-black));
-    padding: 20px;
+    width: 30%;
+    background: linear-gradient(to left, var(--color-brighter-black), var(--color-black));
+    padding: 1% 2% 1% 2%;
     border-radius: 8px;
     box-sizing: border-box;
     border: 1px solid var(--color-black);
-    box-shadow: 0 0 10px var(--color-deep-purple);
 }
 .modal-overlay textarea {
     height: 200px;

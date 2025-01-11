@@ -21,7 +21,7 @@ const router = useRouter();
 <style>
 .top-nav {
     width: 100%;
-    background: linear-gradient(to left, var(--color-briter-black), var(--color-black));
+    background: linear-gradient(to left, var(--color-brighter-black), var(--color-black));
     position: fixed;
     top: 0;
     left: 0;

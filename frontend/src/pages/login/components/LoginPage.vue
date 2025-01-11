@@ -1,11 +1,12 @@
 <script setup>
-import { ref, watch } from "vue"
+import { onMounted, ref, watch } from "vue"
 import { registerUser, loginUser } from "./LoginFunctions.js"
-import { useRouter } from "vue-router"
+import { useRouter, useRoute } from "vue-router"
 
 const router = useRouter()
+const route = useRoute()
 
-const registration = ref(true)
+const registration = ref(null)
 
 const username = ref("")
 const email = ref("")
@@ -36,6 +37,14 @@ function clearFields() {
 }
 
 watch(registration, clearFields)
+
+onMounted(() => {
+    if (route.meta.isLogin) {
+        registration.value = false
+    } else {
+        registration.value = true
+    }
+})
 </script>
 
 <template>

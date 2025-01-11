@@ -1,5 +1,27 @@
 import axios from "axios";
 
+export function makeTime(ampm) {
+    let times = [""]
+    if (ampm.value) {
+        for (let i = 1; i < 12 + 1; ++i) {
+            times.push(`${i}:00 am`)
+        }
+        for (let i = 1; i < 12; ++i) {
+            times.push(`${i}:00 pm`)
+        }
+    } else {
+        for (let i = 1; i < 24; ++i) {
+            times.push(`${i}:00`)
+        }
+    }
+    return times
+}
+
+export function getMonthName(num) {
+    const months = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"]
+    return months[num]
+}
+
 function redirectToLogin(router) {
     router.push({
         name: "Login Page",
@@ -28,13 +50,21 @@ export async function authUser(router) {
     }
 }
 
-export async function addScheduleTask(router, descriptionText, startDate, endDate, recurring) {
-    if (descriptionText === "" || startDate === "" || endDate === "" || recurring === "") {
+export async function addScheduleTask(router, name, descriptionText, startDate, endDate, recurring) {
+    if (name === "" ||
+        descriptionText === "" ||
+        startDate === "" ||
+        endDate === "" ||
+        recurring === ""
+    ) {
         return "Все поля должны быть заполнены"
+    } else if (startDate > endDate) {
+        return "Время начала должно быть меньше конца"
     }
     try {
         const token = getToken(router);
         await axios.post("http://localhost:8080/api/v1/schedule/", {
+            name: name,
             text: descriptionText,
             start_time: startDate,
             end_time: endDate,
