@@ -39,8 +39,9 @@ async def add_schedule_task(
 
 
 async def get_schedule_tasks(session: AsyncSession, current_user: User) -> list[Schedule]:
-    query = select(Schedule).\
-        where(Schedule.owner_id == current_user.id)
+    query = select(Schedule) \
+        .where(Schedule.owner_id == current_user.id) \
+        .order_by(-((Schedule.end_hours - Schedule.start_hours) * 60 + (Schedule.end_minutes - Schedule.start_minutes)))
     result = await session.scalars(query)
     return result.all()
 

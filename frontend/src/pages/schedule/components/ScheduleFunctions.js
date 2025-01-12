@@ -14,15 +14,15 @@ export async function authUser(router) {
     }
 }
 
-export async function addScheduleTask(router, name, descriptionText, startDate, endDate, recurring) {
+export async function addScheduleTask(router, name, descriptionText, startDate, startTime, endTime, recurring) {
     if (name === "" ||
         descriptionText === "" ||
-        startDate === "" ||
-        endDate === "" ||
+        startTime === "" ||
+        endTime === "" ||
         recurring === ""
     ) {
         return "Все поля должны быть заполнены"
-    } else if (startDate > endDate) {
+    } else if (startTime > endTime) {
         return "Время начала должно быть меньше конца"
     }
     try {
@@ -30,8 +30,8 @@ export async function addScheduleTask(router, name, descriptionText, startDate, 
         await axios.post("http://localhost:8080/api/v1/schedule/", {
             name: name,
             text: descriptionText,
-            start_time: startDate,
-            end_time: endDate,
+            start_time: `${startDate}T${startTime}`,
+            end_time: `${startDate}T${endTime}`,
             recurring: recurring
         }, {
             headers: {

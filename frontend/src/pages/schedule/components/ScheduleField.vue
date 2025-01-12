@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from "vue"
 import { getMonthName, makeTime, makeWeekDates, getScheduleTasks } from "./ScheduleFunctions"
+import scheduleForm from "./ScheduleForm.vue"
 import { useRouter } from "vue-router"
 
 const weekdays = ref(["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"])
@@ -45,30 +46,15 @@ const tasks = ref({
     "6": []
 })
 
+async function fetchTasks() {
+    tasks.value = await getScheduleTasks(useRouter)
+}
+
 const currentRow = ref(null)
 let interval = null
 
 onMounted(async () => {
-    tasks.value = {
-        "0": [],
-        "1": [
-            {
-                id: "123",
-                name: "123",
-                text: "123",
-                start_hours: 13,
-                start_minutes: 10,
-                end_hours: 13,
-                end_minutes: 10,
-            }
-        ],
-        "2": [],
-        "3": [],
-        "4": [],
-        "5": [],
-        "6": []
-    }
-    tasks.value = await getScheduleTasks(useRouter())
+    fetchTasks()
     if (currentRow.value) {
         currentRow.value.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
@@ -84,7 +70,7 @@ onUnmounted(() => {
 
 <template>
     <div class="calendar-container">
-        <div>{{ tasks }}</div>
+        <scheduleForm @task-added="fetchTasks"/>
         <h3>{{ currentMonthName }} {{ currentYear }}</h3>
         <div class="row calendar-header">
             <div class="column time-column header-row">
@@ -122,14 +108,16 @@ onUnmounted(() => {
                     </div>
                     <div
                         class="task"
-                        v-for="task in tasks[String(index)].filter((t) => t.time === time)"
+                        v-for="task in tasks[String(index)].filter((t) => `${t.start_hours}:00` === time)"
                         :key="task.id"
                         :style="{
-                            top: `${task.startMins / 60 * 100}%`,
-                            bottom: `-${(task.endHours - task.startHours - 1 + task.endMins / 60) * 100}%`
+                            top: `${task.start_minutes / 60 * 100}%`,
+                            bottom: `-${(task.end_hours - task.start_hours - 1 + task.end_minutes / 60) * 100}%`
                         }"
                     >
-                        {{ task.title }}
+                        <div class="task-content">
+                            {{ task.name }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -224,15 +212,25 @@ onUnmounted(() => {
         0 0 10px var(--color-deep-purple),
         0 0 10px var(--color-deep-purple),
         0 0 20px var(--color-deep-purple);
+    z-index: 99;
 }
 .task {
     position: absolute;
     width: 90%;
-    border: 1px solid #ccc;
     border-radius: 8px;
     text-align: center;
     z-index: 10;
-    pointer-events: none;
+    transition: box-shadow 0.3s ease-in-out;
+}
+.task:hover {
+    box-shadow:
+        0px 0px 5px white,
+        0px 0px 10px var(--color-deep-purple),
+        0px 0px 20px var(--color-deep-purple),
+        0px 0px 50px var(--color-deep-purple);
+    background: var(--color-black);
+    opacity: 0.90;
+    z-index: 50;
 }
 .task::after {
     top: 0;
@@ -242,7 +240,27 @@ onUnmounted(() => {
     content: "";
     position: absolute;
     background: var(--color-deep-purple);
+    border-radius: 8px;
     opacity: 0.05;
-    pointer-events: none;
+}
+.task::before {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    content: "";
+    position: absolute;
+    box-shadow:
+        0 0 10px var(--color-deep-purple);
+    border-radius: 8px;
+    opacity: 0.5;
+}
+.task-content {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0% 5% 0% 5%;
+    box-sizing: border-box;
 }
 </style>
