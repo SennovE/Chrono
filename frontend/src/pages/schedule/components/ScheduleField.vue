@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from "vue"
-import { getMonthName, makeTime, makeWeekDates } from "./ScheduleFunctions"
+import { getMonthName, makeTime, makeWeekDates, getScheduleTasks } from "./ScheduleFunctions"
+import { useRouter } from "vue-router"
 
 const weekdays = ref(["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"])
 const ampm = ref(false)
@@ -34,10 +35,40 @@ function updateTime() {
 
 updateTime()
 
+const tasks = ref({
+    "0": [],
+    "1": [],
+    "2": [],
+    "3": [],
+    "4": [],
+    "5": [],
+    "6": []
+})
+
 const currentRow = ref(null)
 let interval = null
 
-onMounted(() => {
+onMounted(async () => {
+    tasks.value = {
+        "0": [],
+        "1": [
+            {
+                id: "123",
+                name: "123",
+                text: "123",
+                start_hours: 13,
+                start_minutes: 10,
+                end_hours: 13,
+                end_minutes: 10,
+            }
+        ],
+        "2": [],
+        "3": [],
+        "4": [],
+        "5": [],
+        "6": []
+    }
+    tasks.value = await getScheduleTasks(useRouter())
     if (currentRow.value) {
         currentRow.value.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
@@ -53,19 +84,20 @@ onUnmounted(() => {
 
 <template>
     <div class="calendar-container">
+        <div>{{ tasks }}</div>
         <h3>{{ currentMonthName }} {{ currentYear }}</h3>
         <div class="row calendar-header">
             <div class="column time-column header-row">
             </div>
             <div
                 class="column header-row"
-                v-for="(day, date) in weekdays"
+                v-for="(day, index) in weekdays"
                 :key="day"
             >
                 <b
                     :class="[isActive ? 'active-class' : '', hasError ? 'error-class' : '']"
                 >
-                    {{ weekdates[date] }} | {{ day }}
+                    {{ weekdates[index] }} | {{ day }}
                 </b>
             </div>
         </div>
@@ -79,14 +111,25 @@ onUnmounted(() => {
                 <div class="column time-column"><span>{{ time }}</span></div>
                     <div
                         class="column"
-                        v-for="day in weekdays"
-                        :key="day"
+                        v-for="(day, index) in weekdays"
+                        :key="(day, index)"
                     >
                     <div
                         v-show="day === currentDayName && time === currentTimeString"
                         class="current-line"
                         :style="{ top: currentMinute }"
                     >
+                    </div>
+                    <div
+                        class="task"
+                        v-for="task in tasks[String(index)].filter((t) => t.time === time)"
+                        :key="task.id"
+                        :style="{
+                            top: `${task.startMins / 60 * 100}%`,
+                            bottom: `-${(task.endHours - task.startHours - 1 + task.endMins / 60) * 100}%`
+                        }"
+                    >
+                        {{ task.title }}
                     </div>
                 </div>
             </div>
@@ -181,5 +224,25 @@ onUnmounted(() => {
         0 0 10px var(--color-deep-purple),
         0 0 10px var(--color-deep-purple),
         0 0 20px var(--color-deep-purple);
+}
+.task {
+    position: absolute;
+    width: 90%;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    text-align: center;
+    z-index: 10;
+    pointer-events: none;
+}
+.task::after {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    content: "";
+    position: absolute;
+    background: var(--color-deep-purple);
+    opacity: 0.05;
+    pointer-events: none;
 }
 </style>
