@@ -12,7 +12,7 @@ const navigateTo = (routeName) => {
   <div class="top-nav">
     <!-- Левое меню -->
     <ul class="nav-left">
-      <li @click="navigateTo('Register')"><b>Регистрация</b></li>
+      <li @click="navigateTo('Registration')"><b>Регистрация</b></li>
       <li @click="navigateTo('Login Page')"><b>Авторизация</b></li>
     </ul>
 

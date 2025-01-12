@@ -3,13 +3,13 @@ import { ref, computed, onMounted, onUnmounted } from "vue"
 import { getMonthName, makeTime, makeWeekDates } from "./ScheduleFunctions"
 
 const weekdays = ref(["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"])
-const weekdates = ref(makeWeekDates())
 const ampm = ref(false)
 const times = ref(makeTime(ampm))
 
 const currentMinute = ref("")
 const currentHour = ref("")
 const currentDayName = ref("")
+const weekdates = ref("")
 const currentMonthName = ref("")
 const currentYear = ref("")
 const currentTimeString = computed(() => {
@@ -24,6 +24,7 @@ const currentTimeString = computed(() => {
 
 function updateTime() {
     const now = new Date()
+    weekdates.value = makeWeekDates()
     currentMinute.value = `${now.getMinutes() / 60 * 100}%`
     currentHour.value = now.getHours()
     currentDayName.value = weekdays.value[(now.getDay() + 6) % 7]
