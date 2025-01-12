@@ -7,7 +7,7 @@ const router = useRouter();
 <template>
   <div class="get-started-container">
     <ul>
-      <li @click="router.push({ name: 'Register' })" class="get-started">
+      <li @click="router.push({ name: 'Registration' })" class="get-started">
         <b>Начать</b>
       </li>
     </ul>

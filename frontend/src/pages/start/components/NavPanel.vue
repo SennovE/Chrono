@@ -12,7 +12,7 @@ const navigateTo = (routeName) => {
   <div class="top-nav">
     <!-- Левое меню -->
     <ul class="nav-left">
-      <li @click="navigateTo('Register')"><b>Регистрация</b></li>
+      <li @click="navigateTo('Registration')"><b>Регистрация</b></li>
       <li @click="navigateTo('Login Page')"><b>Авторизация</b></li>
     </ul>
 
@@ -31,7 +31,7 @@ const navigateTo = (routeName) => {
 <style scoped>
 .top-nav {
     width: 100%;
-    background: linear-gradient(to left, var(--color-briter-black), var(--color-black));
+    background: linear-gradient(to left, var(--color-brighter-black), var(--color-black));
     position: fixed;
     top: 0;
     left: 0;

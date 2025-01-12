@@ -27,10 +27,11 @@ class ScheduleForm(BaseModel):
 
 class ScheduleResponse(ScheduleForm):
     id: UUID
-    week_day: int = Field(default=datetime.today().weekday())
+    week_day: int
 
 
 class ScheduleUpdateForm(BaseModel):
+    name: str | None = Field(default=None)
     text: str | None = Field(default=None)
     start_time: datetime | None = Field(default=None)
     end_time: datetime | None = Field(default=None)
