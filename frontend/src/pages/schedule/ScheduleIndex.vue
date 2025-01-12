@@ -12,8 +12,8 @@ async function authUserWrap() {
     user.value = await authUser(router)
 }
 
-onMounted(() => {
-    authUserWrap()
+onMounted(async () => {
+    await authUserWrap()
 })
 </script>
 

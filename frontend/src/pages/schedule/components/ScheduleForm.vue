@@ -1,14 +1,16 @@
 <script setup>
-import { ref } from "vue"
+import { ref, defineEmits } from "vue"
 import { useRouter } from "vue-router"
 import { addScheduleTask } from "./ScheduleFunctions"
 
+const emit = defineEmits(['task-added'])
 const router = useRouter()
 
 const shortText = ref("")
 const descriptionText = ref("")
 const startDate = ref("")
-const endDate = ref("")
+const startTime = ref("")
+const endTime = ref("")
 const recurring = ref(false)
 
 const response = ref("")
@@ -21,11 +23,19 @@ async function addScheduleTaskWrap() {
         shortText.value,
         descriptionText.value,
         startDate.value,
-        endDate.value,
+        startTime.value,
+        endTime.value,
         recurring.value
     )
     if (response.value === "") {
+        emit('task-added')
         modalClose()
+        shortText.value = ""
+        descriptionText.value = ""
+        startDate.value = ""
+        startTime.value = ""
+        endTime.value = ""
+        recurring.value = false
     }
 }
 
@@ -58,15 +68,20 @@ function modalClose() {
                     </div>
                     <input placeholder="Название события" v-model="shortText" />
                     <textarea placeholder="Добавьте описание" v-model="descriptionText"></textarea>
+
+                    <div class="field-group">
+                        <p>День события:</p>
+                        <input type="date" v-model="startDate" class="date" />
+                    </div>
                     
                     <div class="field-group">
                         <p>Начало:</p>
-                        <input type="datetime-local" v-model="startDate" class="date" />
+                        <input type="time" v-model="startTime" class="date" />
                     </div>
 
                     <div class="field-group">
                         <p>Конец:</p>
-                        <input type="datetime-local" v-model="endDate" class="date" />
+                        <input type="time" v-model="endTime" class="date" />
                     </div>
 
                     <div class="field-group">

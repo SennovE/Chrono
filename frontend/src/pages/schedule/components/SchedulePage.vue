@@ -1,11 +1,6 @@
 <script setup>
-// import { defineProps } from "vue"
-import modelWindow from "./ScheduleForm.vue"
 import calendar from "./ScheduleField.vue"
 
-// const props = defineProps({
-//     user: String,
-// })
 </script>
 
 <template>
@@ -13,7 +8,6 @@ import calendar from "./ScheduleField.vue"
         <div class="schedule-field">
             <calendar />
         </div>
-        <modelWindow />
     </div>
 </template>
 

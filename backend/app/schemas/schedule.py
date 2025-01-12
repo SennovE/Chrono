@@ -7,8 +7,8 @@ from uuid import UUID
 class ScheduleForm(BaseModel):
     name: str = Field(example="Name for your event")
     text: str = Field(example="Meeting or task that you need to put to your schedule")
-    start_time: datetime = Field(default=datetime.today())
-    end_time: datetime = Field(default=datetime.today() + timedelta(hours=1))
+    start_time: datetime = Field(example=datetime.today())
+    end_time: datetime = Field(example=datetime.today() + timedelta(hours=1))
     recurring: bool = Field(default=False, description="Should your task be repeated every week?")
 
     @model_validator(mode="after")
@@ -25,9 +25,18 @@ class ScheduleForm(BaseModel):
         return self
 
 
-class ScheduleResponse(ScheduleForm):
+class ScheduleResponse(BaseModel):
     id: UUID
-    week_day: int
+    name: str
+    text: str
+    year: int
+    month: int
+    day: int
+    start_hours: int
+    start_minutes: int
+    end_hours: int
+    end_minutes: int
+    recurring: bool
 
 
 class ScheduleUpdateForm(BaseModel):
@@ -37,12 +46,3 @@ class ScheduleUpdateForm(BaseModel):
     end_time: datetime | None = Field(default=None)
     recurring: bool | None = Field(default=None)
 
-
-class ScheduleDebugForm(BaseModel):
-    id: UUID
-    text: str | None = Field(default=None)
-    start_time: datetime | None = Field(default=None)
-    end_time: datetime | None = Field(default=None)
-    recurring: bool | None = Field(default=None)
-    week_day: int | None = Field(default=None)
-    owner_id: UUID = Field(default=None)
