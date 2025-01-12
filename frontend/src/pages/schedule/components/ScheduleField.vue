@@ -41,7 +41,7 @@ onMounted(() => {
     if (currentRow.value) {
         currentRow.value.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
-    interval = setInterval(updateTime, 6000)
+    interval = setInterval(updateTime, 10000)
 })
 
 onUnmounted(() => {
@@ -65,7 +65,7 @@ onUnmounted(() => {
                 <b
                     :class="[isActive ? 'active-class' : '', hasError ? 'error-class' : '']"
                 >
-                    {{ weekdates[date] }} {{ day }}
+                    {{ weekdates[date] }} | {{ day }}
                 </b>
             </div>
         </div>
@@ -104,6 +104,7 @@ onUnmounted(() => {
 .calendar-body {
     flex-grow: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     scrollbar-gutter: stable;
 }
 .row {
@@ -112,6 +113,7 @@ onUnmounted(() => {
 }
 .column {
     flex: 1;
+    min-width: 20px;
     display: flex;
     align-items: center;
     padding-top: 2%;
@@ -121,6 +123,7 @@ onUnmounted(() => {
 }
 .time-column {
     flex: 0.3;
+    min-width: 40px;
     justify-content: flex-end;
     align-items: flex-start;
     padding: 0 1% 0 0;
