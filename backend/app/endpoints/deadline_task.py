@@ -14,7 +14,8 @@ from app.utils.deadline_task import (
     get_deadline_tasks, 
     delete_deadline_task,
     complete_deadline_task,
-    update_deadline_task
+    update_deadline_task,
+    return_deadline_task
     )
 from uuid import UUID
 
@@ -146,4 +147,24 @@ async def update_task(task: Annotated[DeadlineTaksUpdateForm, Body()],\
     raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
         detail="Update task error",
+    )
+
+
+@api_router.post(
+    "/return_to_active",
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "Could not validate credentials",
+        }
+    },
+)
+async def return_to_active(task: Annotated[DeadlineTaskID, Body()],\
+                        session: Annotated[AsyncSession, Depends(get_session)])-> None:
+    is_success = await return_deadline_task(task, session)
+    if is_success:
+        return {"message": "Task returned to active"}
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Return to active task error",
     )

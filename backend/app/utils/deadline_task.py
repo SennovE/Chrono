@@ -79,3 +79,21 @@ async def update_deadline_task(updated_task: DeadlineTaksUpdateForm, session: As
         setattr(result, key, value)
     await session.commit()
     return True
+
+
+
+async def return_deadline_task(task: DeadlineTaskID, session: AsyncSession) -> bool:
+    query = select(DeadlineTask).where(DeadlineTask.id == task.id)
+    result = await session.execute(query)
+    task = result.scalar_one_or_none()
+
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    task.status = 0  
+    try:
+        await session.commit()
+    except Exception as e:
+        await session.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+    return True

@@ -38,7 +38,7 @@
       const navLinks = [
         { path: "/profile", label: "Профиль" },
         { path: "/settings", label: "Настройки" },
-        { path: "/calendar", label: "Расписание" },
+        { path: "/schedule", label: "Расписание" },
         { path: "/deadlines", label: "Дедлайны" },
       ];
   

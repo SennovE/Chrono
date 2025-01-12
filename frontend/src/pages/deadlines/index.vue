@@ -56,34 +56,51 @@
                       <p class="task-time">{{ formatTime(task.deadline_time) }}</p>
                     </div>
                   </div>
-                  <!-- Кнопка редактирования / удаления -->
-                  <!-- Если dayFilters[day] === 0 -> показываем «Редактировать», иначе -> «Удалить» -->
-                  <button
+                  <!-- Кнопки редактирования и удаления / возврата -->
+                  <!-- Если dayFilters[day] === 0 -> показываем «Редактировать», иначе -> «Вернуть дедлайн» и «Удалить» -->
+                  <div
                     v-if="dayFilters[day] === 0 && hoveredTask === task.id"
-                    class="edit-button"
-                    @click.stop="openEditModal(task)"
-                    aria-label="Edit Task"
+                    class="action-buttons"
                   >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M12 20h9"></path>
-                      <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                    </svg>
-                  </button>
-                  <button
+                    <button
+                      class="edit-button"
+                      @click.stop="openEditModal(task)"
+                      aria-label="Edit Task"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                      </svg>
+                    </button>
+                  </div>
+                  <div
                     v-else-if="dayFilters[day] === 1 && hoveredTask === task.id"
-                    class="edit-button"
-                    @click.stop="deleteTask(task.id)"
-                    aria-label="Delete Task"
+                    class="action-buttons"
                   >
-                    <!-- Красная иконка корзины -->
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="3 6 5 6 21 6" />
-                      <path d="M19 6L17 18.5C16.89 19.33 16.22 20 15.38 20H8.63C7.79 20 7.11 19.33 7.01 18.5L5 6Z" />
-                      <path d="M14 10V16" />
-                      <path d="M10 10V16" />
-                      <path d="M15 4V6H9V4C9 3.47 9.21 2.96 9.59 2.59C9.96 2.21 10.47 2 11 2H13C13.53 2 14.04 2.21 14.41 2.59C14.79 2.96 15 3.47 15 4Z" />
-                    </svg>
-                  </button>
+                    <button
+                      class="return-button"
+                      @click.stop="returnToActive(task.id)"
+                      aria-label="Вернуть дедлайн"
+                      title="Вернуть дедлайн"
+                    >
+                      Вернуть дедлайн
+                    </button>
+                    <button
+                      class="delete-button"
+                      @click.stop="deleteTask(task.id)"
+                      aria-label="Delete Task"
+                      title="Удалить задачу"
+                    >
+                      <!-- Красная иконка корзины -->
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6" />
+                        <path d="M19 6L17 18.5C16.89 19.33 16.22 20 15.38 20H8.63C7.79 20 7.11 19.33 7.01 18.5L5 6Z" />
+                        <path d="M14 10V16" />
+                        <path d="M10 10V16" />
+                        <path d="M15 4V6H9V4C9 3.47 9.21 2.96 9.59 2.59C9.96 2.21 10.47 2 11 2H13C13.53 2 14.04 2.21 14.41 2.59C14.79 2.96 15 3.47 15 4Z" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </div>
               <div class="new-task-form">
@@ -272,6 +289,27 @@ export default {
       }
     };
 
+    /**
+     * Возврат задачи в активные
+     */
+    const returnToActive = async (taskId) => {
+      try {
+        const token = getToken();
+        await axios.post(
+          "http://localhost:8080/api/v1/deadline_task/return_to_active",
+          { id: taskId },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        await fetchDeadlines();
+      } catch (error) {
+        console.error("Error returning task to active:", error);
+      }
+    };
+
     const groupedDeadlines = computed(() => {
       return deadlines.value.reduce((groups, task) => {
         const dateKey = task.deadline_time.split("T")[0];
@@ -430,6 +468,7 @@ export default {
       createTask,
       markTaskAsComplete,
       deleteTask, // не забудьте экспортировать метод
+      returnToActive, // Экспортируем новую функцию
       isModalOpen,
       editTask,
       openEditModal,
@@ -738,17 +777,45 @@ export default {
   transform: scale(1.1);
 }
 
-/* Кнопка редактирования / удаления */
-.edit-button {
+/* Кнопки редактирования, удаления и возврата */
+.action-buttons {
   position: absolute;
   top: 10px;
   right: 10px;
+  display: flex;
+  gap: 5px;
+}
+
+.edit-button,
+.delete-button,
+.return-button {
   background: transparent;
   border: none;
   cursor: pointer;
   padding: 5px;
-  border-radius: 50%;
-  transition: background-color 0.3s;
+  border-radius: 5px;
+  transition: background-color 0.3s, color 0.3s;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+/* Стили для текстовой кнопки "Вернуть дедлайн" */
+.return-button {
+  background-color: #2ecc71;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-weight: bold;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.return-button:hover {
+  background-color: #27ae60;
+  transform: scale(1.05);
+}
+
+.delete-button:hover {
+  background-color: rgba(231, 76, 60, 0.1);
 }
 
 .edit-button:hover {
