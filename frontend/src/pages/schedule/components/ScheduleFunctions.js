@@ -1,5 +1,23 @@
 import axios from "axios";
 
+export function makeWeekDates() {
+    const currentDate = new Date()
+    const dayOfWeek = currentDate.getDay()
+    const distanceToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
+    const monday = new Date(currentDate)
+    monday.setDate(currentDate.getDate() + distanceToMonday)
+    monday.setHours(0, 0, 0, 0)
+
+    const weekDates = []
+    for (let i = 0; i < 7; i++) {
+        const weekDay = new Date(monday)
+        weekDay.setDate(monday.getDate() + i)
+        weekDates.push(weekDay.getDate())
+    }
+
+    return weekDates
+}
+
 export function makeTime(ampm) {
     let times = [""]
     if (ampm.value) {

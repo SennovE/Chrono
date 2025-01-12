@@ -1,11 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from "vue"
-import { getMonthName, makeTime } from "./ScheduleFunctions"
+import { getMonthName, makeTime, makeWeekDates } from "./ScheduleFunctions"
 
 const weekdays = ref(["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"])
+const weekdates = ref(makeWeekDates())
 const ampm = ref(false)
 const times = ref(makeTime(ampm))
-const now = new Date()
 
 const currentMinute = ref("")
 const currentHour = ref("")
@@ -23,6 +23,7 @@ const currentTimeString = computed(() => {
 });
 
 function updateTime() {
+    const now = new Date()
     currentMinute.value = `${now.getMinutes() / 60 * 100}%`
     currentHour.value = now.getHours()
     currentDayName.value = weekdays.value[(now.getDay() + 6) % 7]
@@ -57,10 +58,14 @@ onUnmounted(() => {
             </div>
             <div
                 class="column header-row"
-                v-for="day in weekdays"
+                v-for="(day, date) in weekdays"
                 :key="day"
             >
-                <b>{{ day }}</b>
+                <b
+                    :class="[isActive ? 'active-class' : '', hasError ? 'error-class' : '']"
+                >
+                    {{ weekdates[date] }} {{ day }}
+                </b>
             </div>
         </div>
         <div class="calendar-body">
@@ -95,11 +100,6 @@ onUnmounted(() => {
     display: flex;
     flex-direction: column;
 }
-.calendar-header {
-    flex-shrink: 0;
-    overflow-x: hidden;
-    scrollbar-gutter: stable;
-}
 .calendar-body {
     flex-grow: 1;
     overflow-y: auto;
@@ -118,6 +118,17 @@ onUnmounted(() => {
     justify-content: center;
     position: relative;
 }
+.time-column {
+    flex: 0.3;
+    justify-content: flex-end;
+    align-items: flex-start;
+    padding: 0 1% 0 0;
+}
+.calendar-header {
+    flex-shrink: 0;
+    scrollbar-gutter: stable;
+    overflow: hidden;
+}
 .column::before {
     top: 0;
     left: 0;
@@ -129,12 +140,6 @@ onUnmounted(() => {
     border-bottom: 1px solid var(--color-grey);
     opacity: 0.1;
     pointer-events: none;
-}
-.time-column {
-    flex: 0.3;
-    justify-content: flex-end;
-    align-items: flex-start;
-    padding: 0 1% 0 0;
 }
 .time-column::before {
     border-bottom: none;
