@@ -1,4 +1,4 @@
-version: '3.8'
+
 
 services:
   db:
@@ -43,6 +43,32 @@ services:
       interval: 5s
       timeout: 3s
       retries: 3
+
+  frontend:
+    container_name: ${FRONTEND_HOST}
+    hostname: ${FRONTEND_HOST}
+    build:
+      context: ./frontend
+      dockerfile: ./Dockerfile
+    ports:
+      - '8081:80' 
+    env_file:
+      - ./.env
+    environment:
+      - VUE_APP_BACKEND_URL=http://${BACKEND_HOST}:8080 
+    depends_on:
+      backend:
+        condition: service_healthy
+    volumes:
+      - ./frontend:/frontend        # Монтируем всю директорию фронтенда для синхронизации изменений
+      - /frontend/node_modules      # Анонимный том для node_modules внутри контейнера
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - network_name
 
 networks:
   network_name:

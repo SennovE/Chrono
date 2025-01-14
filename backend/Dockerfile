@@ -12,4 +12,5 @@ COPY app /backend/app
 
 ENV PYTHONPATH=/backend
 
-CMD ["poetry", "run", "sh", "-c", "cd app/database && alembic upgrade head && cd .. && python3 ./main.py"]
+CMD ["poetry", "run", "sh", "-c", "cd app/database && alembic upgrade head && cd .. && poetry run uvicorn main:app --host 0.0.0.0 --port 8080"]
+
