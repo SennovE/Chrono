@@ -2,6 +2,7 @@
 import navPanel from "../../components/LoginNavPanel.vue";
 import userAvatar from "./components/UserAvatar.vue";
 import SettingsButton from "./components/SettingsButton.vue";
+import TodayTasks from "./components/TodayTasks.vue";
 </script>
 
 
@@ -13,7 +14,10 @@ import SettingsButton from "./components/SettingsButton.vue";
         <userAvatar />
     </div>
     <div>
-        <settingsButton />
+        <SettingsButton />
+    </div>
+    <div>
+        <TodayTasks />
     </div>
 </template>
 
