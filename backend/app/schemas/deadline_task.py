@@ -32,3 +32,8 @@ class DeadlineTaksUpdateForm(BaseModel):
     id: UUID
     deadline_time: datetime = Field()
     description: str = Field()
+
+
+class DeadlineTaskAICreare(BaseModel):
+    deadline_time: str
+    description: str

@@ -1,7 +1,8 @@
 from app.database.models import DeadlineTask
 from app.database.connection import get_session
 from app.schemas import DeadlineTaskDebugResponse, DeadlineTaskCreateForm, \
-DeadlineTaskResponse, DeadlineTaksUpdateForm, DeadlineTaskID
+DeadlineTaskResponse, DeadlineTaksUpdateForm, DeadlineTaskID, DeadlineGenerate
+
 
 from fastapi import APIRouter, Depends, status, HTTPException, Security
 from sqlalchemy.future import select
@@ -17,6 +18,7 @@ from app.utils.deadline_task import (
     update_deadline_task,
     return_deadline_task
     )
+from app.utils.ai_generation import generate_deadline
 from uuid import UUID
 
 api_router = APIRouter(
@@ -168,3 +170,20 @@ async def return_to_active(task: Annotated[DeadlineTaskID, Body()],\
         status_code=status.HTTP_400_BAD_REQUEST,
         detail="Return to active task error",
     )
+
+
+@api_router.post('/ai_generation',
+                 status_code=status.HTTP_200_OK,
+                 responses={
+                     status.HTTP_401_UNAUTHORIZED: {
+                         "descriprion": "Non authorized"
+                     }
+                 })
+async def ai_generation(response: DeadlineGenerate, \
+                        current_user: Annotated[User, Depends(get_current_user)], \
+                        session: Annotated[AsyncSession, Depends(get_session)]):
+    is_success = await generate_deadline(response, current_user, session)
+    if (is_success):
+        return {"message": f'Task generated with AI'}
+    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, \
+                        detail="AI genaration error")
