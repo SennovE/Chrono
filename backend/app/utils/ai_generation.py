@@ -7,6 +7,14 @@ from openai import OpenAI
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import exc
 import datetime
+from pydantic import BaseModel
+
+
+class DeadlineTaskList(BaseModel):
+  tasks: list[DeadlineTaskAICreare]
+
+  class Config:
+        arbitrary_types_allowed = True
 
 
 async def generate_deadline(response: DeadlineGenerate, \
@@ -16,24 +24,26 @@ async def generate_deadline(response: DeadlineGenerate, \
     client = OpenAI(api_key=api_key)
 
     completion = client.beta.chat.completions.parse(model="gpt-4o", messages=[
-      {"role": "system", "content": f"Ты превращаешь текстовый запрос пользователя в одну моделей создания дедлайна. \
-       Верни модель дедлайна по запросу пользователя. \
+      {"role": "system", "content": f"Ты превращаешь текстовый запрос пользователя в одну или несколько моделей создания дедлайна. \
+       Верни список дедлайнов по запросу пользователя. \
        Если пользователь не вводит точное время, выбери подходящее сам (например: рано вечером - в 18:00). Сейчас {datetime.datetime.now()}. \
         Не пиши никакое время в description, только описание события"},
       {"role": "user", "content": f'{response.text}'}],
-      response_format=DeadlineTaskAICreare)
+      response_format=DeadlineTaskList)
     
     ai_response = completion.choices[0].message.parsed
-    date = datetime.datetime.strptime(ai_response.deadline_time, "%Y-%m-%dT%H:%M:%S")
 
-    task = DeadlineTask(description=ai_response.description, deadline_time=date, \
-                             author_id=current_user.id, author=current_user.username, status=0)
+    for task in ai_response.tasks:
+      date = datetime.datetime.strptime(task.deadline_time, "%Y-%m-%dT%H:%M:%S")
 
-    session.add(task)
-    try:
-        await session.commit()
-    except exc.IntegrityError:
-        return False
+      db_task = DeadlineTask(description=task.description, deadline_time=date, \
+                              author_id=current_user.id, author=current_user.username, status=0)
+
+      session.add(db_task)
+      try:
+          await session.commit()
+      except exc.IntegrityError:
+          return False
     
     return True
 
