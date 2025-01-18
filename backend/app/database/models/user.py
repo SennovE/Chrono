@@ -17,3 +17,4 @@ class User(DeclarativeBase):
     email = Column(String, unique=True)
     premium = Column(Boolean, default=False)
     password = Column(String)
+    text_settings = Column(String)
