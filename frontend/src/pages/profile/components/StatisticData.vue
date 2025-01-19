@@ -1,62 +1,38 @@
 <template>
-    <div class="task-statistics">
-      <h2>Статистика задач</h2>
-      
-      <div class="controls">
-        <button 
-          :class="{ active: selectedPeriod === 'day' }" 
-          @click="selectedPeriod = 'day'"
-        >
-          День
-        </button>
-        <button 
-          :class="{ active: selectedPeriod === 'week' }" 
-          @click="selectedPeriod = 'week'"
-        >
-          Неделя
-        </button>
-      </div>
-      
-      <div v-if="loading" class="loading-indicator">
-        Загрузка статистики...
-      </div>
-      
-      <div v-else>
-        <BarChart :chartData="chartData" :options="chartOptions" />
-      </div>
-      
-      <p v-if="error" class="error">{{ error }}</p>
+  <div class="task-statistics">
+    <h2>Статистика задач</h2>
+    
+    <div class="controls">
+      <button 
+        :class="{ active: selectedPeriod === 'day' }" 
+        @click="selectedPeriod = 'day'"
+      >
+        День
+      </button>
+      <button 
+        :class="{ active: selectedPeriod === 'week' }" 
+        @click="selectedPeriod = 'week'"
+      >
+        Неделя
+      </button>
     </div>
-  </template>
+    
+    <div v-if="loading" class="loading-indicator">
+      Загрузка статистики...
+    </div>
+    
+    <div v-else class="chart-container">
+      <BarChart :chartData="chartData" :options="chartOptions" />
+    </div>
+    
+    <p v-if="error" class="error">{{ error }}</p>
+  </div>
+</template>
+
 <script>
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
-import { Bar } from 'vue-chartjs';
-import { 
-  Chart as ChartJS, 
-  CategoryScale, 
-  LinearScale, 
-  BarElement, 
-  Title, 
-  Tooltip, 
-  Legend 
-} from 'chart.js';
-
-// Регистрация компонентов Chart.js
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
-
-// Создание компонента графика
-const BarChart = {
-  extends: Bar,
-  props: ['chartData', 'options'],
-};
+import BarChart from './BarChart.vue'; // Убедитесь, что путь правильный
 
 export default {
   name: 'TaskStatistics',
@@ -109,12 +85,10 @@ export default {
       const counts = {
         active: 0,
         completed: 0,
-        overdue: 0
+        overdue: 0,
       };
 
-
       tasks.value.forEach(task => {
-        // Определяем статус задачи
         if (task.status === 1) {
           counts.completed += 1;
         } else if (task.status === 2) {
@@ -142,7 +116,7 @@ export default {
             }
           ]
         };
-      } else if (selectedPeriod.value === 'week') {
+      } else  {
         // Для недели отображаем динамику по дням
         const daysOfWeek = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
         const counts = {
@@ -200,15 +174,41 @@ export default {
           display: true,
           text: selectedPeriod.value === 'day' ? 'Статистика за День' : 'Статистика за Неделю'
         }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1,       // Интервал между отметками
+            precision: 0,      // Убирает десятичные знаки
+            // Можно добавить callback для дополнительной настройки
+            // callback: function(value) {
+            //   if (Number.isInteger(value)) {
+            //     return value;
+            //   }
+            // }
+          },
+          grid: {
+            display: false      // Скрыть сетку по оси Y
+          }
+        },
+        x: {
+          grid: {
+            display: false      // Скрыть сетку по оси X (если нужно)
+          }
+        }
       }
     }));
 
-    const chartData = computed(() => getChartData());
+    const chartData = computed(() => {
+      const data = getChartData();
+      console.log('Chart Data:', data); // Для отладки
+      return data;
+    });
 
     onMounted(() => {
       fetchTasks();
     });
-
 
     return {
       tasks,
@@ -221,56 +221,68 @@ export default {
   },
 };
 </script>
+
 <style scoped>
 .task-statistics {
-  border: 1px solid #121111;
-  padding: 16px;
-  border-radius: 8px;
-  width: 100%;
-  max-width: 800px;
-  margin: 40px auto;
-  background-color: #131212;
-  color: #f1f1f1;
   position: absolute;
-    top: 400px; /* Указание позиции отдельно */
-    left: 600px;
+    top: 100px; /* Указание позиции отдельно */
+    left:1320px;
+  /* Удалено абсолютное позиционирование */
+  border: 1px solid #dddddd; /* Светло-серая граница */
+  padding: 16px; /* Увеличен паддинг для внутреннего отступа */
+  border-radius: 8px;
+  width: 20%; /* Уменьшена ширина */
+  max-width: 600px; /* Уменьшен максимальный размер */
+  margin: 40px auto; /* Центрирование компонента */
+  background-color: #ffffff; /* Светлый фон */
+  color: #333333; /* Темно-серый текст */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Легкая тень для глубины */
 }
 
 .task-statistics h2 {
   text-align: center;
   margin-bottom: 20px;
+  color: #333333; /* Темно-серый цвет заголовка */
 }
 
 .controls {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 20px; /* Увеличен отступ */
 }
 
 .controls button {
-  background-color: #434547;
-  border: none;
-  color: white;
-  padding: 10px 20px;
-  margin: 0 5px;
+  background-color: #f0f0f0; /* Светло-серый фон кнопок */
+  border: 1px solid #cccccc; /* Светло-серая граница */
+  color: #333333; /* Темно-серый текст */
+  padding: 8px 16px; /* Уменьшен паддинг */
+  margin: 0 50px;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+  font-size: 14px; /* Уменьшен размер шрифта */
 }
 
 .controls button.active, .controls button:hover {
-  background-color: #3b3d3e;
+  background-color: #e0e0e0; /* Светло-серый фон при наведении и активном состоянии */
 }
 
 .loading-indicator {
   text-align: center;
-  font-size: 18px;
-  color: #555;
+  font-size: 14px; /* Увеличен размер шрифта для лучшей читаемости */
+  color: #666666; /* Светло-серый цвет */
 }
 
 .error {
-  color: red;
+  color: #ff4d4d; /* Красный цвет для ошибок */
   text-align: center;
   margin-top: 16px;
 }
+
+.chart-container {
+  position: relative;
+  height: 400px; /* Установлена подходящая высота для графика */
+  width: 100%; /* Ширина 100% контейнера */
+}
+
+
 </style>
-  
