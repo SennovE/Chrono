@@ -6,7 +6,6 @@ import StartButton from "./components/StartButton.vue"
 <template>
   <div id="app">
     <navPanel />
-    <h1>Добро пожаловать в Chrono!</h1>
   </div>
   <div class="content">
     <StartButton />
@@ -17,7 +16,7 @@ import StartButton from "./components/StartButton.vue"
 
 <style>
 
-@import "../../components/Stiles.css";
+@import "../../components/StyleWhite.css";
 
   
   
