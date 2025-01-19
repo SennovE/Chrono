@@ -48,7 +48,7 @@ ul {
 }
 
 .get-started:hover {
-  background-color: #1a1a1a;
+  background-color: #e0e0e0;
   transform: translateY(-2px);
   box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
 }

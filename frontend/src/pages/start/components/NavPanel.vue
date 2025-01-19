@@ -1,91 +1,81 @@
+<template>
+  <div class="top-nav">
+      <ul>
+          <li @click="router.push({name: 'Registation'})"><b>Регистрация</b></li>
+          <li @click="router.push({name: 'Login Page'})"><b>Авторизация</b></li>
+          <li @click="router.push({name: 'Deadlines Page'})"><b>Дедлайны</b></li>
+          <li
+              class="right-button"
+              @click="router.push({name: 'Profile Page'})"
+          ><b>Профиль</b></li>
+      </ul>
+  </div>
+</template>
+
 <script setup>
 import { useRouter } from "vue-router";
 
 const router = useRouter();
-
-const navigateTo = (routeName) => {
-  router.push({ name: routeName });
-};
 </script>
-
-<template>
-  <div class="top-nav">
-    <!-- Левое меню -->
-    <ul class="nav-left">
-      <li @click="navigateTo('Registration')"><b>Регистрация</b></li>
-      <li @click="navigateTo('Login Page')"><b>Авторизация</b></li>
-    </ul>
-
-    <!-- Центральный текст -->
-    <div class="center-text">
-      <b>Добро пожаловать в Chrono!</b>
-    </div>
-
-    <!-- Правое меню -->
-    <ul class="nav-right">
-      <li @click="navigateTo('Profile Page')"><b>Профиль</b></li>
-    </ul>
-  </div>
-</template>
 
 <style scoped>
 .top-nav {
-    width: 100%;
-    background: linear-gradient(to left, var(--color-brighter-black), var(--color-black));
-    position: fixed;
-    top: 0;
-    left: 0;
-    box-shadow: 
-        0px 0px 5px white,
-        0px 0px 10px var(--color-deep-purple),
-        0px 0px 20px var(--color-deep-purple),
-        0px 0px 50px var(--color-deep-purple);
-    z-index: 999;
-    align-items: center;
-    justify-content: space-between;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    height: 80px; 
+  width: 100%;
+  background: linear-gradient(to left, var(--color-brighter-black), var(--color-dark-grey));
+  position: fixed;
+  top: 0;
+  left: 0;
+  box-shadow: 
+      0px 2px 4px rgba(0, 0, 0, 0.1),
+      0px 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+  padding: 0 20px; /* Добавлен внутренний отступ */
 }
 
-.nav-left {
-display: flex;
+.top-nav ul {
+  display: flex;
   list-style-type: none;
+  justify-content: flex-start;
+  align-items: center;
   margin: 0;
   padding: 0;
 }
-.nav-right {
-  display: flex;
-  list-style-type: none;
-  margin: 2%;
-  padding: 0;
-}
 
-.nav-left li,
-.nav-right li {
+.top-nav li {
+  display: block;
   padding: 15px 20px;
   text-decoration: none;
-  border-radius: 5px;
-  transition: background-color 0.3s, text-shadow 0.3s;
+  border-radius: 5px;    
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   cursor: pointer;
-  color: var(--color-grey);
-}
-
-
-
-/* Центральный текст */
-.center-text {
-  position: absolute; /* Абсолютное позиционирование относительно .top-nav */
-  left: 50%;
-  transform: translateX(-50%);
-  color: var(--color-grey-purple);
-  font-size: 18px;
+  color: var(--color-black); /* Темно-серый текст */
   font-weight: bold;
-  text-shadow: 0px 0px 5px var(--color-deep-purple);
-  pointer-events: none; /* Чтобы клики проходили сквозь текст, если нужно */
 }
 
+.top-nav li:hover {
+  background-color: var(--color-dark-grey); /* Светло-серый фон при наведении */
+  color: var(--color-deep-purple); /* Пурпурный текст при наведении */
+  box-shadow: 0px 4px 8px rgba(136, 0, 255, 0.2); /* Пурпурная тень при наведении */
+}
 
+.right-button {
+  margin-left: auto;
+  margin-right: 2%;
+}
+
+@media (max-width: 768px) {
+  .top-nav ul {
+      flex-direction: column;
+      align-items: flex-start;
+  }
+
+  .right-button {
+      margin-left: 0;
+      margin-top: 10px;
+  }
+
+  .top-nav li {
+      padding: 10px 15px;
+  }
+}
 </style>
