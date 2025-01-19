@@ -33,8 +33,8 @@ ul {
 }
 
 .get-started {
-  background-color: #000000;
-  color: #ffffff;
+  background-color: #ffffff;
+  color: #000000;
   border: none;
   padding: 20px 80px;
   font-size: 10px;

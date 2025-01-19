@@ -73,7 +73,7 @@ import { ref,  onMounted } from "vue";
   bottom: -50px; /* Отступ от нижнего края контейнера */
   left: 20px; /* Отступ от левого края контейнера */
   font-size: 1.3em;
-  color: #fbfbfb;
+  color: #000000;
   text-align: left; /* Текст выравнивается по левому краю */
   
 }
