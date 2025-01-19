@@ -16,12 +16,15 @@ const router = useRouter();
 
 <style scoped>
 .get-started-container {
-    display: flex; /* Включает flexbox */
-  justify-content: center; /* Центрирование по горизонтали */
-  align-items: center; /* Центрирование по вертикали */
-  height: 70vh; /* Высота контейнера на весь экран */
-  margin: 0; /* Убираем отступы */
-  padding: 0; /* Убираем внутренние отступы */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+    top: 240px; /* Указание позиции отдельно */
+    left: 850px;
 }
 
 ul {
@@ -31,29 +34,29 @@ ul {
 }
 
 .get-started {
-  background-color: #000000;
-  color: #ffffff;
-  border: none;
-  padding: 30px 90px;
-  font-size: 20px;
+  background-color: #ffc1e3; /* Светло-розовый цвет */
+  color: #6a1b9a; /* Темно-фиолетовый для контраста */
+  border: 2px solid #f48fb1; /* Акцент на границу */
+  padding: 20px 70px;
+  font-size: 18px;
   font-weight: bold;
   text-transform: uppercase;
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: 25px; /* Закругленные края */
   transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
   display: inline-block;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Мягкая тень */
 }
 
 .get-started:hover {
-  background-color: #1a1a1a;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+  background-color: #f48fb1; /* Более насыщенный розовый */
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
 }
 
 .get-started:active {
-  background-color: #333333;
+  background-color: #f06292; /* Насыщенный оттенок при нажатии */
   transform: translateY(0);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 </style>
