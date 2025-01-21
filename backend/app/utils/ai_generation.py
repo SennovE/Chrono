@@ -23,7 +23,7 @@ async def generate_deadline(response: DeadlineGenerate, \
     api_key = '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'
     client = OpenAI(api_key=api_key)
 
-    completion = client.beta.chat.completions.parse(model="gpt-4o", messages=[
+    completion = client.beta.chat.completions.parse(model="gpt-4o-mini", messages=[
       {"role": "system", "content": f"Ты превращаешь текстовый запрос пользователя в одну или несколько моделей создания дедлайна. \
        Верни список дедлайнов по запросу пользователя. \
        Если пользователь не вводит точное время, выбери подходящее сам (например: рано вечером - в 18:00). Сейчас {datetime.datetime.now()}. \
