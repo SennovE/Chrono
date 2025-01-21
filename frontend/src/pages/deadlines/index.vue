@@ -2,14 +2,27 @@
   <div class="page-container">
     <NavBar :username="user.username" />
     <div class="content-container">
-      <h1 class="title">My tasks</h1>
+      <!-- Header Section with Title and Add Task Easier Button -->
+      <div class="header">
+        <h1 class="title">My tasks</h1>
+        <button
+          class="add-easier-button"
+          @click="openAIModal"
+          aria-label="Add Task Easier"
+        >
+          Add task easier
+        </button>
+      </div>
+
       <div class="deadline-wrapper">
         <button class="scroll-button scroll-left" @click="scrollLeft" aria-label="Scroll Left">
+          <!-- SVG Icon -->
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M15 18L9 12L15 6" stroke="#7f8c8d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
         <div ref="deadlineListRef" class="deadline-list">
+          <!-- Deadline List -->
           <div v-for="(tasks, day) in allDaysWithTasks" :key="day" class="deadline-day-wrapper">
             <div class="day-header">
               <h2 class="day-title">{{ formatDate(day) }}</h2>
@@ -26,9 +39,9 @@
               <div class="tasks">
                 <div v-if="tasks.length === 0" class="empty-task-card">
                   <p v-if="dayFilters[day] === 0">Все задачи завершены!</p>
-                  <p v-else>Нет завершенных задач.</p>
+                  <p v-else>Нет актуальных задач.</p>
                 </div>
-                <!-- v-for по задачам -->
+                <!-- Tasks List -->
                 <div
                   v-else
                   v-for="task in tasks"
@@ -56,8 +69,7 @@
                       <p class="task-time">{{ formatTime(task.deadline_time) }}</p>
                     </div>
                   </div>
-                  <!-- Кнопки редактирования и удаления / возврата -->
-                  <!-- Если dayFilters[day] === 0 -> показываем «Редактировать», иначе -> «Вернуть дедлайн» и «Удалить» -->
+                  <!-- Edit and Delete/Return Buttons -->
                   <div
                     v-if="dayFilters[day] === 0 && hoveredTask === task.id"
                     class="action-buttons"
@@ -112,6 +124,7 @@
           </div>
         </div>
         <button class="scroll-button scroll-right" @click="scrollRight" aria-label="Scroll Right">
+          <!-- SVG Icon -->
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M9 18L15 12L9 6" stroke="#7f8c8d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -119,7 +132,7 @@
       </div>
     </div>
 
-    <!-- Модальное окно для редактирования задачи -->
+    <!-- Existing Edit Modal -->
     <div v-if="isModalOpen" class="modal-overlay" @click.self="closeEditModal">
       <div class="modal-content">
         <h2>Редактировать задачу</h2>
@@ -135,6 +148,23 @@
           <div class="modal-buttons">
             <button type="button" @click="closeEditModal">Отмена</button>
             <button type="submit">Сохранить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- New AI Generation Modal -->
+    <div v-if="isAIModalOpen" class="modal-overlay" @click.self="closeAIModal">
+      <div class="modal-content">
+        <h2>Add Task Easier</h2>
+        <form @submit.prevent="submitAI">
+          <label>
+            Enter Task Description:
+            <input type="text" v-model="aiInput" required placeholder="Describe your task here" />
+          </label>
+          <div class="modal-buttons">
+            <button type="button" @click="closeAIModal">Cancel</button>
+            <button type="submit">Отправить</button>
           </div>
         </form>
       </div>
@@ -155,10 +185,8 @@ export default {
     const deadlines = ref([]);
     const deadlineListRef = ref(null);
 
-    // Инициализация хранилища новых задач по дням
+    // Existing reactive variables
     const newTask = ref({});
-
-    // Состояние для управления модальным окном
     const isModalOpen = ref(false);
     const editTask = ref({
       id: null,
@@ -166,12 +194,12 @@ export default {
       date: "",
       time: "",
     });
-
-    // Отслеживание наведённой задачи
     const hoveredTask = ref(null);
-
-    // Состояние фильтров для каждого дня
     const dayFilters = ref({}); // 0 = актуальные, 1 = завершённые
+
+    // New reactive variables for AI Modal
+    const isAIModalOpen = ref(false);
+    const aiInput = ref("");
 
     const getToken = () => {
       const token = localStorage.getItem("chronoJWTToken");
@@ -279,10 +307,11 @@ export default {
         await axios.post("http://localhost:8080/api/v1/deadline_task/delete_task",
           { id: taskId },
           {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         await fetchDeadlines();
       } catch (error) {
         console.error("Error deleting task:", error);
@@ -309,6 +338,30 @@ export default {
         console.error("Error returning task to active:", error);
       }
     };
+
+    const AIGeneration = async (user_text) => {
+      try {
+        const token = getToken();
+        const response = await axios.post(
+          "http://localhost:8080/api/v1/deadline_task/ai_generation",
+          { text: user_text }, 
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        // Предполагая, что сервер возвращает добавленную задачу
+        if (response.data && response.data.success) {
+          await fetchDeadlines();
+        } else {
+          console.error("AI Generation failed:", response.data.message);
+        }
+      } catch (error) {
+        console.error("Error AI generation", error)
+      }
+    }
 
     const groupedDeadlines = computed(() => {
       return deadlines.value.reduce((groups, task) => {
@@ -390,7 +443,7 @@ export default {
       }
     };
 
-    // Модальное окно (редактирование)
+    // Existing Edit Modal Methods
     const openEditModal = (task) => {
       // Если нужно, проверяем статус задачи здесь (но мы уже сделали проверку во вьюшке)
       const deadlineDate = new Date(task.deadline_time);
@@ -442,6 +495,29 @@ export default {
       }
     };
 
+    // Methods for AI Modal
+    const openAIModal = () => {
+      isAIModalOpen.value = true;
+    };
+
+    const closeAIModal = () => {
+      isAIModalOpen.value = false;
+      aiInput.value = "";
+    };
+
+    const submitAI = async () => {
+      if (aiInput.value.trim() === "") {
+        alert("Please enter a task description.");
+        return;
+      }
+      try {
+        await AIGeneration(aiInput.value.trim());
+        closeAIModal(); // Закрываем модальное окно сразу после нажатия "Отправить"
+      } catch (error) {
+        console.error("Error submitting AI task:", error);
+      }
+    };
+
     // Функции для управления фильтрами
     const setFilterCompleted = (day) => {
       dayFilters.value[day] = 1;
@@ -478,6 +554,12 @@ export default {
       setFilterCompleted,
       setFilterCurrent,
       dayFilters,
+      // AI Modal
+      isAIModalOpen,
+      aiInput,
+      openAIModal,
+      closeAIModal,
+      submitAI,
     };
   },
 };
@@ -498,8 +580,44 @@ export default {
   background-color: #f8f9fa;
 }
 
-.title {
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
+}
+
+.title {
+  margin: 0;
+  font-size: 4.5rem; /* Увеличено в 3 раза от предыдущего размера */
+}
+
+/* Add Task Easier Button */
+.add-easier-button {
+  background: linear-gradient(45deg, #3498db, #e67e22); /* Градиентный фон */
+  color: white;
+  border: none;
+  width: 150px; /* Прямоугольная форма */
+  height: 50px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 8px; /* Немного закругленных углов для стиля */
+  transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
+  /* Сдвиг кнопки влево на 20% ширины экрана */
+  margin-left: -20%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.add-easier-button:hover {
+  background: linear-gradient(45deg, #2980b9, #d35400); /* Изменение градиента при наведении */
+  transform: translateY(-2px); /* Небольшой подъем при наведении */
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.add-easier-button:active {
+  transform: translateY(0); /* Возврат к исходному положению */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .deadline-wrapper {
@@ -822,7 +940,7 @@ export default {
   background-color: rgba(52, 152, 219, 0.1);
 }
 
-/* Модальное окно */
+/* Модальные окна */
 .modal-overlay {
   position: fixed;
   top: 0;
