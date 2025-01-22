@@ -2,16 +2,25 @@
   <div class="page-container">
     <NavBar :username="user.username" />
     <div class="content-container">
-      <!-- Header Section with Title and Add Task Easier Button -->
+      <!-- Header Section with Title and Add Task Easier & Add Task Buttons -->
       <div class="header">
         <h1 class="title">My tasks</h1>
-        <button
-          class="add-easier-button"
-          @click="openAIModal"
-          aria-label="Add Task Easier"
-        >
-          Add task easier
-        </button>
+        <div class="header-buttons">
+          <button
+            class="add-easier-button"
+            @click="openAIModal"
+            aria-label="Add Task Easier"
+          >
+            Add task easier
+          </button>
+          <button
+            class="add-task-button"
+            @click="openAddTaskModal"
+            aria-label="Add Task"
+          >
+            + Add task
+          </button>
+        </div>
       </div>
 
       <div class="deadline-wrapper">
@@ -169,6 +178,31 @@
         </form>
       </div>
     </div>
+
+    <!-- New Add Task Modal -->
+    <div v-if="isAddTaskModalOpen" class="modal-overlay" @click.self="closeAddTaskModal">
+      <div class="modal-content">
+        <h2>Add New Task</h2>
+        <form @submit.prevent="submitAddTask">
+          <label>
+            Description:
+            <input type="text" v-model="newTaskData.description" required placeholder="Task description" />
+          </label>
+          <label>
+            Date:
+            <input type="date" v-model="newTaskData.date" required />
+          </label>
+          <label>
+            Time:
+            <input type="time" v-model="newTaskData.time" required />
+          </label>
+          <div class="modal-buttons">
+            <button type="button" @click="closeAddTaskModal">Cancel</button>
+            <button type="submit">Add Task</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -185,7 +219,6 @@ export default {
     const deadlines = ref([]);
     const deadlineListRef = ref(null);
 
-    // Existing reactive variables
     const newTask = ref({});
     const isModalOpen = ref(false);
     const editTask = ref({
@@ -197,9 +230,16 @@ export default {
     const hoveredTask = ref(null);
     const dayFilters = ref({}); // 0 = актуальные, 1 = завершённые
 
-    // New reactive variables for AI Modal
     const isAIModalOpen = ref(false);
     const aiInput = ref("");
+
+    // New Add Task Modal State
+    const isAddTaskModalOpen = ref(false);
+    const newTaskData = ref({
+      description: "",
+      date: "",
+      time: "",
+    });
 
     const getToken = () => {
       const token = localStorage.getItem("chronoJWTToken");
@@ -250,11 +290,9 @@ export default {
       }
       try {
         const token = getToken();
-        // Создаём объект Date с локальным временем
         const [year, month, date] = day.split("-");
         const [hours, minutes] = newTask.value[day].time.split(":");
         const deadlineDate = new Date(year, month - 1, date, hours, minutes);
-        // Преобразуем в ISO-строку
         const deadline_time = deadlineDate.toISOString();
         const description = newTask.value[day].description;
 
@@ -279,7 +317,6 @@ export default {
     const markTaskAsComplete = async (taskId) => {
       try {
         const token = getToken();
-        // Отправляем запрос для завершения задачи
         await axios.post(
           "http://localhost:8080/api/v1/deadline_task/complete_task",
           { id: taskId },
@@ -290,7 +327,6 @@ export default {
           }
         );
 
-        // Обновляем список задач
         await fetchDeadlines();
       } catch (error) {
         console.error("Error completing task:", error);
@@ -303,7 +339,6 @@ export default {
     const deleteTask = async (taskId) => {
       try {
         const token = getToken();
-        // Важно: если на сервере другой маршрут или нужны query-параметры, адаптируйте запрос
         await axios.post("http://localhost:8080/api/v1/deadline_task/delete_task",
           { id: taskId },
           {
@@ -342,7 +377,7 @@ export default {
     const AIGeneration = async (user_text) => {
       try {
         const token = getToken();
-        const response = await axios.post(
+        await axios.post(
           "http://localhost:8080/api/v1/deadline_task/ai_generation",
           { text: user_text }, 
           {
@@ -352,12 +387,7 @@ export default {
           }
         );
 
-        // Предполагая, что сервер возвращает добавленную задачу
-        if (response.data && response.data.success) {
-          await fetchDeadlines();
-        } else {
-          console.error("AI Generation failed:", response.data.message);
-        }
+        await fetchDeadlines();
       } catch (error) {
         console.error("Error AI generation", error)
       }
@@ -443,9 +473,7 @@ export default {
       }
     };
 
-    // Existing Edit Modal Methods
     const openEditModal = (task) => {
-      // Если нужно, проверяем статус задачи здесь (но мы уже сделали проверку во вьюшке)
       const deadlineDate = new Date(task.deadline_time);
       const year = deadlineDate.getFullYear();
       const month = String(deadlineDate.getMonth() + 1).padStart(2, "0");
@@ -495,7 +523,6 @@ export default {
       }
     };
 
-    // Methods for AI Modal
     const openAIModal = () => {
       isAIModalOpen.value = true;
     };
@@ -512,13 +539,54 @@ export default {
       }
       try {
         await AIGeneration(aiInput.value.trim());
-        closeAIModal(); // Закрываем модальное окно сразу после нажатия "Отправить"
+        closeAIModal();
       } catch (error) {
         console.error("Error submitting AI task:", error);
       }
     };
 
-    // Функции для управления фильтрами
+    // New Methods for Add Task Modal
+    const openAddTaskModal = () => {
+      isAddTaskModalOpen.value = true;
+    };
+
+    const closeAddTaskModal = () => {
+      isAddTaskModalOpen.value = false;
+      newTaskData.value = { description: "", date: "", time: "" };
+    };
+
+    const submitAddTask = async () => {
+      const { description, date, time } = newTaskData.value;
+
+      if (!description.trim() || !date || !time) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      try {
+        const token = getToken();
+        const deadlineDate = new Date(`${date}T${time}`);
+        const deadline_time = deadlineDate.toISOString();
+
+        await axios.post(
+          "http://localhost:8080/api/v1/deadline_task/create_deadline_task",
+          { description: description.trim(), deadline_time },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        // Reset form and fetch updated deadlines
+        newTaskData.value = { description: "", date: "", time: "" };
+        await fetchDeadlines();
+        closeAddTaskModal();
+      } catch (error) {
+        console.error("Error adding new task:", error);
+      }
+    };
+
     const setFilterCompleted = (day) => {
       dayFilters.value[day] = 1;
     };
@@ -543,8 +611,8 @@ export default {
       newTask,
       createTask,
       markTaskAsComplete,
-      deleteTask, // не забудьте экспортировать метод
-      returnToActive, // Экспортируем новую функцию
+      deleteTask,
+      returnToActive,
       isModalOpen,
       editTask,
       openEditModal,
@@ -554,12 +622,18 @@ export default {
       setFilterCompleted,
       setFilterCurrent,
       dayFilters,
-      // AI Modal
       isAIModalOpen,
       aiInput,
       openAIModal,
       closeAIModal,
       submitAI,
+
+      // New Add Task Modal
+      isAddTaskModalOpen,
+      openAddTaskModal,
+      closeAddTaskModal,
+      submitAddTask,
+      newTaskData,
     };
   },
 };
@@ -592,6 +666,12 @@ export default {
   font-size: 4.5rem; /* Увеличено в 3 раза от предыдущего размера */
 }
 
+/* Container for Header Buttons */
+.header-buttons {
+  display: flex;
+  gap: 10px;
+}
+
 /* Add Task Easier Button */
 .add-easier-button {
   background: linear-gradient(45deg, #3498db, #e67e22); /* Градиентный фон */
@@ -620,16 +700,42 @@ export default {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+/* New Add Task Button */
+.add-task-button {
+  background-color: white;
+  color: #7f8c8d;
+  border: 1px solid #bdc3c7;
+  width: 150px; /* Same width as add-easier-button */
+  height: 50px; /* Same height as add-easier-button */
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 8px; /* Consistent border radius */
+  transition: background-color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.add-task-button:hover {
+  background-color: #f0f0f0;
+  border-color: #a0a0a0;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.add-task-button:active {
+  background-color: #e0e0e0;
+  border-color: #909090;
+  transform: translateY(0);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 .deadline-wrapper {
   display: flex;
-  align-items: center;
   position: relative;
 }
 
 .scroll-button {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  position: fixed;
   width: 40px;
   height: 40px;
   background-color: white;
@@ -640,6 +746,18 @@ export default {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 0;
   z-index: 10;
+}
+
+.scroll-button.scroll-left {
+  left: 310px;
+  top: 24%;
+  transform: translateY(-50%);
+}
+
+.scroll-button.scroll-right {
+  right: 35px;
+  top: 24%;
+  transform: translateY(-50%);
 }
 
 .scroll-button:hover {
@@ -978,7 +1096,8 @@ export default {
 }
 
 .modal-content input[type="text"],
-.modal-content input[type="time"] {
+.modal-content input[type="time"],
+.modal-content input[type="date"] {
   width: 100%;
   padding: 8px;
   margin-top: 5px;
@@ -1013,4 +1132,5 @@ export default {
 .modal-buttons button:hover {
   opacity: 0.9;
 }
+
 </style>
