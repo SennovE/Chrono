@@ -14,8 +14,13 @@ class UserDebugResponse(BaseModel):
     username: str
     premium: bool
     password: str
+    text_settings: str
 
 
 class UserCreateForm(BaseModel):
     email: str = Field(unique=True)
     password: str = Field()
+
+
+class UserTextSettings(BaseModel):
+    text: str = Field()

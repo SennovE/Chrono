@@ -9,8 +9,8 @@ from sqlalchemy import exc, select
 
 from app.config import DefaultSettings, get_settings
 from app.database.connection import get_session
+from app.schemas import RegistrationForm, TokenData, UserTextSettings
 from app.database.models import User
-from app.schemas import RegistrationForm, TokenData
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -79,3 +79,16 @@ async def get_current_user(
     if user is None:
         raise credentials_exception
     return user
+
+
+async def set_text_settings(response: UserTextSettings, current_user: User, session: AsyncSession):
+    query = select(User).where(User.id == current_user.id)
+    result = await session.scalar(query)
+    result.text_settings = response.text
+
+    try:
+        await session.commit()
+    except:
+        return False
+    
+    return True
