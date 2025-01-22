@@ -23,12 +23,14 @@ async def generate_deadline(response: DeadlineGenerate, \
     api_key = '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'
     client = OpenAI(api_key=api_key)
 
-    completion = client.beta.chat.completions.parse(model="gpt-4o-mini", messages=[
+    completion = client.beta.chat.completions.parse(model="gpt-4o", messages=[
       {"role": "system", "content": f"Ты превращаешь текстовый запрос пользователя в одну или несколько моделей создания дедлайна. \
        Верни список дедлайнов по запросу пользователя. \
        Если пользователь не вводит точное время, выбери подходящее сам (например: рано вечером - в 18:00). Сейчас {datetime.datetime.now()}. \
-        Не пиши никакое время в description, только описание события"},
-      {"role": "user", "content": f'{response.text}'}],
+        Не пиши никакое время в description или указание дня недели, части дня, только описание события. Сначала идут предпочтения пользователя, то есть его личные настройки, \
+        потом идет запрос - то, что ты должен добавить как дедлайн. Учитывай предпочтения пользователя по дням недели, если пользователь пишет, \
+        что обычно просыпается в 10, а по четвергам в 7, учитывай это и можешь ставить дедлайны раньше 10."},
+      {"role": "user", "content": f'Предпочтения пользователя: {current_user.text_settings}, запрос пользователя: {response.text}'}],
       response_format=DeadlineTaskList)
     
     ai_response = completion.choices[0].message.parsed
