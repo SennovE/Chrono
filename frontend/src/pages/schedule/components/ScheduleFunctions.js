@@ -3,7 +3,7 @@ import axios from "axios";
 export async function authUser(router) {
     try {
         const token = getToken(router);
-        const response = await axios.get("http://backend:8080/api/v1/user/me", {
+        const response = await axios.get(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/user/me`, {
             headers: {
                 "Authorization": `Bearer ${token}`,
             },
@@ -27,7 +27,7 @@ export async function addScheduleTask(router, name, descriptionText, startDate, 
     }
     try {
         const token = getToken(router);
-        await axios.post("http://backend:8080/api/v1/schedule/", {
+        await axios.post(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/schedule/`, {
             name: name,
             text: descriptionText,
             start_time: `${startDate}T${startTime}`,
@@ -54,7 +54,7 @@ export async function addScheduleTask(router, name, descriptionText, startDate, 
 export async function getScheduleTasks(router) {
     try {
         const token = getToken(router);
-        const response = await axios.get("http://backend:8080/api/v1/schedule/", {
+        const response = await axios.get(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/schedule/`, {
             headers: {
                 "Accept": "application/json",
                 "Authorization": `Bearer ${token}`,
