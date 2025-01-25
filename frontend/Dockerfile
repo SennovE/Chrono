@@ -6,8 +6,6 @@ COPY package*.json ./
 
 RUN npm install
 
-COPY . .
+ENV PORT=8081
 
-ENV RUN_MODE=serve
-
-CMD npm run $RUN_MODE
+CMD ["npm", "run", "serve"]
