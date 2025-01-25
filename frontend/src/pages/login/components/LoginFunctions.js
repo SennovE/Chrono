@@ -5,7 +5,7 @@ export async function registerUser(email, username, password) {
         return "Все поля должны быть заполнены"
     }
     try {
-        await axios.post("http://localhost:8080/api/v1/user/register", {
+        await axios.post(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/user/register`, {
             email: email,
             username: username,
             password: password
@@ -35,7 +35,7 @@ export async function loginUser(username, password) {
         return "Все поля должны быть заполнены"
     }
     try {
-        const res = await axios.post("http://localhost:8080/api/v1/user/token", {
+        const res = await axios.post(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/user/token`, {
             username: username,
             password: password
         }, {
