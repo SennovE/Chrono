@@ -8,4 +8,6 @@ RUN npm install
 
 COPY . .
 
+ENV RUN_MODE=serve
+
 CMD npm run $RUN_MODE
