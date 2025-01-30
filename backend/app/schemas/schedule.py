@@ -6,7 +6,7 @@ from uuid import UUID
 
 class ScheduleForm(BaseModel):
     name: str = Field(example="Name for your event")
-    text: str = Field(example="Meeting or task that you need to put to your schedule")
+    text: str | None = Field(example="Meeting or task that you need to put to your schedule")
     start_time: datetime = Field(example=datetime.today())
     end_time: datetime = Field(example=datetime.today() + timedelta(hours=1))
     recurring: bool = Field(default=False, description="Should your task be repeated every week?")
@@ -28,7 +28,7 @@ class ScheduleForm(BaseModel):
 class ScheduleResponse(BaseModel):
     id: UUID
     name: str
-    text: str
+    text: str | None
     year: int
     month: int
     day: int

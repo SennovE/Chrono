@@ -1,15 +1,14 @@
 <script setup>
-import { useRouter } from "vue-router"
 import { authUser } from "./components/ScheduleFunctions";
 import { onMounted, ref } from "vue";
 import navPanel from "../../components/LoginNavPanel.vue";
 import schedulePage from "./components/SchedulePage.vue";
+import invalidUserPanel from "../../components/NotRegistered.vue"
 
-const router = useRouter()
 const user = ref("")
 
 async function authUserWrap() {
-    user.value = await authUser(router)
+    user.value = await authUser()
 }
 
 onMounted(async () => {
@@ -22,6 +21,7 @@ onMounted(async () => {
     <div>
         <schedulePage :user="user"/>
         <navPanel />
+        <invalidUserPanel v-show="user == -1"/>
     </div>
 </template>
 
