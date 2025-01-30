@@ -32,7 +32,7 @@ body {
     padding: 1% 1% 1% 1%;
 }
 
-.schedule-container, .top-nav, .container {
+.schedule-container, .top-nav, .container, .not-registered {
 
     .error-msg {
         text-align: center;
@@ -80,7 +80,8 @@ body {
     textarea:hover,
     input:hover,
     input:focus,
-    .modal-content {
+    .modal-content,
+    .not-registered-content {
         box-shadow:
             0px 0px 3px white,
             0px 0px 8px var(--color-deep-purple),

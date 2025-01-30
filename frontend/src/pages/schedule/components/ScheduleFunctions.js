@@ -1,8 +1,11 @@
 import axios from "axios";
 
-export async function authUser(router) {
+export async function authUser() {
     try {
-        const token = getToken(router);
+        const token = getToken();
+        if (token == null) {
+            return -1
+        }
         const response = await axios.get(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/user/me`, {
             headers: {
                 "Authorization": `Bearer ${token}`,
@@ -10,23 +13,26 @@ export async function authUser(router) {
         })
         return response.data
     } catch (error) {
-        redirectToLogin(router)
+        return -1
     }
 }
 
 export async function addScheduleTask(router, name, descriptionText, startDate, startTime, endTime, recurring) {
     if (name === "" ||
-        descriptionText === "" ||
         startTime === "" ||
         endTime === "" ||
         recurring === ""
     ) {
-        return "Все поля должны быть заполнены"
+        return "Не все обязательные поля заполнены"
     } else if (startTime > endTime) {
         return "Время начала должно быть меньше конца"
     }
     try {
-        const token = getToken(router);
+        const token = getToken();
+        if (token == null) {
+            redirectToLogin(router)
+            return -1
+        }
         await axios.post(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/schedule/`, {
             name: name,
             text: descriptionText,
@@ -53,7 +59,11 @@ export async function addScheduleTask(router, name, descriptionText, startDate, 
 
 export async function getScheduleTasks(router) {
     try {
-        const token = getToken(router);
+        const token = getToken();
+        if (token == null) {
+            redirectToLogin(router)
+            return -1
+        }
         const response = await axios.get(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/schedule/`, {
             headers: {
                 "Accept": "application/json",
@@ -118,10 +128,10 @@ function redirectToLogin(router) {
     })
 }
 
-function getToken(router) {
+function getToken() {
     const token = localStorage.getItem("chronoJWTToken")
     if (!token) {
-        redirectToLogin(router)
+        return null
     }
     return token
 }

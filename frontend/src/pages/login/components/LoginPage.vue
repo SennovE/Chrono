@@ -2,31 +2,37 @@
 import { onMounted, ref, watch } from "vue"
 import { registerUser, loginUser } from "./LoginFunctions.js"
 import { useRouter, useRoute } from "vue-router"
+import loading from "@/components/Loading.vue";
 
 const router = useRouter()
 const route = useRoute()
 
-const registration = ref(null)
+const registration = ref(-1)
 
 const username = ref("")
 const email = ref("")
 const password = ref("")
 const response = ref("")
+const isLoading = ref(false)
 
 async function registerUserWrap() {
+    isLoading.value = true
     response.value = await registerUser(email.value, username.value, password.value)
     if (response.value === "") {
         await loginUserWrap()
     }
+    isLoading.value = false
 }
 
 async function loginUserWrap() {
+    isLoading.value = true
     response.value = await loginUser(username.value, password.value)
     if (response.value === "") {
         router.push({
             name: "Profile Page"
         })
     }
+    isLoading.value = false
 }
 
 function clearFields() {
@@ -40,25 +46,26 @@ watch(registration, clearFields)
 
 onMounted(() => {
     if (route.meta.isLogin) {
-        registration.value = false
+        registration.value = 0
     } else {
-        registration.value = true
+        registration.value = 1
     }
 })
 </script>
 
 <template>
     <div class="container">
+        <loading v-show="isLoading"/>
         <div class="welcome-text">
             <h1>Добро пожаловать в <span class="chrono">Chrono!</span></h1>
             <h2>Зарегистрируйтесь или войдите в свой аккаунт</h2>
             <p class="error-msg" style="text-align: left;">{{ response }}</p>
         </div>
 
-        <transition name="slide" mode="out-in">
+        <transition :class="{ hidden: registration == -1 }" name="slide" mode="out-in">
             <div class="input-container" :key="registration">
                 <input
-                    :class="{ hidden: !registration }"
+                    :class="{ hidden: registration == 0 }"
                     placeholder="Email"
                     v-model="email"
                 />
@@ -78,7 +85,7 @@ onMounted(() => {
                 <span
                     v-else
                     class="bottom-text"
-                    @click="registration = !registration"
+                    @click="registration = (registration + 1) % 2"
                 >
                     Еще нет аккаунта (зарегистрироваться)
                 </span>
