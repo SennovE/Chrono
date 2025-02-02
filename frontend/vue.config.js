@@ -3,6 +3,7 @@ module.exports = defineConfig({
     configureWebpack: {
         entry: "./src/main.js",
         devServer: {
+            allowedHosts: ['chronoschedule.ddns.net', 'localhost'],
             hot: true,
         },
         watch: true,
