@@ -15,6 +15,8 @@ class DefaultSettings(BaseSettings):
     BACKEND_PORT: int
     PATH_PREFIX : str
 
+    DNS_URL: str
+
     SECRET_KEY: str
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
