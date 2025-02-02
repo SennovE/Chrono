@@ -15,7 +15,7 @@ class DefaultSettings(BaseSettings):
     BACKEND_PORT: int
     PATH_PREFIX : str
 
-    DNS_URL: str
+    VUE_APP_DNS_URL: str
 
     SECRET_KEY: str
     ALGORITHM: str
