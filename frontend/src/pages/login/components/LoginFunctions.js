@@ -49,7 +49,7 @@ export async function loginUser(username, password) {
     } catch (error) {
         if (error.response) {          
             if (error.response.status === 401) {
-                return "Введен невеный пароль или имя"
+                return "Введен невеный пароль или почта"
             }
         } else {
             return "Сетевая ошибка или сервер не ответил"
