@@ -48,5 +48,5 @@ async def auth_google_callback(
         expires_delta=access_token_expires
     )
 
-    frontend_callback_url = f"http://frontend:8081/auth/google/callback?access_token={access_token}&token_type=bearer"
+    frontend_callback_url = f"http://chronoschedule.ddns.net/auth/google/callback?access_token={access_token}&token_type=bearer"
     return RedirectResponse(url=frontend_callback_url)
