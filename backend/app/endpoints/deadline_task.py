@@ -16,9 +16,9 @@ from app.utils.deadline_task import (
     delete_deadline_task,
     complete_deadline_task,
     update_deadline_task,
-    return_deadline_task
+    return_deadline_task,
     )
-from app.utils.ai_generation import generate_deadline
+from app.utils.ai_generation import generate_deadline, submit_ai_gen
 from uuid import UUID
 
 api_router = APIRouter(
@@ -180,10 +180,23 @@ async def return_to_active(task: Annotated[DeadlineTaskID, Body()],\
                      }
                  })
 async def ai_generation(response: DeadlineGenerate, \
-                        current_user: Annotated[User, Depends(get_current_user)], \
-                        session: Annotated[AsyncSession, Depends(get_session)]):
-    is_success = await generate_deadline(response, current_user, session)
+                        current_user: Annotated[User, Depends(get_current_user)]):
+    return await generate_deadline(response, current_user)
+    
+
+@api_router.post('/submit_ai_generation',
+            status_code=status.HTTP_200_OK,
+            responses={
+                     status.HTTP_401_UNAUTHORIZED: {
+                         "descriprion": "Non authorized"
+                     }
+                 })
+async def submit_ai_generation(tasks: Annotated[list[DeadlineTaskCreateForm], Body()], \
+                               current_user: Annotated[User, Depends(get_current_user)],
+                               session: Annotated[AsyncSession, Depends(get_session)]):
+    is_success = submit_ai_gen(tasks, current_user, session)
+
     if (is_success):
-        return {"message": f'Task generated with AI'}
+        return {"message" : "Submit ai gen tasks"}
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, \
-                        detail="AI genaration error")
+                        detail="Error submit ai gen tasks")
