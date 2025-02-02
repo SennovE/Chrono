@@ -1,15 +1,9 @@
-from datetime import datetime, timedelta, timezone
-from typing import Annotated
-
-import jwt
-from fastapi import Depends, HTTPException, status
-from jwt.exceptions import InvalidTokenError
+from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import exc, select, delete
 
-from uuid import UUID
 from app.database.models import DeadlineTask
-from app.schemas import DeadlineTaskCreateForm, TokenData, \
+from app.schemas import DeadlineTaskCreateForm, \
     DeadlineTaskID, DeadlineTaksUpdateForm
 from app.utils.user import User
 

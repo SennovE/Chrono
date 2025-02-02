@@ -26,13 +26,18 @@ async function registerUserWrap() {
 
 async function loginUserWrap() {
     isLoading.value = true
-    response.value = await loginUser(username.value, password.value)
+    response.value = await loginUser(email.value, password.value)
     if (response.value === "") {
         router.push({
             name: "Profile Page"
         })
     }
     isLoading.value = false
+}
+
+async function googleLogin() {
+    const authUrl = `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/auth/google/login`
+    window.location.href = authUrl;
 }
 
 function clearFields() {
@@ -66,29 +71,36 @@ onMounted(() => {
             <div class="input-container" :key="registration">
                 <input
                     :class="{ hidden: registration == 0 }"
-                    placeholder="Email"
-                    v-model="email"
+                    placeholder="Username"
+                    v-model="username"
                 />
-                <input placeholder="Username" v-model="username"/>
+                <input placeholder="Email" v-model="email"/>
                 <input placeholder="Password" v-model="password" type="password" />
 
                 <button v-if="registration" @click="registerUserWrap">Зарегистрироваться</button>
                 <button v-else @click="loginUserWrap">Войти</button>
 
-                <span
+                <div
                     v-if="registration"
                     class="bottom-text"
                     @click="registration = !registration"
                 >
                     Уже есть аккаунт (войти)
-                </span>
-                <span
+                </div>
+                <div
                     v-else
                     class="bottom-text"
                     @click="registration = (registration + 1) % 2"
                 >
                     Еще нет аккаунта (зарегистрироваться)
-                </span>
+                </div>
+                <div
+                    class="bottom-text"
+                    style="margin-top: 2%;"
+                    @click="googleLogin"
+                >
+                    Войти через <b>Google</b>
+                </div>
             </div>
         </transition>
     </div>
