@@ -50,6 +50,11 @@ const routes = [
     component: () => import('../pages/debug/index.vue')
   },
   {
+    path: '/auth/google/callback',
+    name: 'Google Auth',
+    component: () => import('../pages/google_redirect/index.vue')
+  },
+  {
     path: '/404',
     name: '404',
     component: () => import('../pages/error404/index.vue')

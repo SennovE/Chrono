@@ -4,6 +4,7 @@ from .user import api_router as user_debag
 from .deadline_task import api_router as deadline_task_router
 from .schedule import api_router as schedule_route
 from .settings import api_router as settings_router
+from .google_auth import api_router as google_router
 
 list_of_routes = [
     auth_router,
@@ -11,7 +12,8 @@ list_of_routes = [
     user_debag,
     deadline_task_router,
     schedule_route,
-    settings_router,  
+    settings_router,
+    google_router,
 ]
 
 __all__ = [

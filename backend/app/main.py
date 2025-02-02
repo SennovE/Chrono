@@ -4,6 +4,7 @@ from uvicorn import run
 from app.config import DefaultSettings, get_settings
 from app.endpoints import list_of_routes
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 logger = getLogger(__name__)
 
 
@@ -36,7 +37,12 @@ app.add_middleware(
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
+)
+
+app.add_middleware(
+    SessionMiddleware,
+    secret_key="your_random_secret_key",
 )
 
 if __name__ == "__main__":

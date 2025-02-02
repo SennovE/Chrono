@@ -9,7 +9,7 @@ from sqlalchemy import exc, select
 
 from app.config import DefaultSettings, get_settings
 from app.database.connection import get_session
-from app.schemas import RegistrationForm, TokenData, UserTextSettings
+from app.schemas import RegistrationForm, UserTextSettings
 from app.database.models import User
 
 
@@ -17,8 +17,8 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return get_settings().PWD_CONTEXT.verify(plain_password, hashed_password)
 
 
-async def get_user(session: AsyncSession, username: str) -> User | None:
-    query = select(User).where(User.username == username)
+async def get_user_by_email(session: AsyncSession, email: str) -> User | None:
+    query = select(User).where(User.email == email)
     return await session.scalar(query)
 
 
@@ -32,16 +32,16 @@ async def register_user(session: AsyncSession, user_data: RegistrationForm) -> b
     return True
 
 
-async def authenticate_user(session: AsyncSession, username: str, password: str):
-    user = await get_user(session, username)
+async def authenticate_user(session: AsyncSession, email: str, password: str) -> User | None:
+    user = await get_user_by_email(session, email)
     if not user:
-        return False
+        return None
     if not verify_password(password, user.password):
-        return False
+        return None
     return user
 
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
@@ -69,19 +69,18 @@ async def get_current_user(
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
         )
-        username: str = payload.get("sub")
-        if username is None:
+        email = payload.get("sub")
+        if email is None:
             raise credentials_exception
-        token_data = TokenData(username=username)
     except InvalidTokenError:
         raise credentials_exception
-    user = await get_user(session, username=token_data.username)
+    user = await get_user_by_email(session, email)
     if user is None:
         raise credentials_exception
     return user
 
 
-async def set_text_settings(response: UserTextSettings, current_user: User, session: AsyncSession):
+async def set_text_settings(response: UserTextSettings, current_user: User, session: AsyncSession) -> bool:
     query = select(User).where(User.id == current_user.id)
     result = await session.scalar(query)
     result.text_settings = response.text
@@ -92,3 +91,15 @@ async def set_text_settings(response: UserTextSettings, current_user: User, sess
         return False
     
     return True
+
+
+async def register_user_via_google(session: AsyncSession, user_info: str):
+    user = await get_user_by_email(session, user_info.get("email"))
+    if user is None:
+        user_data = RegistrationForm(
+            email=user_info.get("email"),
+            username=user_info.get("name"),
+            password="temporary_password"
+        )
+        user_data.password = ""
+        await register_user(session, user_data)

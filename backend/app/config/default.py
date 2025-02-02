@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
+from authlib.integrations.starlette_client import OAuth
 
 
 class DefaultSettings(BaseSettings):
@@ -17,6 +18,9 @@ class DefaultSettings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
+
+    GOOGLE_CLIENT_ID: str
+    GOOGLE_CLIENT_SECRET: str
 
     PWD_CONTEXT: CryptContext = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -49,7 +53,27 @@ class DefaultSettings(BaseSettings):
         return "postgresql+asyncpg://{user}:{password}@{host}:{port}/{database}".format(
             **self.database_settings,
         )
+    
+    @property
+    def google_oauth(self) -> OAuth:
+        """
+        Get google OAuth schema
+        """
+        oauth = OAuth()
+        oauth.register(
+            name='google',
+            client_id=self.GOOGLE_CLIENT_ID,
+            client_secret=self.GOOGLE_CLIENT_SECRET,
+            server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+            api_base_url='https://www.googleapis.com/oauth2/v3/',
+            client_kwargs={'scope': 'openid email profile'},
+        )
+        return oauth
 
+settings: DefaultSettings | None = None
 
 def get_settings() -> DefaultSettings:
-    return DefaultSettings()
+    global settings
+    if settings is None:
+        settings = DefaultSettings()
+    return settings

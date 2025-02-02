@@ -41,7 +41,7 @@ body {
             0px 0px 5px var(--color-red),
             0px 0px 10px var(--color-red),
             0px 0px 20px var(--color-red);
-        color: white;
+        color: var(--color-white);
     }
 
     .welcome-text {
