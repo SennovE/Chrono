@@ -36,7 +36,7 @@ async function loginUserWrap() {
 }
 
 async function googleLogin() {
-    const authUrl = `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/auth/google/login`
+    const authUrl = `http://${process.env.DNS_URL}/api/v1/auth/google/login`
     window.location.href = authUrl;
 }
 
