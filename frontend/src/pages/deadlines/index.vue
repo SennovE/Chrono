@@ -162,7 +162,7 @@
       </div>
     </div>
 
-    <!-- New AI Generation Modal -->
+    <!-- Existing AI Generation Modal -->
     <div v-if="isAIModalOpen" class="modal-overlay" @click.self="closeAIModal">
       <div class="modal-content">
         <h2>Add Task Easier</h2>
@@ -203,6 +203,25 @@
         </form>
       </div>
     </div>
+
+    <!-- New AI Deadlines Result Modal -->
+    <div v-if="isAIResultModalOpen" class="modal-overlay" @click.self="closeAIResultModal">
+      <div class="modal-content">
+        <h2>AI Generated Deadlines</h2>
+        <div class="ai-deadlines-list">
+          <div v-for="task in aiDeadlines" :key="task.id" class="ai-task">
+            <p><strong>Description:</strong> {{ task.description }}</p>
+            <p><strong>Deadline:</strong> {{ formatDate(task.deadline_time.split('T')[0]) }}, {{ formatTime(task.deadline_time) }}</p>
+          </div>
+        </div>
+        <div class="modal-buttons">
+          <button type="button" @click="closeAIResultModal">Close</button>
+          <!-- Добавленная кнопка для отправки задач на /submit_ai_generation -->
+          <button type="button" @click="submitAIGeneratedTasks">Отправить</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -241,6 +260,13 @@ export default {
       time: "",
     });
 
+    // New AI Deadlines Result Modal State
+    const isAIResultModalOpen = ref(false);
+    const aiDeadlines = ref([]);
+
+    /**
+     * Получение токена (JWT) из localStorage.
+     */
     const getToken = () => {
       const token = localStorage.getItem("chronoJWTToken");
       if (!token) {
@@ -249,6 +275,9 @@ export default {
       return token;
     };
 
+    /**
+     * Запрос данных пользователя.
+     */
     const fetchUser = async () => {
       try {
         const token = getToken();
@@ -263,6 +292,9 @@ export default {
       }
     };
 
+    /**
+     * Запрос всех задач (дедлайнов).
+     */
     const fetchDeadlines = async () => {
       try {
         const token = getToken();
@@ -284,6 +316,9 @@ export default {
       }
     };
 
+    /**
+     * Создание новой задачи в конкретный день.
+     */
     const createTask = async (day) => {
       if (!newTask.value[day]) {
         newTask.value[day] = { description: "", time: "" };
@@ -314,6 +349,9 @@ export default {
       }
     };
 
+    /**
+     * Пометить задачу как завершённую.
+     */
     const markTaskAsComplete = async (taskId) => {
       try {
         const token = getToken();
@@ -326,7 +364,6 @@ export default {
             },
           }
         );
-
         await fetchDeadlines();
       } catch (error) {
         console.error("Error completing task:", error);
@@ -334,12 +371,13 @@ export default {
     };
 
     /**
-     * Удаление задачи
+     * Удаление задачи.
      */
     const deleteTask = async (taskId) => {
       try {
         const token = getToken();
-        await axios.post("http://localhost:8080/api/v1/deadline_task/delete_task",
+        await axios.post(
+          "http://localhost:8080/api/v1/deadline_task/delete_task",
           { id: taskId },
           {
             headers: {
@@ -354,7 +392,7 @@ export default {
     };
 
     /**
-     * Возврат задачи в активные
+     * Возврат задачи в активные.
      */
     const returnToActive = async (taskId) => {
       try {
@@ -374,10 +412,13 @@ export default {
       }
     };
 
+    /**
+     * Отправить запрос на AI генерацию задач.
+     */
     const AIGeneration = async (user_text) => {
       try {
         const token = getToken();
-        await axios.post(
+        const response = await axios.post(
           "http://localhost:8080/api/v1/deadline_task/ai_generation",
           { text: user_text }, 
           {
@@ -386,13 +427,41 @@ export default {
             },
           }
         );
+        // Предполагается, что response.data - список задач (DeadlineTask)
+        aiDeadlines.value = response.data;
+        isAIResultModalOpen.value = true;
+      } catch (error) {
+        console.error("Error AI generation", error);
+      }
+    };
 
+    /**
+     * Метод для отправки списка сгенерированных задач на /submit_ai_generation
+     */
+    const submitAIGeneratedTasks = async () => {
+      try {
+        const token = getToken();
+        // Отправляем весь список aiDeadlines (list[DeadlineTaskCreateForm]) на сервер
+        await axios.post(
+          "http://localhost:8080/api/v1/deadline_task/submit_ai_generation",
+          aiDeadlines.value,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        // По желанию, можно закрыть модалку и обновить список задач
+        closeAIResultModal();
         await fetchDeadlines();
       } catch (error) {
-        console.error("Error AI generation", error)
+        console.error("Error submitting AI tasks:", error);
       }
-    }
+    };
 
+    /**
+     * Группировка задач по дате.
+     */
     const groupedDeadlines = computed(() => {
       return deadlines.value.reduce((groups, task) => {
         const dateKey = task.deadline_time.split("T")[0];
@@ -404,8 +473,10 @@ export default {
       }, {});
     });
 
+    /**
+     * Формирование списка ближайших 30 дней (пример) с фильтрацией задач (0=актуальные,1=завершённые).
+     */
     const allDaysWithTasks = computed(() => {
-      // Пример: показываем 30 ближайших дней
       const days = Array.from({ length: 30 }, (_, i) => {
         const date = new Date();
         date.setDate(date.getDate() + i);
@@ -428,6 +499,9 @@ export default {
       }, {});
     });
 
+    /**
+     * Форматирование даты.
+     */
     const formatDate = (dateString) => {
       const today = new Date();
       const tomorrow = new Date();
@@ -450,6 +524,9 @@ export default {
       });
     };
 
+    /**
+     * Форматирование времени.
+     */
     const formatTime = (datetime) => {
       const time = new Date(datetime);
       return time.toLocaleTimeString("ru-RU", {
@@ -459,6 +536,9 @@ export default {
       });
     };
 
+    /**
+     * Скролл влево.
+     */
     const scrollLeft = () => {
       const deadlineList = deadlineListRef.value;
       if (deadlineList) {
@@ -466,6 +546,9 @@ export default {
       }
     };
 
+    /**
+     * Скролл вправо.
+     */
     const scrollRight = () => {
       const deadlineList = deadlineListRef.value;
       if (deadlineList) {
@@ -473,6 +556,9 @@ export default {
       }
     };
 
+    /**
+     * Открыть модалку редактирования.
+     */
     const openEditModal = (task) => {
       const deadlineDate = new Date(task.deadline_time);
       const year = deadlineDate.getFullYear();
@@ -491,11 +577,17 @@ export default {
       isModalOpen.value = true;
     };
 
+    /**
+     * Закрыть модалку редактирования.
+     */
     const closeEditModal = () => {
       isModalOpen.value = false;
       editTask.value = { id: null, description: "", date: "", time: "" };
     };
 
+    /**
+     * Сохранить изменения задачи.
+     */
     const submitEdit = async () => {
       try {
         const token = getToken();
@@ -523,15 +615,24 @@ export default {
       }
     };
 
+    /**
+     * Открыть модалку AI генерации задач.
+     */
     const openAIModal = () => {
       isAIModalOpen.value = true;
     };
 
+    /**
+     * Закрыть модалку AI генерации задач.
+     */
     const closeAIModal = () => {
       isAIModalOpen.value = false;
       aiInput.value = "";
     };
 
+    /**
+     * Отправить запрос для генерации задач (AI).
+     */
     const submitAI = async () => {
       if (aiInput.value.trim() === "") {
         alert("Please enter a task description.");
@@ -545,16 +646,24 @@ export default {
       }
     };
 
-    // New Methods for Add Task Modal
+    /**
+     * Открыть модалку добавления новой задачи вручную.
+     */
     const openAddTaskModal = () => {
       isAddTaskModalOpen.value = true;
     };
 
+    /**
+     * Закрыть модалку добавления новой задачи.
+     */
     const closeAddTaskModal = () => {
       isAddTaskModalOpen.value = false;
       newTaskData.value = { description: "", date: "", time: "" };
     };
 
+    /**
+     * Отправить форму добавления новой задачи.
+     */
     const submitAddTask = async () => {
       const { description, date, time } = newTaskData.value;
 
@@ -578,7 +687,7 @@ export default {
           }
         );
 
-        // Reset form and fetch updated deadlines
+        // Сброс формы и обновление списка
         newTaskData.value = { description: "", date: "", time: "" };
         await fetchDeadlines();
         closeAddTaskModal();
@@ -587,12 +696,26 @@ export default {
       }
     };
 
+    /**
+     * Установить фильтр (завершённые задачи).
+     */
     const setFilterCompleted = (day) => {
       dayFilters.value[day] = 1;
     };
 
+    /**
+     * Установить фильтр (актуальные задачи).
+     */
     const setFilterCurrent = (day) => {
       dayFilters.value[day] = 0;
+    };
+
+    /**
+     * Закрыть модалку с результатами AI генерации.
+     */
+    const closeAIResultModal = () => {
+      isAIResultModalOpen.value = false;
+      aiDeadlines.value = [];
     };
 
     onMounted(async () => {
@@ -634,6 +757,12 @@ export default {
       closeAddTaskModal,
       submitAddTask,
       newTaskData,
+
+      // AI Deadlines Result Modal
+      isAIResultModalOpen,
+      aiDeadlines,
+      closeAIResultModal,
+      submitAIGeneratedTasks, // <-- метод отправки сгенерированных задач
     };
   },
 };
@@ -1133,4 +1262,23 @@ export default {
   opacity: 0.9;
 }
 
+/* Новые стили для AI Deadlines Result Modal */
+.ai-deadlines-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.ai-task {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.ai-task:last-child {
+  border-bottom: none;
+}
+
+.ai-task p {
+  margin: 5px 0;
+}
 </style>
