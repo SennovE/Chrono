@@ -9,6 +9,8 @@ from sqlalchemy import exc
 import datetime
 from pydantic import BaseModel
 from fastapi import HTTPException
+from typing import List
+
 
 class DeadlineTaskList(BaseModel):
   tasks: list[DeadlineTaskAICreare]
@@ -58,7 +60,7 @@ async def submit_ai_gen(tasks: list[DeadlineTaskCreateForm], \
         session.add(db_task)
     
     try:
-        session.commit()
+        await session.commit()
     except Exception as e:
         await session.rollback()
         raise HTTPException(status_code=500, detail=f"Database error: {e}")

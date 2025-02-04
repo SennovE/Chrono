@@ -69,13 +69,18 @@
                     />
                   </div>
                   <div class="task-details">
-                    <p class="task-name" :class="{ completed: dayFilters[day] === 1 }">{{ task.description }}</p>
+                    <p class="task-name" :class="{ completed: dayFilters[day] === 1 }">
+                      {{ task.description }}
+                    </p>
                     <div class="task-time-container">
                       <svg class="time-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
                         <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                       </svg>
-                      <p class="task-time">{{ formatTime(task.deadline_time) }}</p>
+                      <!-- Динамически применяем класс в зависимости от оставшегося времени -->
+                      <p class="task-time" :class="getDeadlineTimeClass(task)">
+                        {{ formatTime(task.deadline_time) }}
+                      </p>
                     </div>
                   </div>
                   <!-- Edit and Delete/Return Buttons -->
@@ -211,12 +216,15 @@
         <div class="ai-deadlines-list">
           <div v-for="task in aiDeadlines" :key="task.id" class="ai-task">
             <p><strong>Description:</strong> {{ task.description }}</p>
-            <p><strong>Deadline:</strong> {{ formatDate(task.deadline_time.split('T')[0]) }}, {{ formatTime(task.deadline_time) }}</p>
+            <p>
+              <strong>Deadline:</strong>
+              {{ formatDate(task.deadline_time.split('T')[0]) }}, {{ formatTime(task.deadline_time) }}
+            </p>
           </div>
         </div>
         <div class="modal-buttons">
           <button type="button" @click="closeAIResultModal">Close</button>
-          <!-- Добавленная кнопка для отправки задач на /submit_ai_generation -->
+          <!-- Кнопка для отправки задач на /submit_ai_generation -->
           <button type="button" @click="submitAIGeneratedTasks">Отправить</button>
         </div>
       </div>
@@ -306,7 +314,7 @@ export default {
             },
           }
         );
-        // Предполагая, что сервер отправляет время в формате ISO
+        // Предполагается, что сервер отправляет время в формате ISO
         deadlines.value = response.data.map(task => ({
           ...task,
           deadline_time: new Date(task.deadline_time).toISOString(),
@@ -420,7 +428,7 @@ export default {
         const token = getToken();
         const response = await axios.post(
           "http://localhost:8080/api/v1/deadline_task/ai_generation",
-          { text: user_text }, 
+          { text: user_text },
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -441,19 +449,25 @@ export default {
     const submitAIGeneratedTasks = async () => {
       try {
         const token = getToken();
-        // Отправляем весь список aiDeadlines (list[DeadlineTaskCreateForm]) на сервер
+        
+        const tasksPayload = aiDeadlines.value.map(task => ({
+          description: task.description,
+          deadline_time: new Date(task.deadline_time).toISOString()
+        }));
+
         await axios.post(
           "http://localhost:8080/api/v1/deadline_task/submit_ai_generation",
-          aiDeadlines.value,
+          tasksPayload,
           {
             headers: {
               Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
             },
           }
         );
-        // По желанию, можно закрыть модалку и обновить список задач
-        closeAIResultModal();
+
         await fetchDeadlines();
+        closeAIResultModal();
       } catch (error) {
         console.error("Error submitting AI tasks:", error);
       }
@@ -715,7 +729,31 @@ export default {
      */
     const closeAIResultModal = () => {
       isAIResultModalOpen.value = false;
-      aiDeadlines.value = [];
+    };
+
+    /**
+     * Метод для динамического назначения CSS-класса для времени дедлайна.
+     * Если до дедлайна <= 2 часа – класс 'deadline-bg-red'
+     * от 2 до 6 часов – 'deadline-bg-yellow'
+     * от 6 до 12 часов – 'deadline-bg-purple'
+     */
+    const getDeadlineTimeClass = (task) => {
+      const deadlineTime = new Date(task.deadline_time);
+      const now = new Date();
+      const diffMs = deadlineTime - now; // разница в миллисекундах
+      const diffHours = diffMs / (1000 * 60 * 60); // переводим в часы
+
+      // Если дедлайн уже прошёл, фон не меняем
+      if (diffHours < 0) return '';
+
+      if (diffHours <= 2) {
+        return 'deadline-bg-red';
+      } else if (diffHours <= 6) {
+        return 'deadline-bg-yellow';
+      } else if (diffHours <= 12) {
+        return 'deadline-bg-purple';
+      }
+      return '';
     };
 
     onMounted(async () => {
@@ -750,19 +788,19 @@ export default {
       openAIModal,
       closeAIModal,
       submitAI,
-
       // New Add Task Modal
       isAddTaskModalOpen,
       openAddTaskModal,
       closeAddTaskModal,
       submitAddTask,
       newTaskData,
-
       // AI Deadlines Result Modal
       isAIResultModalOpen,
       aiDeadlines,
       closeAIResultModal,
-      submitAIGeneratedTasks, // <-- метод отправки сгенерированных задач
+      submitAIGeneratedTasks,
+      // Метод для установки класса для дедлайна
+      getDeadlineTimeClass,
     };
   },
 };
@@ -803,29 +841,28 @@ export default {
 
 /* Add Task Easier Button */
 .add-easier-button {
-  background: linear-gradient(45deg, #3498db, #e67e22); /* Градиентный фон */
+  background: linear-gradient(45deg, #3498db, #e67e22);
   color: white;
   border: none;
-  width: 150px; /* Прямоугольная форма */
+  width: 150px;
   height: 50px;
   cursor: pointer;
   font-size: 1rem;
   font-weight: bold;
-  border-radius: 8px; /* Немного закругленных углов для стиля */
+  border-radius: 8px;
   transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
-  /* Сдвиг кнопки влево на 20% ширины экрана */
   margin-left: -20%;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .add-easier-button:hover {
-  background: linear-gradient(45deg, #2980b9, #d35400); /* Изменение градиента при наведении */
-  transform: translateY(-2px); /* Небольшой подъем при наведении */
+  background: linear-gradient(45deg, #2980b9, #d35400);
+  transform: translateY(-2px);
   box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
 
 .add-easier-button:active {
-  transform: translateY(0); /* Возврат к исходному положению */
+  transform: translateY(0);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -834,12 +871,12 @@ export default {
   background-color: white;
   color: #7f8c8d;
   border: 1px solid #bdc3c7;
-  width: 150px; /* Same width as add-easier-button */
-  height: 50px; /* Same height as add-easier-button */
+  width: 150px;
+  height: 50px;
   cursor: pointer;
   font-size: 1rem;
   font-weight: bold;
-  border-radius: 8px; /* Consistent border radius */
+  border-radius: 8px;
   transition: background-color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -913,8 +950,8 @@ export default {
   flex-wrap: nowrap;
   width: 100%;
   margin: 0 60px;
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;      /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .deadline-list::-webkit-scrollbar {
@@ -1071,6 +1108,25 @@ export default {
   line-height: 1;
 }
 
+/* Стили для фонов дедлайна */
+.deadline-bg-red {
+  background-color: #ffcccc;
+  padding: 2px 6px;
+  border-radius: 15px;
+}
+
+.deadline-bg-yellow {
+  background-color: #ffffcc;
+  padding: 2px 6px;
+  border-radius: 15px;
+}
+
+.deadline-bg-purple {
+  background-color: #e6ccff;
+  padding: 2px 6px;
+  border-radius: 15px;
+}
+
 .new-task-form {
   display: flex;
   align-items: center;
@@ -1164,7 +1220,6 @@ export default {
   white-space: nowrap;
 }
 
-/* Стили для текстовой кнопки "Вернуть дедлайн" */
 .return-button {
   background-color: #2ecc71;
   color: white;

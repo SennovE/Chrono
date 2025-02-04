@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from uuid import UUID
-
+from typing import Optional
 
 class UserResponse(BaseModel):
     email: str = Field(unique=True)
@@ -14,7 +14,7 @@ class UserDebugResponse(BaseModel):
     username: str
     premium: bool
     password: str
-    text_settings: str
+    text_settings: Optional[str]
 
 
 class UserCreateForm(BaseModel):

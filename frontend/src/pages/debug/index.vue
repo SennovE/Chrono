@@ -7,14 +7,12 @@
     <div class="button-group">
       <button @click="activeComponent = 'users'" :class="{ active: activeComponent === 'users' }">Users</button>
       <button @click="activeComponent = 'deadlineTasks'" :class="{ active: activeComponent === 'deadlineTasks' }">Deadline Tasks</button>
-      <button @click="activeComponent = 'calendarTasks'" :class="{ active: activeComponent === 'calendarTasks' }">Calendar Tasks</button>
     </div>
 
     <!-- Таблица -->
     <div class="component-container">
       <UserDebugComponent v-if="activeComponent === 'users'" />
       <DeadlineTaskDebugComponent v-if="activeComponent === 'deadlineTasks'" />
-      <CalendarTaskDebugComponent v-if="activeComponent === 'calendarTasks'" />
     </div>
   </div>
 </template>
@@ -22,13 +20,11 @@
 <script>
 import UserDebugComponent from './components/UserDebugComponent.vue';
 import DeadlineTaskDebugComponent from './components/DeadlineTaskComponent.vue';
-import CalendarTaskDebugComponent from './components/CalendarTaskComponent.vue';
 
 export default {
   components: {
     UserDebugComponent,
     DeadlineTaskDebugComponent,
-    CalendarTaskDebugComponent,
   },
   data() {
     return {

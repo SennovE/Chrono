@@ -20,6 +20,8 @@ from app.utils.deadline_task import (
     )
 from app.utils.ai_generation import generate_deadline, submit_ai_gen
 from uuid import UUID
+from typing import List
+
 
 api_router = APIRouter(
     prefix="/deadline_task",
@@ -194,7 +196,7 @@ async def ai_generation(response: DeadlineGenerate, \
 async def submit_ai_generation(tasks: Annotated[list[DeadlineTaskCreateForm], Body()], \
                                current_user: Annotated[User, Depends(get_current_user)],
                                session: Annotated[AsyncSession, Depends(get_session)]):
-    is_success = submit_ai_gen(tasks, current_user, session)
+    is_success = await submit_ai_gen(tasks, current_user, session)
 
     if (is_success):
         return {"message" : "Submit ai gen tasks"}
