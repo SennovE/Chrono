@@ -69,13 +69,18 @@
                     />
                   </div>
                   <div class="task-details">
-                    <p class="task-name" :class="{ completed: dayFilters[day] === 1 }">{{ task.description }}</p>
+                    <p class="task-name" :class="{ completed: dayFilters[day] === 1 }">
+                      {{ task.description }}
+                    </p>
                     <div class="task-time-container">
                       <svg class="time-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
                         <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                       </svg>
-                      <p class="task-time">{{ formatTime(task.deadline_time) }}</p>
+                      <!-- Применяем класс в зависимости от оставшегося времени -->
+                      <p class="task-time" :class="getDeadlineTimeClass(task)">
+                        {{ formatTime(task.deadline_time) }}
+                      </p>
                     </div>
                   </div>
                   <!-- Edit and Delete/Return Buttons -->
@@ -112,7 +117,6 @@
                       aria-label="Delete Task"
                       title="Удалить задачу"
                     >
-                      <!-- Красная иконка корзины -->
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="3 6 5 6 21 6" />
                         <path d="M19 6L17 18.5C16.89 19.33 16.22 20 15.38 20H8.63C7.79 20 7.11 19.33 7.01 18.5L5 6Z" />
@@ -162,20 +166,29 @@
       </div>
     </div>
 
-    <!-- Existing AI Generation Modal -->
+    <!-- Existing AI Generation Modal with Loading Spinner -->
     <div v-if="isAIModalOpen" class="modal-overlay" @click.self="closeAIModal">
       <div class="modal-content">
-        <h2>Add Task Easier</h2>
-        <form @submit.prevent="submitAI">
-          <label>
-            Enter Task Description:
-            <input type="text" v-model="aiInput" required placeholder="Describe your task here" />
-          </label>
-          <div class="modal-buttons">
-            <button type="button" @click="closeAIModal">Cancel</button>
-            <button type="submit">Отправить</button>
+        <template v-if="!aiLoading">
+          <h2>Add Task Easier</h2>
+          <form @submit.prevent="submitAI">
+            <label>
+              Enter Task Description:
+              <input type="text" v-model="aiInput" required placeholder="Describe your task here" />
+            </label>
+            <div class="modal-buttons">
+              <button type="button" @click="closeAIModal">Cancel</button>
+              <button type="submit">Отправить</button>
+            </div>
+          </form>
+        </template>
+        <template v-else>
+          <div class="loading-spinner">
+            <svg class="spinner" viewBox="0 0 50 50">
+              <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+            </svg>
           </div>
-        </form>
+        </template>
       </div>
     </div>
 
@@ -210,15 +223,52 @@
         <h2>AI Generated Deadlines</h2>
         <div class="ai-deadlines-list">
           <div v-for="task in aiDeadlines" :key="task.id" class="ai-task">
-            <p><strong>Description:</strong> {{ task.description }}</p>
-            <p><strong>Deadline:</strong> {{ formatDate(task.deadline_time.split('T')[0]) }}, {{ formatTime(task.deadline_time) }}</p>
+            <div class="ai-task-header">
+              <p><strong>Description:</strong> {{ task.description }}</p>
+              <!-- Кнопка редактирования AI задания -->
+              <button class="edit-button" @click.stop="openAIEditModal(task)" aria-label="Edit AI Task">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 20h9"></path>
+                  <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+              </button>
+            </div>
+            <p>
+              <strong>Deadline:</strong>
+              {{ formatDate(task.deadline_time.split('T')[0]) }}, {{ formatTime(task.deadline_time) }}
+            </p>
           </div>
         </div>
         <div class="modal-buttons">
           <button type="button" @click="closeAIResultModal">Close</button>
-          <!-- Добавленная кнопка для отправки задач на /submit_ai_generation -->
+          <!-- Кнопка для отправки задач на /submit_ai_generation -->
           <button type="button" @click="submitAIGeneratedTasks">Отправить</button>
         </div>
+      </div>
+    </div>
+
+    <!-- AI Task Edit Modal -->
+    <div v-if="isAIEditModalOpen" class="modal-overlay" @click.self="closeAIEditModal">
+      <div class="modal-content">
+        <h2>Edit AI Deadline Task</h2>
+        <form @submit.prevent="submitAIEdit">
+          <label>
+            Description:
+            <input type="text" v-model="editAITask.description" required />
+          </label>
+          <label>
+            Deadline Date:
+            <input type="date" v-model="editAITaskDate" required />
+          </label>
+          <label>
+            Deadline Time:
+            <input type="time" v-model="editAITaskTime" required />
+          </label>
+          <div class="modal-buttons">
+            <button type="button" @click="closeAIEditModal">Cancel</button>
+            <button type="submit">Save</button>
+          </div>
+        </form>
       </div>
     </div>
 
@@ -251,6 +301,7 @@ export default {
 
     const isAIModalOpen = ref(false);
     const aiInput = ref("");
+    const aiLoading = ref(false); // состояние загрузки в AI модалке
 
     // New Add Task Modal State
     const isAddTaskModalOpen = ref(false);
@@ -263,6 +314,16 @@ export default {
     // New AI Deadlines Result Modal State
     const isAIResultModalOpen = ref(false);
     const aiDeadlines = ref([]);
+
+    // New AI Task Edit Modal State
+    const isAIEditModalOpen = ref(false);
+    const editAITask = ref({
+      id: null,
+      description: "",
+      deadline_time: "",
+    });
+    const editAITaskDate = ref("");
+    const editAITaskTime = ref("");
 
     /**
      * Получение токена (JWT) из localStorage.
@@ -306,7 +367,6 @@ export default {
             },
           }
         );
-        // Предполагая, что сервер отправляет время в формате ISO
         deadlines.value = response.data.map(task => ({
           ...task,
           deadline_time: new Date(task.deadline_time).toISOString(),
@@ -341,7 +401,6 @@ export default {
           }
         );
 
-        // Очистить форму
         newTask.value[day] = { description: "", time: "" };
         await fetchDeadlines();
       } catch (error) {
@@ -420,14 +479,13 @@ export default {
         const token = getToken();
         const response = await axios.post(
           "http://localhost:8080/api/v1/deadline_task/ai_generation",
-          { text: user_text }, 
+          { text: user_text },
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
-        // Предполагается, что response.data - список задач (DeadlineTask)
         aiDeadlines.value = response.data;
         isAIResultModalOpen.value = true;
       } catch (error) {
@@ -441,19 +499,24 @@ export default {
     const submitAIGeneratedTasks = async () => {
       try {
         const token = getToken();
-        // Отправляем весь список aiDeadlines (list[DeadlineTaskCreateForm]) на сервер
+        const tasksPayload = aiDeadlines.value.map(task => ({
+          description: task.description,
+          deadline_time: new Date(task.deadline_time).toISOString()
+        }));
+
         await axios.post(
           "http://localhost:8080/api/v1/deadline_task/submit_ai_generation",
-          aiDeadlines.value,
+          tasksPayload,
           {
             headers: {
               Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
             },
           }
         );
-        // По желанию, можно закрыть модалку и обновить список задач
-        closeAIResultModal();
+
         await fetchDeadlines();
+        closeAIResultModal();
       } catch (error) {
         console.error("Error submitting AI tasks:", error);
       }
@@ -474,7 +537,7 @@ export default {
     });
 
     /**
-     * Формирование списка ближайших 30 дней (пример) с фильтрацией задач (0=актуальные,1=завершённые).
+     * Формирование списка ближайших 30 дней с фильтрацией задач.
      */
     const allDaysWithTasks = computed(() => {
       const days = Array.from({ length: 30 }, (_, i) => {
@@ -487,11 +550,9 @@ export default {
         if (!newTask.value[day]) {
           newTask.value[day] = { description: "", time: "" };
         }
-        // Инициализируем фильтр, если ещё не задан
         if (dayFilters.value[day] === undefined) {
-          dayFilters.value[day] = 0; // по умолчанию актуальные
+          dayFilters.value[day] = 0;
         }
-        // Фильтруем задачи по текущему фильтру (0 или 1)
         result[day] = groupedDeadlines.value[day]
           ? groupedDeadlines.value[day].filter(task => task.status === dayFilters.value[day])
           : [];
@@ -506,17 +567,14 @@ export default {
       const today = new Date();
       const tomorrow = new Date();
       tomorrow.setDate(today.getDate() + 1);
-
       const date = new Date(dateString);
 
       if (date.toDateString() === today.toDateString()) {
         return `Today, ${date.toLocaleDateString("en-US", { month: "long", day: "numeric" })}`;
       }
-
       if (date.toDateString() === tomorrow.toDateString()) {
         return `Tomorrow, ${date.toLocaleDateString("en-US", { month: "long", day: "numeric" })}`;
       }
-
       return date.toLocaleDateString("en-US", {
         weekday: "long",
         month: "long",
@@ -557,7 +615,7 @@ export default {
     };
 
     /**
-     * Открыть модалку редактирования.
+     * Открыть модалку редактирования для обычных задач.
      */
     const openEditModal = (task) => {
       const deadlineDate = new Date(task.deadline_time);
@@ -578,7 +636,7 @@ export default {
     };
 
     /**
-     * Закрыть модалку редактирования.
+     * Закрыть модалку редактирования для обычных задач.
      */
     const closeEditModal = () => {
       isModalOpen.value = false;
@@ -592,7 +650,6 @@ export default {
       try {
         const token = getToken();
         const { id, description, date, time } = editTask.value;
-        // Формируем новый Date
         const [year, month, day] = date.split("-");
         const [hours, minutes] = time.split(":");
         const deadlineDate = new Date(year, month - 1, day, hours, minutes);
@@ -628,21 +685,26 @@ export default {
     const closeAIModal = () => {
       isAIModalOpen.value = false;
       aiInput.value = "";
+      aiLoading.value = false;
     };
 
     /**
      * Отправить запрос для генерации задач (AI).
+     * Сразу переключаем отображение на спиннер, а после ответа открываем форму Add New Task.
      */
     const submitAI = async () => {
       if (aiInput.value.trim() === "") {
         alert("Please enter a task description.");
         return;
       }
+      aiLoading.value = true;
       try {
         await AIGeneration(aiInput.value.trim());
         closeAIModal();
       } catch (error) {
         console.error("Error submitting AI task:", error);
+      } finally {
+        aiLoading.value = false;
       }
     };
 
@@ -666,12 +728,10 @@ export default {
      */
     const submitAddTask = async () => {
       const { description, date, time } = newTaskData.value;
-
       if (!description.trim() || !date || !time) {
         alert("Please fill in all fields.");
         return;
       }
-
       try {
         const token = getToken();
         const deadlineDate = new Date(`${date}T${time}`);
@@ -687,7 +747,6 @@ export default {
           }
         );
 
-        // Сброс формы и обновление списка
         newTaskData.value = { description: "", date: "", time: "" };
         await fetchDeadlines();
         closeAddTaskModal();
@@ -715,7 +774,58 @@ export default {
      */
     const closeAIResultModal = () => {
       isAIResultModalOpen.value = false;
-      aiDeadlines.value = [];
+    };
+
+    /**
+     * Метод для динамического назначения CSS-класса для времени дедлайна.
+     */
+    const getDeadlineTimeClass = (task) => {
+      const deadlineTime = new Date(task.deadline_time);
+      const now = new Date();
+      const diffMs = deadlineTime - now;
+      const diffHours = diffMs / (1000 * 60 * 60);
+      if (diffHours < 0) return '';
+      if (diffHours <= 2) {
+        return 'deadline-bg-red';
+      } else if (diffHours <= 6) {
+        return 'deadline-bg-yellow';
+      } else if (diffHours <= 12) {
+        return 'deadline-bg-purple';
+      }
+      return '';
+    };
+
+    /**
+     * Открыть модалку редактирования AI задачи.
+     */
+    const openAIEditModal = (task) => {
+      editAITask.value = { ...task };
+      const deadline = new Date(task.deadline_time);
+      editAITaskDate.value = deadline.toISOString().split('T')[0];
+      const hours = String(deadline.getHours()).padStart(2, "0");
+      const minutes = String(deadline.getMinutes()).padStart(2, "0");
+      editAITaskTime.value = `${hours}:${minutes}`;
+      isAIEditModalOpen.value = true;
+    };
+
+    /**
+     * Закрыть модалку редактирования AI задачи.
+     */
+    const closeAIEditModal = () => {
+      isAIEditModalOpen.value = false;
+    };
+
+    /**
+     * Сохранить изменения AI задачи и обновить список aiDeadlines.
+     */
+    const submitAIEdit = () => {
+      const newDeadline = new Date(`${editAITaskDate.value}T${editAITaskTime.value}`).toISOString();
+      editAITask.value.deadline_time = newDeadline;
+      const index = aiDeadlines.value.findIndex(task => task.id === editAITask.value.id);
+      if (index !== -1) {
+        aiDeadlines.value[index] = { ...editAITask.value };
+      }
+      isAIEditModalOpen.value = false;
     };
 
     onMounted(async () => {
@@ -747,22 +857,31 @@ export default {
       dayFilters,
       isAIModalOpen,
       aiInput,
+      aiLoading,
       openAIModal,
       closeAIModal,
       submitAI,
-
       // New Add Task Modal
       isAddTaskModalOpen,
       openAddTaskModal,
       closeAddTaskModal,
       submitAddTask,
       newTaskData,
-
       // AI Deadlines Result Modal
       isAIResultModalOpen,
       aiDeadlines,
       closeAIResultModal,
-      submitAIGeneratedTasks, // <-- метод отправки сгенерированных задач
+      submitAIGeneratedTasks,
+      // Метод для установки класса для дедлайна
+      getDeadlineTimeClass,
+      // AI Task Edit Modal
+      isAIEditModalOpen,
+      editAITask,
+      editAITaskDate,
+      editAITaskTime,
+      openAIEditModal,
+      closeAIEditModal,
+      submitAIEdit,
     };
   },
 };
@@ -792,7 +911,7 @@ export default {
 
 .title {
   margin: 0;
-  font-size: 4.5rem; /* Увеличено в 3 раза от предыдущего размера */
+  font-size: 4.5rem;
 }
 
 /* Container for Header Buttons */
@@ -803,29 +922,28 @@ export default {
 
 /* Add Task Easier Button */
 .add-easier-button {
-  background: linear-gradient(45deg, #3498db, #e67e22); /* Градиентный фон */
+  background: linear-gradient(45deg, #3498db, #e67e22);
   color: white;
   border: none;
-  width: 150px; /* Прямоугольная форма */
+  width: 150px;
   height: 50px;
   cursor: pointer;
   font-size: 1rem;
   font-weight: bold;
-  border-radius: 8px; /* Немного закругленных углов для стиля */
+  border-radius: 8px;
   transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
-  /* Сдвиг кнопки влево на 20% ширины экрана */
   margin-left: -20%;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .add-easier-button:hover {
-  background: linear-gradient(45deg, #2980b9, #d35400); /* Изменение градиента при наведении */
-  transform: translateY(-2px); /* Небольшой подъем при наведении */
+  background: linear-gradient(45deg, #2980b9, #d35400);
+  transform: translateY(-2px);
   box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
 
 .add-easier-button:active {
-  transform: translateY(0); /* Возврат к исходному положению */
+  transform: translateY(0);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -834,12 +952,12 @@ export default {
   background-color: white;
   color: #7f8c8d;
   border: 1px solid #bdc3c7;
-  width: 150px; /* Same width as add-easier-button */
-  height: 50px; /* Same height as add-easier-button */
+  width: 150px;
+  height: 50px;
   cursor: pointer;
   font-size: 1rem;
   font-weight: bold;
-  border-radius: 8px; /* Consistent border radius */
+  border-radius: 8px;
   transition: background-color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -913,8 +1031,8 @@ export default {
   flex-wrap: nowrap;
   width: 100%;
   margin: 0 60px;
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;      /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .deadline-list::-webkit-scrollbar {
@@ -1071,6 +1189,25 @@ export default {
   line-height: 1;
 }
 
+/* Стили для фонов дедлайна */
+.deadline-bg-red {
+  background-color: #ffcccc;
+  padding: 2px 6px;
+  border-radius: 15px;
+}
+
+.deadline-bg-yellow {
+  background-color: #ffffcc;
+  padding: 2px 6px;
+  border-radius: 15px;
+}
+
+.deadline-bg-purple {
+  background-color: #e6ccff;
+  padding: 2px 6px;
+  border-radius: 15px;
+}
+
 .new-task-form {
   display: flex;
   align-items: center;
@@ -1164,7 +1301,6 @@ export default {
   white-space: nowrap;
 }
 
-/* Стили для текстовой кнопки "Вернуть дедлайн" */
 .return-button {
   background-color: #2ecc71;
   color: white;
@@ -1280,5 +1416,29 @@ export default {
 
 .ai-task p {
   margin: 5px 0;
+}
+
+/* Стили для заголовка задачи внутри AI модального окна */
+.ai-task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+/* Стили для спиннера */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100px;
+}
+.spinner {
+  animation: spin 1s linear infinite;
+  width: 50px;
+  height: 50px;
+}
+@keyframes spin {
+  100% { transform: rotate(360deg); }
 }
 </style>
