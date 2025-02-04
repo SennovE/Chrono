@@ -4,6 +4,7 @@ import userAvatar from "./components/UserAvatar.vue";
 import SettingsButton from "./components/SettingsButton.vue";
 import TodayTasks from "./components/TodayTasks.vue";
 import StatisticData from "./components/StatisticData.vue";
+import UserSettings from "./components/UserSettings";
 </script>
 
 
@@ -22,6 +23,9 @@ import StatisticData from "./components/StatisticData.vue";
     </div>
     <div>
         <StatisticData />
+    </div>
+    <div>
+        <UserSettings />
     </div>
 </template>
 
