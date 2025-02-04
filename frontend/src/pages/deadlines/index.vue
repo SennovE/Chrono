@@ -166,20 +166,29 @@
       </div>
     </div>
 
-    <!-- Existing AI Generation Modal -->
+    <!-- Existing AI Generation Modal with Loading Spinner -->
     <div v-if="isAIModalOpen" class="modal-overlay" @click.self="closeAIModal">
       <div class="modal-content">
-        <h2>Add Task Easier</h2>
-        <form @submit.prevent="submitAI">
-          <label>
-            Enter Task Description:
-            <input type="text" v-model="aiInput" required placeholder="Describe your task here" />
-          </label>
-          <div class="modal-buttons">
-            <button type="button" @click="closeAIModal">Cancel</button>
-            <button type="submit">Отправить</button>
+        <template v-if="!aiLoading">
+          <h2>Add Task Easier</h2>
+          <form @submit.prevent="submitAI">
+            <label>
+              Enter Task Description:
+              <input type="text" v-model="aiInput" required placeholder="Describe your task here" />
+            </label>
+            <div class="modal-buttons">
+              <button type="button" @click="closeAIModal">Cancel</button>
+              <button type="submit">Отправить</button>
+            </div>
+          </form>
+        </template>
+        <template v-else>
+          <div class="loading-spinner">
+            <svg class="spinner" viewBox="0 0 50 50">
+              <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+            </svg>
           </div>
-        </form>
+        </template>
       </div>
     </div>
 
@@ -292,6 +301,7 @@ export default {
 
     const isAIModalOpen = ref(false);
     const aiInput = ref("");
+    const aiLoading = ref(false); // состояние загрузки в AI модалке
 
     // New Add Task Modal State
     const isAddTaskModalOpen = ref(false);
@@ -357,7 +367,6 @@ export default {
             },
           }
         );
-        // Предполагается, что сервер отправляет время в формате ISO
         deadlines.value = response.data.map(task => ({
           ...task,
           deadline_time: new Date(task.deadline_time).toISOString(),
@@ -392,7 +401,6 @@ export default {
           }
         );
 
-        // Очистить форму
         newTask.value[day] = { description: "", time: "" };
         await fetchDeadlines();
       } catch (error) {
@@ -478,7 +486,6 @@ export default {
             },
           }
         );
-        // Предполагается, что response.data - список задач (DeadlineTask)
         aiDeadlines.value = response.data;
         isAIResultModalOpen.value = true;
       } catch (error) {
@@ -492,7 +499,6 @@ export default {
     const submitAIGeneratedTasks = async () => {
       try {
         const token = getToken();
-        
         const tasksPayload = aiDeadlines.value.map(task => ({
           description: task.description,
           deadline_time: new Date(task.deadline_time).toISOString()
@@ -531,7 +537,7 @@ export default {
     });
 
     /**
-     * Формирование списка ближайших 30 дней (пример) с фильтрацией задач (0=актуальные,1=завершённые).
+     * Формирование списка ближайших 30 дней с фильтрацией задач.
      */
     const allDaysWithTasks = computed(() => {
       const days = Array.from({ length: 30 }, (_, i) => {
@@ -544,11 +550,9 @@ export default {
         if (!newTask.value[day]) {
           newTask.value[day] = { description: "", time: "" };
         }
-        // Инициализируем фильтр, если ещё не задан
         if (dayFilters.value[day] === undefined) {
-          dayFilters.value[day] = 0; // по умолчанию актуальные
+          dayFilters.value[day] = 0;
         }
-        // Фильтруем задачи по текущему фильтру (0 или 1)
         result[day] = groupedDeadlines.value[day]
           ? groupedDeadlines.value[day].filter(task => task.status === dayFilters.value[day])
           : [];
@@ -563,17 +567,14 @@ export default {
       const today = new Date();
       const tomorrow = new Date();
       tomorrow.setDate(today.getDate() + 1);
-
       const date = new Date(dateString);
 
       if (date.toDateString() === today.toDateString()) {
         return `Today, ${date.toLocaleDateString("en-US", { month: "long", day: "numeric" })}`;
       }
-
       if (date.toDateString() === tomorrow.toDateString()) {
         return `Tomorrow, ${date.toLocaleDateString("en-US", { month: "long", day: "numeric" })}`;
       }
-
       return date.toLocaleDateString("en-US", {
         weekday: "long",
         month: "long",
@@ -614,7 +615,7 @@ export default {
     };
 
     /**
-     * Открыть модалку редактирования (для обычных задач).
+     * Открыть модалку редактирования для обычных задач.
      */
     const openEditModal = (task) => {
       const deadlineDate = new Date(task.deadline_time);
@@ -635,7 +636,7 @@ export default {
     };
 
     /**
-     * Закрыть модалку редактирования (для обычных задач).
+     * Закрыть модалку редактирования для обычных задач.
      */
     const closeEditModal = () => {
       isModalOpen.value = false;
@@ -684,21 +685,26 @@ export default {
     const closeAIModal = () => {
       isAIModalOpen.value = false;
       aiInput.value = "";
+      aiLoading.value = false;
     };
 
     /**
      * Отправить запрос для генерации задач (AI).
+     * Сразу переключаем отображение на спиннер, а после ответа открываем форму Add New Task.
      */
     const submitAI = async () => {
       if (aiInput.value.trim() === "") {
         alert("Please enter a task description.");
         return;
       }
+      aiLoading.value = true;
       try {
         await AIGeneration(aiInput.value.trim());
         closeAIModal();
       } catch (error) {
         console.error("Error submitting AI task:", error);
+      } finally {
+        aiLoading.value = false;
       }
     };
 
@@ -722,12 +728,10 @@ export default {
      */
     const submitAddTask = async () => {
       const { description, date, time } = newTaskData.value;
-
       if (!description.trim() || !date || !time) {
         alert("Please fill in all fields.");
         return;
       }
-
       try {
         const token = getToken();
         const deadlineDate = new Date(`${date}T${time}`);
@@ -780,7 +784,6 @@ export default {
       const now = new Date();
       const diffMs = deadlineTime - now;
       const diffHours = diffMs / (1000 * 60 * 60);
-
       if (diffHours < 0) return '';
       if (diffHours <= 2) {
         return 'deadline-bg-red';
@@ -794,7 +797,6 @@ export default {
 
     /**
      * Открыть модалку редактирования AI задачи.
-     * При открытии копируем данные задачи и устанавливаем дату и время для редактирования.
      */
     const openAIEditModal = (task) => {
       editAITask.value = { ...task };
@@ -855,6 +857,7 @@ export default {
       dayFilters,
       isAIModalOpen,
       aiInput,
+      aiLoading,
       openAIModal,
       closeAIModal,
       submitAI,
@@ -1421,5 +1424,21 @@ export default {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 5px;
+}
+
+/* Стили для спиннера */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100px;
+}
+.spinner {
+  animation: spin 1s linear infinite;
+  width: 50px;
+  height: 50px;
+}
+@keyframes spin {
+  100% { transform: rotate(360deg); }
 }
 </style>
