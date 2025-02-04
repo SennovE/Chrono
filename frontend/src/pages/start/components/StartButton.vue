@@ -23,8 +23,8 @@ const router = useRouter();
   margin: 0;
   padding: 0;
   position: absolute;
-    top: 240px; /* Указание позиции отдельно */
-    left: 850px;
+    top: 220px; /* Указание позиции отдельно */
+    left: 900px;
 }
 
 ul {
