@@ -17,7 +17,7 @@ import StartButton from "./components/StartButton.vue"
 <style>
 
 body {
-  background-image: url('../../assets/main.webp'); /* Путь к изображению */
+  background-image: url('./../../assets/main.webp'); /* Путь к изображению */
   background-size: cover; /* Масштабирование изображения */
   background-repeat: no-repeat; /* Отключение повторения */
   background-position: center; /* Центрирование изображения */
