@@ -33,6 +33,7 @@
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import BarChart from './BarChart.vue'; // Убедитесь, что путь правильный
+import { useRouter } from "vue-router";
 
 export default {
   name: 'TaskStatistics',
@@ -40,6 +41,8 @@ export default {
     BarChart
   },
   setup() {
+
+    const router = useRouter();
     const tasks = ref([]);
     const loading = ref(true);
     const error = ref(null);
@@ -58,6 +61,10 @@ export default {
         loading.value = true;
         error.value = null;
         const token = getToken();
+        if (token == null) {
+            redirectToLogin()
+            return -1
+        }
         const response = await axios.get(
           "http://localhost:8080/api/v1/deadline_task/get_tasks/",
           {
@@ -205,6 +212,11 @@ export default {
       console.log('Chart Data:', data); // Для отладки
       return data;
     });
+    function redirectToLogin() {
+    router.push({
+        name: "Login Page",
+    })
+  }
 
     onMounted(() => {
       fetchTasks();
