@@ -1,0 +1,54 @@
+@import "./colors.css";
+
+.top-nav {
+    color: var(--color-bright-text);
+    width: 98%;
+    position: fixed;
+    z-index: 999;
+    top: 0;
+    left: 0;
+}
+
+.top-nav {
+    ul {
+        display: flex;
+        list-style-type: none;
+        justify-content: flex-start;
+    }
+
+    li {
+        display: block;
+        padding: 15px 20px;
+        text-decoration: none;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        transition: color 0.3s ease-in-out;
+        margin-right: 2%;
+    }
+
+    li::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--color-underline-first), var(--color-underline-second));
+        transition: width 0.5s ease;
+    }
+
+    li:hover::after {
+        width: 100%;
+    }
+
+    li:hover {
+        background: linear-gradient(90deg, var(--color-underline-first), var(--color-underline-second));
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    li:last-child {
+        margin-left: auto;
+    }
+}

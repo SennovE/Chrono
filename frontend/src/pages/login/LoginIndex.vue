@@ -11,5 +11,5 @@ import navPanel from "../../components/LoginNavPanel.vue"
 </template>
 
 <style>
-@import "../../components/Stiles.css";
+@import "../../components/grey_style/Main.css"
 </style>

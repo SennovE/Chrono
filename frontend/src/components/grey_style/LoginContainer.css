@@ -1,0 +1,146 @@
+@import "./colors.css";
+
+.container {
+    background: var(--color-container);
+    border-radius: 50px;
+
+    display: flex;
+    overflow: hidden;
+
+    width: 90%;
+    margin: 15% auto;
+    padding: 1% 1% 1% 1%;
+}
+.slide-enter-active, .slide-leave-active {
+    transition: transform 0.5s ease, opacity 0.5s ease;
+}
+.slide-enter-from {
+    transform: translateX(100%);
+    opacity: 0;
+}
+.slide-leave-to {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+.welcome-text {
+    overflow: auto;
+    text-align: left;
+    padding: 5% 5% 5% 5%;
+    color: var(--color-grey-purple);
+    width: 50%;
+}
+
+.input-container {
+    overflow: auto;
+    text-align: center;
+    padding: 2% 2% 2% 2%;
+    width: 50%;
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+.input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.input-wrapper::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--color-dark-text);
+}
+
+.input-wrapper::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--color-underline-first), var(--color-underline-second));
+    transition: width 0.5s ease;
+}
+
+.input-wrapper:hover::after, .input-wrapper:focus-within::after {
+    width: 100%;
+}
+
+button, input {
+    width: 100%;
+    padding: 2%;
+    font-size: 16px;
+    border: 0;
+    box-sizing: border-box;
+    margin-top: 2%;
+    outline: none;
+    background: none;
+    position: relative;
+}
+
+button {
+    color: var(--color-grey);
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    border: 2px solid transparent;
+    transition: border-color 0.5s ease;
+}
+
+button:hover {
+    border-color: var(--color-dark-text)
+}
+
+button:active {
+    background: rgb(0, 0, 0, 0.1);
+}
+
+.bottom-text {
+    padding: 1%;
+    cursor: pointer;
+    position: relative;
+    display: block;
+    width: fit-content;
+    margin: auto;
+    text-align: center;
+}
+
+.bottom-text::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--color-underline-first), var(--color-underline-second));
+    transition: all 0.5s ease;
+    transform: translateX(-50%);
+}
+
+.bottom-text:hover::after {
+    width: 100%;
+}
+
+.welcome-text, .input-container {
+    flex: 1 1 45%;
+    min-width: 300px;
+}
+
+@media (max-aspect-ratio: 3/2), (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .welcome-text, .input-container {
+        width: 80%;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+}

@@ -10,8 +10,6 @@
 
 
 <style>
-@import "./Stiles.css";
-
 .loading {
     position: fixed;
     top: 0;

@@ -8,7 +8,7 @@
     --color-red: #ff0000;
 } */
 
-:root {
+/* :root {
     --color-grey: #BFBFBF;
     --color-dark-grey: #282828;
     --color-darker-grey: #2D2D2D;
@@ -16,4 +16,15 @@
     --color-black: #131313;
     --color-brighter-black: #212121;
     --color-red: #FF3333;
+} */
+
+:root {
+    --color-grey: #000000;
+    --color-dark-grey: #e6e6e6;
+    --color-darker-grey: #dedede;
+    --color-deep-purple: #4433ff;
+    --color-black: #b9bdec;
+    --color-brighter-black: #e4e4e4;
+    --color-red: #FF3333;
 }
+

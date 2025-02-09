@@ -1,68 +1,28 @@
-@import url('./variables.css');
+@import "./colors.css";
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
 
 body {
     overflow: hidden;
-    background: linear-gradient(to right, var(--color-brighter-black), var(--color-black));
-    font-family: "Roboto", sans-serif;    
-    color: var(--color-grey);
-}
-::selection {
-    color: var(--color-deep-purple);
-    background: rgba(128, 128, 128, 0.087);
-    border-radius: 5px;
+    background: var(--color-background);
+    color: var(--color-text);
+    font-family: 'Montserrat', sans-serif;
 }
 ::placeholder {
     color: var(--color-grey);
 }
 
-.container {
-    background: linear-gradient(to left, var(--color-brighter-black), var(--color-black));
-    border-radius: 8px;
-    box-shadow:
-        0px 0px 5px white,
-        0px 0px 10px var(--color-deep-purple),
-        0px 0px 20px var(--color-deep-purple),
-        0px 0px 50px var(--color-deep-purple);
-
-    display: flex;
-    overflow: hidden;
-
-    width: 80%;
-    margin: 15% auto;
-    padding: 1% 1% 1% 1%;
+.error-msg {
+    text-align: center;
+    font-size: medium;
+    text-shadow:
+        0px 0px 5px var(--color-red),
+        0px 0px 10px var(--color-red),
+        0px 0px 20px var(--color-red);
+    color: var(--color-white);
 }
 
-.schedule-container, .top-nav, .container, .not-registered {
-
-    .error-msg {
-        text-align: center;
-        font-size: medium;
-        text-shadow:
-            0px 0px 5px var(--color-red),
-            0px 0px 10px var(--color-red),
-            0px 0px 20px var(--color-red);
-        color: var(--color-white);
-    }
-
-    .welcome-text {
-        overflow: auto;
-        text-align: left;
-        padding: 5% 5% 5% 5%;
-        color: var(--color-grey-purple);
-        width: 50%;
-    }
-
-    .input-container {
-        overflow: auto;
-        text-align: center;
-        padding: 2% 2% 2% 2%;
-        width: 50%;
-    }
-
-    .hidden {
-        visibility: hidden;
-    }
-
+.schedule-container, .top-nav, .not-registered {
     button, input, textarea {
         width: 100%;
         padding: 2%;
@@ -195,42 +155,5 @@ body {
         padding: 0;
         width: 2rem;
         height: 2rem;
-    }
-}
-
-
-.top-nav {
-    width: 100%;
-    background: linear-gradient(to left, var(--color-brighter-black), var(--color-black));
-    position: fixed;
-    top: 0;
-    left: 0;
-    box-shadow: 
-        0px 0px 5px white,
-        0px 0px 10px var(--color-deep-purple),
-        0px 0px 20px var(--color-deep-purple),
-        0px 0px 50px var(--color-deep-purple);
-    z-index: 999;
-}
-
-.top-nav {
-    ul {
-        display: flex;
-        list-style-type: none;
-        justify-content: flex-start;
-    }
-    
-    li {
-        display: block;
-        padding: 15px 20px;
-        text-decoration: none;
-        border-radius: 5px;    
-        transition: text-shadow 0.3s ease-in-out;
-        cursor: pointer;
-    }
-    
-    .right-button {
-        margin-left: auto;
-        margin-right: 2%;
     }
 }
