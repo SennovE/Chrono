@@ -63,19 +63,21 @@ onMounted(() => {
         <loading v-show="isLoading"/>
         <div class="welcome-text">
             <h1>Добро пожаловать в <span class="chrono">Chrono!</span></h1>
-            <h2>Зарегистрируйтесь или войдите в свой аккаунт</h2>
+            <h2>Каждый миг на счету - планируй с умом, <br> а мы поможем!</h2>
             <p class="error-msg" style="text-align: left;">{{ response }}</p>
         </div>
 
         <transition :class="{ hidden: registration == -1 }" name="slide" mode="out-in">
             <div class="input-container" :key="registration">
-                <input
-                    :class="{ hidden: registration == 0 }"
-                    placeholder="Username"
-                    v-model="username"
-                />
-                <input placeholder="Email" v-model="email"/>
-                <input placeholder="Password" v-model="password" type="password" />
+                <div class="input-wrapper" :class="{ hidden: registration == 0 }">
+                    <input placeholder="Username" v-model="username"/>
+                </div>
+                <div class="input-wrapper">
+                    <input placeholder="Email" v-model="email"/>
+                </div>
+                <div class="input-wrapper">
+                    <input placeholder="Password" v-model="password" type="password" />
+                </div>
 
                 <button v-if="registration" @click="registerUserWrap">Зарегистрироваться</button>
                 <button v-else @click="loginUserWrap">Войти</button>
@@ -107,6 +109,7 @@ onMounted(() => {
 </template>
 
 <style>
+@import "../../../components/grey_style/LoginContainer.css";
 .left-text {
     text-align: left
 }
