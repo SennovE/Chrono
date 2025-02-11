@@ -76,18 +76,6 @@ body {
             0px 0px 20px var(--color-deep-purple);
     }
 
-    .slide-enter-active, .slide-leave-active {
-        transition: transform 0.5s ease, opacity 0.5s ease;
-    }
-    .slide-enter-from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    .slide-leave-to {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-
     .checkmark {
         width: 20px;
         height: 20px;
