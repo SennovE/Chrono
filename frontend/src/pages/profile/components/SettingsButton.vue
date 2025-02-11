@@ -5,7 +5,7 @@ const router = useRouter();
 </script>
 
 <template>
-  <div class="get-started-container">
+  <div class="get-started-container_kera">
     <ul>
       <li @click="router.push({ name: 'Profile Page' })" class="get-started">
         <b>Настройки</b>
@@ -15,7 +15,7 @@ const router = useRouter();
 </template>
 
 <style scoped>
-.get-started-container {
+.get-started-container_kera {
     display: flex; /* Включает flexbox */
     position: absolute;
     top: 400px; /* Указание позиции отдельно */

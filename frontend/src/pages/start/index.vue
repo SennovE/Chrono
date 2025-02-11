@@ -4,10 +4,10 @@ import navPanel from "./components/NavPanel.vue"
 import StartButton from "./components/StartButton.vue"
 </script>
 <template>
-  <div id="app">
+  <div id="app1">
     <navPanel />
   </div>
-  <div class="content">
+  <div class="content1">
     <StartButton />
   </div>
 </template>
@@ -23,7 +23,7 @@ body {
   background-position: center; /* Центрирование изображения */
 }
 
-@import "../../components/StyleWhite.css";
+@import "../../components/Stiles.css";
 
   
   

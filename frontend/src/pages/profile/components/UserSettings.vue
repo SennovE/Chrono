@@ -1,4 +1,4 @@
-<!-- UserSettings.vue -->
+
 <template>
     <div class="settings-password">
       <h1>Смена пароля</h1>

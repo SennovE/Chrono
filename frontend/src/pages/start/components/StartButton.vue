@@ -5,9 +5,9 @@ const router = useRouter();
 </script>
 
 <template>
-  <div class="get-started-container">
+  <div class="get-started-container_kera">
     <ul>
-      <li @click="router.push({ name: 'Registration' })" class="get-started">
+      <li @click="router.push({ name: 'Registration' })" class="get-started_kera">
         <b>Начать</b>
       </li>
     </ul>
@@ -15,7 +15,7 @@ const router = useRouter();
 </template>
 
 <style scoped>
-.get-started-container {
+.get-started-container_kera {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -33,7 +33,7 @@ ul {
   margin: 0;
 }
 
-.get-started {
+.get-started_kera {
   background-color: #ffc1e3; /* Светло-розовый цвет */
   color: #6a1b9a; /* Темно-фиолетовый для контраста */
   border: 2px solid #f48fb1; /* Акцент на границу */
@@ -48,13 +48,13 @@ ul {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Мягкая тень */
 }
 
-.get-started:hover {
+.get-started_kera:hover {
   background-color: #f48fb1; /* Более насыщенный розовый */
   transform: translateY(-3px);
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
 }
 
-.get-started:active {
+.get-started_kera:active {
   background-color: #f06292; /* Насыщенный оттенок при нажатии */
   transform: translateY(0);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
