@@ -1,6 +1,7 @@
 @import "./colors.css";
 
 .top-nav {
+    pointer-events: all;
     color: var(--color-bright-text);
     width: 98%;
     position: fixed;
@@ -50,5 +51,11 @@
 
     li:last-child {
         margin-left: auto;
+    }
+}
+
+@media (max-aspect-ratio: 3/2), (max-width: 700px) {
+    .top-nav {
+        font-size: 10;
     }
 }
