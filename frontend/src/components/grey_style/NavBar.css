@@ -3,7 +3,7 @@
 .top-nav {
     pointer-events: all;
     color: var(--color-bright-text);
-    width: 98%;
+    width: 100%;
     position: fixed;
     z-index: 999;
     top: 0;
@@ -51,6 +51,7 @@
 
     li:last-child {
         margin-left: auto;
+        padding-right: 2%;
     }
 }
 
