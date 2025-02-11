@@ -108,8 +108,8 @@ function initCanvas() {
     const canvas = canvasRef.value
     canvas.width = window.innerWidth
     canvas.height = window.innerHeight
-    cols.value = Math.floor(canvas.width / cellSize)
-    rows.value = Math.floor(canvas.height / cellSize)
+    cols.value = Math.ceil(canvas.width / cellSize)
+    rows.value = Math.ceil(canvas.height / cellSize)
     gridData = Array.from({ length: rows.value }, () => Array(cols.value).fill(false))
     const ctx = canvas.getContext('2d')
     ctx.clearRect(0, 0, canvas.width, canvas.height)
