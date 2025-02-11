@@ -342,7 +342,7 @@ export default {
     const fetchUser = async () => {
       try {
         const token = getToken();
-        const response = await axios.get("http://localhost:8080/api/v1/user/me", {
+        const response = await axios.get(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/user/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -360,7 +360,7 @@ export default {
       try {
         const token = getToken();
         const response = await axios.get(
-          "http://localhost:8080/api/v1/deadline_task/get_tasks/",
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/get_tasks/`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -392,7 +392,7 @@ export default {
         const description = newTask.value[day].description;
 
         await axios.post(
-          "http://localhost:8080/api/v1/deadline_task/create_deadline_task",
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/create_deadline_task`,
           { description, deadline_time },
           {
             headers: {
@@ -415,7 +415,7 @@ export default {
       try {
         const token = getToken();
         await axios.post(
-          "http://localhost:8080/api/v1/deadline_task/complete_task",
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/complete_task`,
           { id: taskId },
           {
             headers: {
@@ -436,7 +436,7 @@ export default {
       try {
         const token = getToken();
         await axios.post(
-          "http://localhost:8080/api/v1/deadline_task/delete_task",
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/delete_task`,
           { id: taskId },
           {
             headers: {
@@ -457,7 +457,7 @@ export default {
       try {
         const token = getToken();
         await axios.post(
-          "http://localhost:8080/api/v1/deadline_task/return_to_active",
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/return_to_active`,
           { id: taskId },
           {
             headers: {
@@ -478,7 +478,7 @@ export default {
       try {
         const token = getToken();
         const response = await axios.post(
-          "http://localhost:8080/api/v1/deadline_task/ai_generation",
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/ai_generation`,
           { text: user_text },
           {
             headers: {
@@ -505,7 +505,7 @@ export default {
         }));
 
         await axios.post(
-          "http://localhost:8080/api/v1/deadline_task/submit_ai_generation",
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/submit_ai_generation`,
           tasksPayload,
           {
             headers: {
@@ -656,7 +656,7 @@ export default {
         const deadline_time = deadlineDate.toISOString();
 
         await axios.put(
-          "http://localhost:8080/api/v1/deadline_task/update_task",
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/update_task`,
           { id, description, deadline_time },
           {
             headers: {
@@ -738,7 +738,7 @@ export default {
         const deadline_time = deadlineDate.toISOString();
 
         await axios.post(
-          "http://localhost:8080/api/v1/deadline_task/create_deadline_task",
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/create_deadline_task`,
           { description: description.trim(), deadline_time },
           {
             headers: {
