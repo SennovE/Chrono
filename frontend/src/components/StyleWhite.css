@@ -1,13 +1,6 @@
 @import url('./Whitevaribale.css');
 
-body {
-    /* Убрано overflow: hidden для разрешения прокрутки */
-    /* Изменен фон на светлый градиент */
-    background: linear-gradient(to right, #f0f0f0, #ffffff);
-    font-family: "Roboto", sans-serif;    
-    /* Изменен цвет текста на темно-серый */
-    color: #333333;
-}
+.start-page {
 
 ::selection {
     /* Изменены цвета выделения для светлой темы */
@@ -220,4 +213,5 @@ body {
     --color-button-active-bg: #c0c0c0;
     --color-box-shadow: rgba(0, 0, 0, 0.1);
     --color-box-shadow-hover: rgba(0, 0, 0, 0.15);
+}
 }

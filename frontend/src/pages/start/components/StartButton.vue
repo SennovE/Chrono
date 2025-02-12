@@ -27,7 +27,7 @@ const router = useRouter();
     left: 900px;
 }
 
-ul {
+.get-started-container::ul {
   list-style: none;
   padding: 0;
   margin: 0;
