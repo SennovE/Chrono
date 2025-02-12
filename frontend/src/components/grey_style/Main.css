@@ -1,6 +1,17 @@
 @import "./colors.css";
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
 
+.grey-style {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 0;
+    
+    overflow: hidden;
+    background: var(--color-background);
+    color: var(--color-dark-text);
+    font-family: 'Montserrat', sans-serif;
+}
 
 ::placeholder {
     color: var(--color-dark-text);
@@ -16,126 +27,73 @@
     color: var(--color-white);
 }
 
-.schedule-container, .top-nav, .not-registered {
-    button, input, textarea {
-        width: 100%;
-        padding: 2%;
-        font-size: 16px;
-        border: 1px solid black;
-        border-radius: 4px;
-        box-sizing: border-box;
-        margin-bottom: 2%;
-        background: linear-gradient(to right, var(--color-brighter-black), var(--color-black));
-        outline: none;
-        transition: box-shadow 0.3s ease-in-out;
-    }
+button, input, textarea {
+    width: 100%;
+    padding: 2%;
+    font-size: 16px;
+    border: 0;
+    box-sizing: border-box;
+    margin-top: 2%;
+    outline: none;
+    background: none;
+    position: relative;
+}
 
-    button:hover,
-    textarea:hover,
-    input:hover,
-    input:focus,
-    .modal-content,
-    .not-registered-content {
-        box-shadow:
-            0px 0px 3px white,
-            0px 0px 8px var(--color-deep-purple),
-            0px 0px 20px var(--color-deep-purple);
-    }
+input::placeholder {
+    color: var(--color-dark-text);
+}
 
-    textarea, input {
-        color: var(--color-dark-text);
-        caret-color: var(--color-dark-text);
-    }
+button {
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    border: 2px solid transparent;
+    background-color: var(--color-container);
+    border-color: var(--color-dark-text);
+    transition: background-color 0.5s ease, color 0.5s ease;
+}
 
-    button {
-        color: var(--color-dark-text);
-        font-size: 20px;
-        margin-bottom: 4%;
-        cursor: pointer;
-    }
+button:hover {
+    background-color: var(--color-background);
+    color: var(--color-bright-text);
+}
 
-    button:active {
-        background: linear-gradient(to right, var(--color-dark-grey), var(--color-darker-grey));
-    }
+button:active {
+    background: rgb(0, 0, 0, 0.2);
+}
 
-    .bottom-text {
-        transition: text-shadow 0.3s ease-in-out;
-        padding: 1%;
-        cursor: pointer;
-    }
+.input-wrapper {
+    position: relative;
+    width: 100%;
+}
 
-    .bottom-text:hover, li:hover, .chrono {
-        text-shadow:
-            0px 0px 8px var(--color-deep-purple),
-            0px 0px 20px var(--color-deep-purple);
-    }
+.input-wrapper::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--color-dark-text);
+}
 
-    .checkmark {
-        width: 20px;
-        height: 20px;
-        border: 1px solid var(--color-dark-text);
-        border-radius: 4px;
-        position: relative;
-        transition: box-shadow 0.3s ease-in-out;
-    }
-    .checkmark::after {
-        content: "";
-        position: absolute;
-        display: none;
-    }
-    .custom-checkbox {
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-        font-size: 16px;
-        user-select: none;
-        margin-left: 10%;
-    }
-    .custom-checkbox input {
-        display: none;
-    }
-    .custom-checkbox:hover .checkmark {
-        box-shadow:
-            0 0 10px var(--color-deep-purple),
-            0 0 10px var(--color-deep-purple),
-            0 0 10px var(--color-deep-purple);
-    }
-    .custom-checkbox input:checked + .checkmark {
-        background-color: var(--color-deep-purple);
-        border-color: var(--color-deep-purple);
-    }
-    .custom-checkbox input:checked + .checkmark::after {
-        display: block;
-        left: 7px;
-        top: 3px;
-        width: 5px;
-        height: 10px;
-        border: solid var(--color-black);
-        border-width: 0 2px 2px 0;
-        transform: rotate(45deg);
-    }
-    .form-button {
-        width: auto;
-        background: linear-gradient(to left, var(--color-brighter-black), var(--color-black));
-        box-shadow:
-            0px 0px 4px var(--color-deep-purple),
-            0px 0px 10px var(--color-deep-purple);
-        border-radius: 8px;
-        padding: 1%;
-    }
-    .form-button:hover {
-        box-shadow:
-            0px 0px 5px white,
-            0px 0px 10px var(--color-deep-purple),
-            0px 0px 20px var(--color-deep-purple),
-            0px 0px 50px var(--color-deep-purple);
-    }
-    .close-button {
-        font-size: 24px;
-        cursor: pointer;
-        margin: 0;
-        padding: 0;
-        width: 2rem;
-        height: 2rem;
-    }
+.input-wrapper::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--color-underline-first), var(--color-underline-second));
+    transition: width 0.5s ease;
+}
+
+.input-wrapper:hover::after, .input-wrapper:focus-within::after {
+    width: 100%;
+}
+
+textarea {
+    border-radius: 5px;
+    border: 2px solid transparent;
+    border-color: var(--color-background);
 }

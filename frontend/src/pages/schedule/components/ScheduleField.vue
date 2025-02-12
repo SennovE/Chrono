@@ -72,6 +72,7 @@ onUnmounted(() => {
     <div class="calendar-container">
         <scheduleForm @task-added="fetchTasks"/>
         <h3>{{ currentMonthName }} {{ currentYear }}</h3>
+        <p></p>
         <div class="row calendar-header">
             <div class="column time-column header-row">
             </div>
@@ -127,12 +128,19 @@ onUnmounted(() => {
 </template>
 
 <style>
+@import "./ScheduleMain.css";
+
 .calendar-container {
-    height: 80vh;
+    height: 85vh;
     display: flex;
     flex-direction: column;
+    color: var(--color-bright-text);
+}
+.modal-content {
+    color: var(--color-dark-text);
 }
 .calendar-body {
+    font-size: 1vw;
     flex-grow: 1;
     overflow-y: auto;
     overflow-x: hidden;
@@ -160,6 +168,7 @@ onUnmounted(() => {
     padding: 0 1% 0 0;
 }
 .calendar-header {
+    font-size: 1vw;
     flex-shrink: 0;
     scrollbar-gutter: stable;
     overflow: hidden;
@@ -171,8 +180,8 @@ onUnmounted(() => {
     bottom: 0;
     content: "";
     position: absolute;
-    border-right: 1px solid var(--color-grey);
-    border-bottom: 1px solid var(--color-grey);
+    border-right: 1px solid var(--color-bright-text);
+    border-bottom: 1px solid var(--color-bright-text);
     opacity: 0.1;
     pointer-events: none;
 }
@@ -194,25 +203,25 @@ onUnmounted(() => {
     width: 6px;
 }
 ::-webkit-scrollbar-thumb {
-    background-color: var(--color-grey);
+    background-color: var(--color-bright-text);
     border-radius: 6px;
 }
 ::-webkit-scrollbar-thumb:hover {
-    border: 1px solid var(--color-deep-purple);
+    border: 1px solid var(--color-container);
 }
 .current-line {
     position: absolute;
     left: 0;
     right: 0;
     height: 2px;
-    background-color: var(--color-deep-purple);
+    background-color: var(--color-container);
     border-radius: 8px;
     pointer-events: none;
     box-shadow:
-        0 0 10px var(--color-deep-purple),
-        0 0 10px var(--color-deep-purple),
-        0 0 20px var(--color-deep-purple);
-    z-index: 99;
+        0 0 10px var(--color-container),
+        0 0 10px var(--color-container),
+        0 0 20px var(--color-container);
+    z-index: 49;
 }
 .task {
     position: absolute;
@@ -220,16 +229,12 @@ onUnmounted(() => {
     border-radius: 8px;
     text-align: center;
     z-index: 10;
-    transition: box-shadow 0.3s ease-in-out;
+    transition: background-color 0.5s ease, color 0.5s ease;
 }
 .task:hover {
-    box-shadow:
-        0px 0px 5px white,
-        0px 0px 10px var(--color-deep-purple),
-        0px 0px 20px var(--color-deep-purple),
-        0px 0px 50px var(--color-deep-purple);
-    background: var(--color-black);
-    opacity: 0.90;
+    background-color: var(--color-container);
+    color: var(--color-dark-text);
+    opacity: 0.9;
     z-index: 50;
 }
 .task::after {
@@ -239,21 +244,9 @@ onUnmounted(() => {
     bottom: 0;
     content: "";
     position: absolute;
-    background: var(--color-deep-purple);
+    background: var(--color-container);
     border-radius: 8px;
-    opacity: 0.05;
-}
-.task::before {
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    content: "";
-    position: absolute;
-    box-shadow:
-        0 0 10px var(--color-deep-purple);
-    border-radius: 8px;
-    opacity: 0.5;
+    opacity: 0.2;
 }
 .task-content {
     width: 100%;
@@ -263,4 +256,5 @@ onUnmounted(() => {
     padding: 0% 5% 0% 5%;
     box-sizing: border-box;
 }
+
 </style>

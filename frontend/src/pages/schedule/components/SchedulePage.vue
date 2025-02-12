@@ -18,15 +18,14 @@ import calendar from "./ScheduleField.vue"
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    margin: 5% auto;
+    margin: 4% auto;
 }
 .schedule-container h1 {
     text-align: center;
 }
 .schedule-field {
     font-size: 16px;
-    padding-top: 2%;
     width: 90%;
-    height: 80%;
+    height: 90%;
 }
 </style>
