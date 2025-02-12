@@ -19,11 +19,11 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="Lo">
+    <div class="loading">
         <p>Обработка авторизации...</p>
     </div>
 </template>
 
 <style>
-@import "../../components/grey_style/LoginContainer.css";
+@import "../login/components/LoginContainer.css";
 </style>

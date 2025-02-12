@@ -6,7 +6,7 @@ document.title = "Chrono login"
 </script>
 
 <template>
-    <div class="login-page">
+    <div class="grey-style">
         <mainContainer />
         <navPanel />
         <canvasPanel />
@@ -14,5 +14,5 @@ document.title = "Chrono login"
 </template>
 
 <style>
-@import "../../components/grey_style/LoginContainer.css";
+@import "./components/LoginContainer.css";
 </style>
