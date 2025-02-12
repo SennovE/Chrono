@@ -92,7 +92,7 @@ function handleMouseMove(event) {
             drawGrid(ctx, canvas)
             const randomDelay = Math.random() * (10000 - 3000) + 3000
             setTimeout(() => {
-                if (gridData) {
+                if (gridData[row] && typeof gridData[row][col] !== 'undefined') {
                     gridData[row][col] = false
                     drawGrid(ctx, canvas)
                 }
