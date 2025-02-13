@@ -131,7 +131,7 @@
               <div class="new-task-form">
                 <input v-model="newTask[day].description" class="new-task-input" type="text" placeholder="Add task" />
                 <input v-model="newTask[day].time" class="new-task-time" type="time" />
-                <button class="arrow-button">
+                <button class="arrow-button" @click="createTask(day)">
                   <svg
                     width="40"
                     height="40"
