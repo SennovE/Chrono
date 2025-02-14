@@ -5,6 +5,7 @@
     border-radius: 8px;
     padding: 1%;
     margin-bottom: 3%;
+    border-color:rgb(0, 0, 0, 0);
 }
 
 .form-button:hover {
@@ -27,7 +28,7 @@
 
 .modal-content {
     width: 30%;
-    min-width: 550px;
+    min-width: min(550px, 100vw);
     background: var(--color-container);
     padding: max(1%, 20px) max(2%, 20px) max(2%, 20px) max(2%, 20px);
     border-radius: 50px;
