@@ -39,16 +39,16 @@
             <div class="deadline-day">
               <div class="filter-buttons">
                 <button v-if="dayFilters[day] === 0" class="filter-button" @click="setFilterCompleted(day)">
-                  Завершенные
+                  Active tasks
                 </button>
                 <button v-else class="filter-button" @click="setFilterCurrent(day)">
-                  Актуальные
+                  Completed tasks
                 </button>
               </div>
               <div class="tasks">
                 <div v-if="tasks.length === 0" class="empty-task-card">
-                  <p v-if="dayFilters[day] === 0">Все задачи завершены!</p>
-                  <p v-else>Нет актуальных задач.</p>
+                  <p v-if="dayFilters[day] === 0">All tasks are completed!</p>
+                  <p v-else>No completed tasks</p>
                 </div>
                 <!-- Tasks List -->
                 <div
@@ -131,7 +131,18 @@
               <div class="new-task-form">
                 <input v-model="newTask[day].description" class="new-task-input" type="text" placeholder="Add task" />
                 <input v-model="newTask[day].time" class="new-task-time" type="time" />
-                <button class="create-task-button" @click="createTask(day)" title="Add Task">↑</button>
+                <button class="arrow-button" @click="createTask(day)">
+                  <svg
+                    width="40"
+                    height="40"
+                    viewBox="0 0 100 100"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle cx="50" cy="50" r="38" stroke="#87CEEB" stroke-width="6" fill="none" />
+                    <path d="M34 58 L50 38 L66 58" stroke="#87CEEB" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
               </div>
             </div>
           </div>
@@ -342,7 +353,7 @@ export default {
     const fetchUser = async () => {
       try {
         const token = getToken();
-        const response = await axios.get("http://localhost:8080/api/v1/user/me", {
+        const response = await axios.get(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/user/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -360,7 +371,7 @@ export default {
       try {
         const token = getToken();
         const response = await axios.get(
-          "http://localhost:8080/api/v1/deadline_task/get_tasks/",
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/get_tasks/`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -392,7 +403,7 @@ export default {
         const description = newTask.value[day].description;
 
         await axios.post(
-          "http://localhost:8080/api/v1/deadline_task/create_deadline_task",
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/create_deadline_task`,
           { description, deadline_time },
           {
             headers: {
@@ -415,7 +426,7 @@ export default {
       try {
         const token = getToken();
         await axios.post(
-          "http://localhost:8080/api/v1/deadline_task/complete_task",
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/complete_task`,
           { id: taskId },
           {
             headers: {
@@ -436,7 +447,7 @@ export default {
       try {
         const token = getToken();
         await axios.post(
-          "http://localhost:8080/api/v1/deadline_task/delete_task",
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/delete_task`,
           { id: taskId },
           {
             headers: {
@@ -457,7 +468,7 @@ export default {
       try {
         const token = getToken();
         await axios.post(
-          "http://localhost:8080/api/v1/deadline_task/return_to_active",
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/return_to_active`,
           { id: taskId },
           {
             headers: {
@@ -478,7 +489,7 @@ export default {
       try {
         const token = getToken();
         const response = await axios.post(
-          "http://localhost:8080/api/v1/deadline_task/ai_generation",
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/ai_generation`,
           { text: user_text },
           {
             headers: {
@@ -505,7 +516,7 @@ export default {
         }));
 
         await axios.post(
-          "http://localhost:8080/api/v1/deadline_task/submit_ai_generation",
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/submit_ai_generation`,
           tasksPayload,
           {
             headers: {
@@ -656,7 +667,7 @@ export default {
         const deadline_time = deadlineDate.toISOString();
 
         await axios.put(
-          "http://localhost:8080/api/v1/deadline_task/update_task",
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/update_task`,
           { id, description, deadline_time },
           {
             headers: {
@@ -738,7 +749,7 @@ export default {
         const deadline_time = deadlineDate.toISOString();
 
         await axios.post(
-          "http://localhost:8080/api/v1/deadline_task/create_deadline_task",
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/create_deadline_task`,
           { description: description.trim(), deadline_time },
           {
             headers: {
@@ -888,10 +899,14 @@ export default {
 </script>
 
 <style scoped>
+/* Импортируем шрифт Inter из Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
 .page-container {
   display: flex;
   min-height: 100vh;
   box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
 }
 
 .content-container {
@@ -951,7 +966,7 @@ export default {
 .add-task-button {
   background-color: white;
   color: #7f8c8d;
-  border: 1px solid #bdc3c7;
+  border: 1px solid #ccc;
   width: 150px;
   height: 50px;
   cursor: pointer;
@@ -1082,18 +1097,20 @@ export default {
 }
 
 .filter-button {
-  background-color: #3498db;
-  color: white;
-  border: none;
-  border-radius: 15px;
-  padding: 5px 10px;
+  background: #fff;
+  border: 2px solid #87CEEB;
+  color: #87CEEB;
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s;
   cursor: pointer;
-  font-size: 0.8rem;
-  transition: background-color 0.3s, transform 0.2s;
+  margin-bottom: 15px;
 }
 
 .filter-button:hover {
-  background-color: #2980b9;
+  background-color: #4daceb;
   transform: scale(1.05);
 }
 
@@ -1102,7 +1119,7 @@ export default {
 }
 
 .tasks {
-  margin-top: 30px;
+  margin-top: 35px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -1122,20 +1139,23 @@ export default {
 .task-card {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
-  border: 1px solid #ebebeb;
-  border-radius: 5px;
-  padding: 10px;
-  background-color: #fafafa;
+  margin-bottom: 4px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  padding: 15px;
+  background-color: #ffffff;
   gap: 10px;
   flex-direction: row;
   position: relative;
-  transition: background-color 0.3s;
+  /* Базовая тень карточки */
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s, box-shadow 0.3s;
 }
 
 .task-card:hover {
   background-color: #f0f8ff;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
+  /* При наведении тень становится больше и темнее */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .task-status {
@@ -1159,7 +1179,6 @@ export default {
 }
 
 .task-name {
-  font-weight: bold;
   margin: 0;
   white-space: normal;
   overflow: hidden;
@@ -1219,13 +1238,14 @@ export default {
   flex: 2;
   padding: 5px;
   height: 35px;
-  border: 2px solid #ccc;
+  border: 1px solid #ccc;
   border-radius: 50px;
   font-size: 0.9rem;
   color: #555;
   background-color: white;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: border-color 0.3s, box-shadow 0.3s;
+  padding-left: 10px;
   box-sizing: border-box;
 }
 
@@ -1238,7 +1258,7 @@ export default {
   flex: 1;
   padding: 5px;
   height: 35px;
-  border: 2px solid #ccc;
+  border: 1px solid #ccc;
   border-radius: 50px;
   font-size: 0.9rem;
   text-align: center;
@@ -1440,5 +1460,17 @@ export default {
 }
 @keyframes spin {
   100% { transform: rotate(360deg); }
+}
+
+.arrow-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+  padding: 0;
+}
+
+.arrow-button:hover {
+  transform: scale(1.1);
 }
 </style>

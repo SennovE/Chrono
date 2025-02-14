@@ -1,5 +1,5 @@
 <template>
-  <div class="top-nav_kera">
+  <div class="top-nav-start">
       <ul>
           <li @click="router.push({name: 'Registration'})"><b>Регистрация</b></li>
           <li @click="router.push({name: 'Login Page'})"><b>Авторизация</b></li>
@@ -27,7 +27,8 @@ const router = useRouter();
   --color-soft-grey: #f5f5f5;
 }
 
-.top-nav_kera {
+
+.top-nav-start {
   width: 100%;
   background: linear-gradient(to right, var(--color-pastel-pink), var(--color-pastel-purple));
   position: fixed;
@@ -41,7 +42,9 @@ const router = useRouter();
   border-bottom: 3px solid var(--color-light-purple); /* Мягкий акцент */
 }
 
-.top-nav_kera ul {
+
+.top-nav-start ul {
+
   display: flex;
   list-style-type: none;
   justify-content: flex-start;
@@ -50,7 +53,8 @@ const router = useRouter();
   padding: 0;
 }
 
-.top-nav_kera li {
+
+.top-nav-start li {
   display: block;
   padding: 10px 20px;
   text-decoration: none;
@@ -62,7 +66,8 @@ const router = useRouter();
   background-color: var(--color-soft-grey); /* Нежный светлый фон */
 }
 
-.top-nav_kera li:hover {
+
+.top-nav-start li:hover {
   background-color: var(--color-light-purple); /* Светло-фиолетовый фон при наведении */
   color: #4a148c; /* Глубокий фиолетовый текст при наведении */
   box-shadow: 0px 4px 12px rgba(106, 27, 154, 0.3); /* Фиолетовая тень при наведении */
@@ -74,7 +79,9 @@ const router = useRouter();
 }
 
 @media (max-width: 768px) {
-  .top-nav_kera ul {
+
+  .top-nav-start ul {
+
       flex-direction: column;
       align-items: flex-start;
   }
@@ -84,7 +91,7 @@ const router = useRouter();
       margin-top: 10px;
   }
 
-  .top-nav li {
+  .top-nav-start li {
       padding: 10px 15px;
   }
 }

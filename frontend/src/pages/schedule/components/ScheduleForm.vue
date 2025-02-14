@@ -66,22 +66,31 @@ function modalClose() {
                             &times;
                         </button>
                     </div>
-                    <input placeholder="Название события" v-model="shortText" />
+                    <div class="input-wrapper">
+                        <input placeholder="Название события" v-model="shortText" />
+                    </div>
+                    <p></p>
                     <textarea placeholder="Добавьте описание" v-model="descriptionText"></textarea>
 
                     <div class="field-group">
                         <p>День события:</p>
-                        <input type="date" v-model="startDate" class="date" />
+                        <div class="input-wrapper">
+                            <input type="date" v-model="startDate" class="date" />
+                        </div>
                     </div>
                     
                     <div class="field-group">
                         <p>Начало:</p>
-                        <input type="time" v-model="startTime" class="date" />
+                        <div class="input-wrapper">
+                            <input type="time" v-model="startTime" class="date" />
+                        </div>
                     </div>
 
                     <div class="field-group">
                         <p>Конец:</p>
-                        <input type="time" v-model="endTime" class="date" />
+                        <div class="input-wrapper">
+                            <input type="time" v-model="endTime" class="date" />
+                        </div>
                     </div>
 
                     <div class="field-group">
@@ -109,17 +118,8 @@ function modalClose() {
     z-index: 99;
 }
 
-.date {
-    color: var(--color-grey);
-}
-
-.date::-webkit-calendar-picker-indicator {
-  filter: invert(1);
-  opacity: 0.6;
-}
-
 .creation-button {
-    margin-top: 2%;
+    margin-top: 5%;
     margin-bottom: 0;
 }
 
@@ -134,36 +134,16 @@ function modalClose() {
     display: flex;
     align-items: center;
     margin-bottom: 1%;
+    margin-top: 1%;
 }
 
 .field-group p {
-    width: 25%;
+    width: 50%;
     margin: 0;
+    margin-top: 1%;
     text-align: left;
 }
 
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #00000045;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    overflow: hidden;
-}
-
-.modal-content {
-    width: 30%;
-    background: linear-gradient(to left, var(--color-brighter-black), var(--color-black));
-    padding: 1% 2% 1% 2%;
-    border-radius: 8px;
-    box-sizing: border-box;
-    border: 1px solid var(--color-black);
-}
 .modal-overlay textarea {
     height: 200px;
     resize: none;

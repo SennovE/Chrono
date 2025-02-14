@@ -18,7 +18,7 @@ onMounted(async () => {
 
 
 <template>
-    <div>
+    <div class="grey-style">
         <schedulePage :user="user"/>
         <navPanel />
         <invalidUserPanel v-show="user == -1"/>
@@ -26,5 +26,5 @@ onMounted(async () => {
 </template>
 
 <style>
-@import "../../components/Stiles.css";
+@import "./components/ScheduleMain.css";
 </style>
