@@ -18,7 +18,7 @@ import calendar from "./ScheduleField.vue"
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    margin: 4% auto;
+    margin-top: 4%;
 }
 .schedule-container h1 {
     text-align: center;

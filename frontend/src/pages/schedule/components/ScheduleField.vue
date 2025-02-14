@@ -70,8 +70,10 @@ onUnmounted(() => {
 
 <template>
     <div class="calendar-container">
-        <scheduleForm @task-added="fetchTasks"/>
-        <h3>{{ currentMonthName }} {{ currentYear }}</h3>
+        <div class="head-line">
+            <h3>{{ currentMonthName }} {{ currentYear }}</h3>
+            <scheduleForm class="header-line-left" @task-added="fetchTasks"/>
+        </div>
         <p></p>
         <div class="row calendar-header">
             <div class="column time-column header-row">
@@ -81,9 +83,10 @@ onUnmounted(() => {
                 v-for="(day, index) in weekdays"
                 :key="day"
             >
-                <b
-                    :class="[isActive ? 'active-class' : '', hasError ? 'error-class' : '']"
-                >
+                <b v-if="day === currentDayName" :style="{ 'border-bottom': '2px solid var(--color-bright-text)' }">
+                    {{ weekdates[index] }} | {{ day }}
+                </b>
+                <b v-else>
                     {{ weekdates[index] }} | {{ day }}
                 </b>
             </div>
@@ -130,8 +133,14 @@ onUnmounted(() => {
 <style>
 @import "./ScheduleMain.css";
 
+.head-line {
+    display: flex;
+}
+.header-line-left {
+    margin-left: auto;
+}
 .calendar-container {
-    height: 85vh;
+    height: 90vh;
     display: flex;
     flex-direction: column;
     color: var(--color-bright-text);
@@ -214,13 +223,13 @@ onUnmounted(() => {
     left: 0;
     right: 0;
     height: 2px;
-    background-color: var(--color-container);
+    background-color: var(--color-bright-text);
     border-radius: 8px;
     pointer-events: none;
     box-shadow:
-        0 0 10px var(--color-container),
-        0 0 10px var(--color-container),
-        0 0 20px var(--color-container);
+        0 0 10px var(--color-bright-text),
+        0 0 10px var(--color-bright-text),
+        0 0 20px var(--color-bright-text);
     z-index: 49;
 }
 .task {
@@ -230,6 +239,9 @@ onUnmounted(() => {
     text-align: center;
     z-index: 10;
     transition: background-color 0.5s ease, color 0.5s ease;
+    box-shadow:
+        inset 0 0 0 1px var(--color-background),
+        inset 0 0 1vw var(--color-container);
 }
 .task:hover {
     background-color: var(--color-container);

@@ -111,13 +111,6 @@ function modalClose() {
 
 
 <style>
-.form-button {
-    position: fixed;
-    bottom: -3%;
-    right: 3%;
-    z-index: 99;
-}
-
 .creation-button {
     margin-top: 5%;
     margin-bottom: 0;
