@@ -37,7 +37,7 @@ import StartButton from "./components/StartButton.vue"
   background-position: center; /* Центрирование изображения */
 }
 
-@import "../../components/Stiles.css";
+@import "../../components/StyleWhite.css";
 
   
   

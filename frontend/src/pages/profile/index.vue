@@ -31,6 +31,6 @@ import UserSettings from "./components/UserSettings";
 
 <style>
 
-@import "../../components/Stiles.css";
+@import "../../components/StyleWhite.css";
 
 </style>

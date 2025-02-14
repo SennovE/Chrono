@@ -1,7 +1,12 @@
-from fastapi.testclient import TestClient
-from app.main import app
+import pytest
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from app.database.models import User
 
-client = TestClient(app)
-
-
+@pytest.mark.asyncio
+async def test_query_users(session: AsyncSession):
+    query = select(User)
+    result = await session.scalars(query)
+    users = result.all()
+    print(users)
 
