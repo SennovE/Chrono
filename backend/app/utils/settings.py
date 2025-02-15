@@ -12,21 +12,34 @@ from app.database.connection import get_session
 from app.database.models import User
 from app.schemas.settings import EmailUpdateForm, PasswordUpdateForm
 from uuid import UUID
-async def update_email(id: UUID,updated_password: PasswordUpdateForm, session: AsyncSession) -> bool:
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return get_settings().PWD_CONTEXT.verify(plain_password, hashed_password)
+async def update_password(id: UUID,updated_password: str, session: AsyncSession) -> bool:
     query = select(User).where(User.id == id)
     result = await session.scalar(query)
     if not result:
         return False
-    for key, value in updated_password.model_dump(exclude_none=True).items():
-        setattr(result, key, value)
+    try:
+        hashed_password = get_settings().PWD_CONTEXT.hash(updated_password)
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="hashed mistake"
+        )
+    try:
+        setattr(result, "password", hashed_password)
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="new password mistake"
+        )
     await session.commit()
     return True
-async def update_password(id: UUID, updated_email: EmailUpdateForm, session: AsyncSession) -> bool:
+async def update_email(id: UUID, updated_email: str, session: AsyncSession) -> bool:
     query = select(User).where(User.id == id)
     result = await session.scalar(query)
     if not result:
         return False
-    for key, value in updated_email.model_dump(exclude_none=True).items():
-        setattr(result, key, value)
+    setattr(result, "email", updated_email)
     await session.commit()
     return True
