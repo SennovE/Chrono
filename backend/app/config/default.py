@@ -2,6 +2,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from authlib.integrations.starlette_client import OAuth
+import os
 
 
 class DefaultSettings(BaseSettings):
@@ -26,7 +27,7 @@ class DefaultSettings(BaseSettings):
 
     PWD_CONTEXT: CryptContext = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-    model_config = SettingsConfigDict(env_file="../.env")
+    model_config = SettingsConfigDict(env_file="../.env") 
 
     @property
     def OAUTH2_SCHEME(self) -> OAuth2PasswordBearer:

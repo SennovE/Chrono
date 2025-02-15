@@ -12,6 +12,7 @@ from app.utils.user import get_current_user, User
 from app.utils.settings import (
     update_email,
     update_password,
+    verify_password
 )
 from app.utils.settings import (
     EmailUpdateForm,
@@ -38,13 +39,30 @@ async def Update_password(
     session: Annotated[AsyncSession, Depends(get_session)],
     user: Annotated[User, Security(get_current_user)],
 ) -> str:
-    result = await update_password(user.id,updated_password, session)
-    if not result:
+    
+    try:
+        ans  = verify_password(updated_password.oldpassword,user.password)
+    except:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="No task with with this ID",
+            detail="verify mistake"
         )
-    return {"message": "Password updated"}
+    if (ans):
+        try:
+            result = await update_password(user.id,updated_password.password, session)
+            return "Password updated"
+        except:
+            raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="update_pass"
+        )
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Wrong password"
+        )
+    
+    
 @api_router.put(
     "/update_email",
     status_code=status.HTTP_200_OK,
@@ -60,10 +78,17 @@ async def Update_email(
     session: Annotated[AsyncSession, Depends(get_session)],
     user: Annotated[User, Security(get_current_user)]
 ) -> str:
-    result = await update_email(user.id,updated_email, session)
-    if not result:
+    ans  = verify_password(updated_email.password,user.password)
+    if (ans):
+        result = await update_email(user.id,updated_email.email, session)
+        if not result:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No task with with this ID",
+            )
+        return {"message": "Email updated"}
+    else:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No task with with this ID",
-        )
-    return {"message": "Email updated"}
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Wrong  password",
+            )
