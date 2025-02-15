@@ -34,6 +34,64 @@ function updateTime() {
     currentYear.value = now.getFullYear()
 }
 
+const selectedParams = ref({
+    day: "",
+    time: "",
+    startHours: 0,
+    startMinutes: 0,
+    endHours: 0,
+    endMinutes: 0,
+    top: "0%",
+    bottom: "0%",
+})
+const isDragging = ref(false)
+const isModalOpen = ref(false)
+function closeModal() {
+    isModalOpen.value = false
+    isDragging.value = false;
+}
+function openModal() {
+    isModalOpen.value = true
+}
+
+function handleMouseDown(day, time, event) {
+    isDragging.value = true
+    const cellRect = event.currentTarget.getBoundingClientRect()
+    const clickY = event.clientY - cellRect.top;
+    let minutes = Math.floor((clickY / cellRect.height) * 60)
+    const hours = parseInt(time.split(":")[0], 10) + Math.floor(minutes / 60)
+    minutes %= 60
+    selectedParams.value = {
+        day: day,
+        time: time,
+        startHours: hours,
+        startMinutes: minutes,
+        endHours: hours,
+        endMinutes: minutes,
+        top: `${minutes / 60 * 100}%`,
+        bottom: `${minutes / 60 * 100}%`,
+    }
+}
+
+function handleMouseUp() {
+    if (!isDragging.value) return
+    openModal()
+}
+
+function handleCellMove(time, event) {
+    if (!isDragging.value) return;
+    const cellRect = event.currentTarget.getBoundingClientRect()
+    const clickY = event.clientY - cellRect.top;
+    let minutes = Math.floor((clickY / cellRect.height) * 60)
+    const hours = parseInt(time.split(":")[0], 10) + Math.floor(minutes / 60)
+    minutes %= 60
+    selectedParams.value.endHours = hours
+    selectedParams.value.endMinutes = minutes
+    selectedParams.value.bottom = `${(
+        selectedParams.value.endHours - selectedParams.value.startHours - 1 + selectedParams.value.endMinutes / 60
+    ) * -100}%`
+}
+
 updateTime()
 
 const tasks = ref({
@@ -72,7 +130,14 @@ onUnmounted(() => {
     <div class="calendar-container">
         <div class="head-line">
             <h3>{{ currentMonthName }} {{ currentYear }}</h3>
-            <scheduleForm class="header-line-left" @task-added="fetchTasks"/>
+            <scheduleForm
+                class="header-line-left"
+                @task-added="fetchTasks"
+                :isModalOpen="isModalOpen"
+                @closeModal="closeModal"
+                @openModal="openModal"
+                :selectedParams="selectedParams"
+            />
         </div>
         <p></p>
         <div class="row calendar-header">
@@ -91,7 +156,7 @@ onUnmounted(() => {
                 </b>
             </div>
         </div>
-        <div class="calendar-body">
+        <div class="calendar-body" @mouseleave="handleMouseUp">
             <div
                 class="row"
                 v-for="time in times"
@@ -99,20 +164,27 @@ onUnmounted(() => {
                 :ref="time === currentTimeString ? (row) => {currentRow = row} : null"
             >
                 <div class="column time-column"><span>{{ time }}</span></div>
-                    <div
-                        class="column"
-                        v-for="(day, index) in weekdays"
-                        :key="(day, index)"
-                    >
+                <div
+                    class="column"
+                    v-for="(day, index) in weekdays"
+                    :key="(day, index)"
+                    @mousedown="handleMouseDown(day, time, $event)"
+                    @mousemove="handleCellMove(time, $event)"
+                    @mouseup="handleMouseUp"
+                >
                     <div
                         v-show="day === currentDayName && time === currentTimeString"
                         class="current-line"
                         :style="{ top: currentMinute }"
-                    >
-                    </div>
+                    ></div>
+                    <div
+                        v-if="day === selectedParams.day && time === selectedParams.time && isDragging"
+                        class="selected-field"
+                        :style="{ top: selectedParams.top, bottom: selectedParams.bottom }"
+                    ></div>
                     <div
                         class="task"
-                        v-for="task in tasks[String(index)].filter((t) => `${t.start_hours}:00` === time)"
+                        v-for="task in tasks[String(index)].filter((t) => `${t.start_hours}:00` == time)"
                         :key="task.id"
                         :style="{
                             top: `${task.start_minutes / 60 * 100}%`,
@@ -125,7 +197,6 @@ onUnmounted(() => {
                     </div>
                 </div>
             </div>
-            <p class="calendr-bottom"></p>
         </div>
     </div>
 </template>
@@ -133,6 +204,14 @@ onUnmounted(() => {
 <style>
 @import "./ScheduleMain.css";
 
+.selected-field {
+    width: 96%;
+    border: 2px solid var(--color-container);
+    border-radius: 8px;
+    position: absolute;
+    width: 96%;
+    z-index: 11;
+}
 .head-line {
     display: flex;
 }
@@ -154,6 +233,7 @@ onUnmounted(() => {
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-gutter: stable;
+    user-select: none;
 }
 .row {
     display: flex;
@@ -175,6 +255,7 @@ onUnmounted(() => {
     justify-content: flex-end;
     align-items: flex-start;
     padding: 0 1% 0 0;
+    user-select: text;
 }
 .calendar-header {
     font-size: 1vw;
@@ -203,9 +284,6 @@ onUnmounted(() => {
 }
 .header-row {
     padding-top: 0%;
-    padding-bottom: 1%;
-}
-.calendr-bottom {
     padding-bottom: 1%;
 }
 ::-webkit-scrollbar {

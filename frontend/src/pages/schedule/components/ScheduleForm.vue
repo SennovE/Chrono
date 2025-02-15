@@ -1,9 +1,9 @@
 <script setup>
-import { ref, defineEmits } from "vue"
+import { ref, defineEmits, watch } from "vue"
 import { useRouter } from "vue-router"
 import { addScheduleTask } from "./ScheduleFunctions"
 
-const emit = defineEmits(['task-added'])
+const emit = defineEmits(['task-added', 'closeModal', 'openModal'])
 const router = useRouter()
 
 const shortText = ref("")
@@ -15,7 +15,10 @@ const recurring = ref(false)
 
 const response = ref("")
 
-const isModalOpen = ref(false)
+const props = defineProps({
+    isModalOpen: Boolean,
+    selectedParams: Object,
+})
 
 async function addScheduleTaskWrap() {
     response.value = await addScheduleTask(
@@ -39,16 +42,31 @@ async function addScheduleTaskWrap() {
     }
 }
 
+function modalOpen() {
+    startTime.value = (props.selectedParams.startHours < 10 ? '0' : '') +
+                      `${props.selectedParams.startHours}:` +
+                      (props.selectedParams.startMinutes < 10 ? '0' : '') +
+                      `${props.selectedParams.startMinutes}`
+    endTime.value = (props.selectedParams.endHours < 10 ? '0' : '') +
+                    `${props.selectedParams.endHours}:` +
+                    (props.selectedParams.endMinutes < 10 ? '0' : '') +
+                    `${props.selectedParams.endMinutes}`
+    console.log(startTime.value, endTime.value)
+    console.log(props.selectedParams)
+}
+
 function modalClose() {
     response.value = ""
-    isModalOpen.value = false
+    emit('closeModal')
 }
+
+watch(() => props.isModalOpen, modalOpen)
 </script>
 
 <template>
     <div>
         <button
-            @click="isModalOpen=true"
+            @click="emit('openModal')"
             class="form-button"
         >
             Добавить событие
