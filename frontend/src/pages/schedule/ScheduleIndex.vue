@@ -19,8 +19,8 @@ onMounted(async () => {
 
 <template>
     <div class="grey-style">
-        <schedulePage :user="user"/>
         <navPanel />
+        <schedulePage :user="user"/>
         <invalidUserPanel v-show="user == -1"/>
     </div>
 </template>

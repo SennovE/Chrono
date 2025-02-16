@@ -27,7 +27,7 @@
     color: var(--color-white);
 }
 
-button, input, textarea {
+button, input, textarea, .task-text, .input-wrapper p {
     width: 100%;
     padding: 2%;
     font-size: 16px;
@@ -51,6 +51,10 @@ button {
     background-color: var(--color-container);
     border-color: var(--color-dark-text);
     transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+.schedule-field button {
+    background: var(--color-grey-text);
 }
 
 button:hover {
@@ -92,8 +96,56 @@ button:active {
     width: 100%;
 }
 
-textarea {
+textarea, .task-text {
     border-radius: 5px;
-    border: 2px solid transparent;
-    border-color: var(--color-background);
+    border: 2px solid var(--color-dark-text);
+}
+
+.edit-button,
+.delete-button,
+.return-button {
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+    margin-left: auto;
+    padding-right: 5%;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-thumb {
+    background-color: var(--color-grey-text);
+    border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+    border: 1px solid var(--color-container);
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.bottom-text {
+    padding: 1%;
+    cursor: pointer;
+    position: relative;
+    display: block;
+    width: fit-content;
+    margin: auto;
+    text-align: center;
+}
+.bottom-text::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--color-underline-first), var(--color-underline-second));
+    transition: all 0.5s ease;
+    transform: translateX(-50%);
+}
+.bottom-text:hover::after {
+    width: 100%;
 }

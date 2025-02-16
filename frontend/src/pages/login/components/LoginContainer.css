@@ -53,32 +53,6 @@
     visibility: hidden;
 }
 
-.bottom-text {
-    padding: 1%;
-    cursor: pointer;
-    position: relative;
-    display: block;
-    width: fit-content;
-    margin: auto;
-    text-align: center;
-}
-
-.bottom-text::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    width: 0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--color-underline-first), var(--color-underline-second));
-    transition: all 0.5s ease;
-    transform: translateX(-50%);
-}
-
-.bottom-text:hover::after {
-    width: 100%;
-}
-
 .welcome-text, .input-container {
     flex: 1 1 45%;
     min-width: 300px;
