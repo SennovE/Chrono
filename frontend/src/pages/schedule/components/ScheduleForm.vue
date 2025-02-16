@@ -3,7 +3,7 @@ import { ref, defineEmits, watch } from "vue"
 import { useRouter } from "vue-router"
 import { addScheduleTask } from "./ScheduleFunctions"
 
-const emit = defineEmits(['task-added', 'closeModal', 'openModal'])
+const emit = defineEmits(['taskAdded', 'closeModal', 'openModal'])
 const router = useRouter()
 
 const shortText = ref("")
@@ -31,7 +31,7 @@ async function addScheduleTaskWrap() {
         recurring.value
     )
     if (response.value === "") {
-        emit('task-added')
+        emit('taskAdded')
         modalClose()
         shortText.value = ""
         descriptionText.value = ""
@@ -51,8 +51,6 @@ function modalOpen() {
                     `${props.selectedParams.endHours}:` +
                     (props.selectedParams.endMinutes < 10 ? '0' : '') +
                     `${props.selectedParams.endMinutes}`
-    console.log(startTime.value, endTime.value)
-    console.log(props.selectedParams)
 }
 
 function modalClose() {
@@ -85,7 +83,7 @@ watch(() => props.isModalOpen, modalOpen)
                         </button>
                     </div>
                     <div class="input-wrapper">
-                        <input placeholder="Название события" v-model="shortText" />
+                        <input placeholder="Название события" v-model="shortText" required/>
                     </div>
                     <p></p>
                     <textarea placeholder="Добавьте описание" v-model="descriptionText"></textarea>
@@ -153,13 +151,6 @@ watch(() => props.isModalOpen, modalOpen)
     margin: 0;
     margin-top: 1%;
     text-align: left;
-}
-
-.modal-overlay textarea {
-    height: 200px;
-    resize: none;
-    overflow: auto;
-    font-size: large;
 }
 
 .overlay-fade-enter-from,

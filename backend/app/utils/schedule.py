@@ -62,6 +62,17 @@ async def change_schedule_task(
     if not result:
         return False
     for key, value in updated_task.model_dump(exclude_none=True).items():
-        setattr(result, key, value)
+        if key == "start_time":
+            setattr(result, "year", updated_task.start_time.year),
+            setattr(result, "month", updated_task.start_time.month),
+            setattr(result, "day", updated_task.start_time.day),
+            setattr(result, "start_hours", updated_task.start_time.hour),
+            setattr(result, "start_minutes", updated_task.start_time.minute),
+            setattr(result, "week_day", updated_task.start_time.weekday()),
+        elif key == "end_time":
+            setattr(result, "end_hours", updated_task.end_time.hour),
+            setattr(result, "end_minutes", updated_task.end_time.minute),
+        else:
+            setattr(result, key, value)
     await session.commit()
     return True

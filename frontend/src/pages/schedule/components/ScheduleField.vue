@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onUnmounted } from "vue"
 import { getMonthName, makeTime, makeWeekDates, getScheduleTasks } from "./ScheduleFunctions"
 import scheduleForm from "./ScheduleForm.vue"
+import scheduleUpdateForm from "./ScheduleUpdateForm.vue"
 import { useRouter } from "vue-router"
 
 const weekdays = ref(["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"])
@@ -48,28 +49,39 @@ const isDragging = ref(false)
 const isModalOpen = ref(false)
 function closeModal() {
     isModalOpen.value = false
-    isDragging.value = false;
+    isDragging.value = false
 }
 function openModal() {
     isModalOpen.value = true
+}
+
+const showTaskDay = ref("")
+const showTaskId = ref("")
+function showTask(dayIndex, taskId) {
+    showTaskDay.value = dayIndex
+    showTaskId.value = taskId
+}
+function clearUpdatingInfo() {
+    showTaskDay.value = 0
+    showTaskId.value = -1
 }
 
 function handleMouseDown(day, time, event) {
     isDragging.value = true
     const cellRect = event.currentTarget.getBoundingClientRect()
     const clickY = event.clientY - cellRect.top;
-    let minutes = Math.floor((clickY / cellRect.height) * 60)
+    let minutes = Math.max(Math.round(Math.floor((clickY / cellRect.height) * 60) / 5) * 5, 0)
     const hours = parseInt(time.split(":")[0], 10) + Math.floor(minutes / 60)
     minutes %= 60
     selectedParams.value = {
         day: day,
-        time: time,
-        startHours: hours,
-        startMinutes: minutes,
-        endHours: hours,
-        endMinutes: minutes,
-        top: `${minutes / 60 * 100}%`,
-        bottom: `${minutes / 60 * 100}%`,
+        time: `${hours}:00`,
+        startHours: Math.max(hours, 0) | 0,
+        startMinutes: Math.max(minutes, 0) | 0,
+        endHours: Math.max(hours, 0) | 0,
+        endMinutes: Math.max(minutes, 0) | 0,
+        top: `${(Math.max(minutes, 0) | 0) / 60 * 100}%`,
+        bottom: `${100 - (Math.max(minutes, 0) | 0) / 60 * 100}%`,
     }
 }
 
@@ -82,11 +94,20 @@ function handleCellMove(time, event) {
     if (!isDragging.value) return;
     const cellRect = event.currentTarget.getBoundingClientRect()
     const clickY = event.clientY - cellRect.top;
-    let minutes = Math.floor((clickY / cellRect.height) * 60)
+    let minutes = Math.max(Math.floor((clickY / cellRect.height) * 60), 0)
     const hours = parseInt(time.split(":")[0], 10) + Math.floor(minutes / 60)
     minutes %= 60
-    selectedParams.value.endHours = hours
-    selectedParams.value.endMinutes = minutes
+    selectedParams.value.endHours = Math.max(hours, 0) | 0
+    selectedParams.value.endMinutes = Math.max(minutes, 0) | 0
+    if (selectedParams.value.endHours < selectedParams.value.startHours) {
+        selectedParams.value.endHours = selectedParams.value.startHours
+        selectedParams.value.endMinutes = selectedParams.value.startMinutes
+    } else if (selectedParams.value.endHours == selectedParams.value.startHours) {
+        selectedParams.value.endMinutes = Math.max(
+            selectedParams.value.endMinutes,
+            selectedParams.value.startMinutes
+        )
+    }
     selectedParams.value.bottom = `${(
         selectedParams.value.endHours - selectedParams.value.startHours - 1 + selectedParams.value.endMinutes / 60
     ) * -100}%`
@@ -128,11 +149,34 @@ onUnmounted(() => {
 
 <template>
     <div class="calendar-container">
+        <scheduleUpdateForm
+            :tasks="tasks"
+            :showTaskDay="showTaskDay"
+            :showTaskId="showTaskId"
+            @taskUpdated="fetchTasks"
+            @clearUpdatingInfo="clearUpdatingInfo"
+        />
         <div class="head-line">
             <h3>{{ currentMonthName }} {{ currentYear }}</h3>
+            <svg width="30" height="40" xmlns="http://www.w3.org/2000/svg">
+                <polyline 
+                    points="20,10 10,20 20,30" 
+                    fill="none" 
+                    stroke="var(--color-bright-text)" 
+                    stroke-width="3" 
+                    stroke-linejoin="round" />
+            </svg>
+            <svg width="30" height="40" xmlns="http://www.w3.org/2000/svg">
+                <polyline 
+                    points="10,10 20,20 10,30" 
+                    fill="none" 
+                    stroke="var(--color-bright-text)" 
+                    stroke-width="3" 
+                    stroke-linejoin="round" />
+            </svg>
             <scheduleForm
                 class="header-line-left"
-                @task-added="fetchTasks"
+                @taskAdded="fetchTasks"
                 :isModalOpen="isModalOpen"
                 @closeModal="closeModal"
                 @openModal="openModal"
@@ -163,7 +207,7 @@ onUnmounted(() => {
                 :key="time"
                 :ref="time === currentTimeString ? (row) => {currentRow = row} : null"
             >
-                <div class="column time-column"><span>{{ time }}</span></div>
+                <div class="column time-column"><span v-show="time != '0:00'">{{ time }}</span></div>
                 <div
                     class="column"
                     v-for="(day, index) in weekdays"
@@ -178,18 +222,35 @@ onUnmounted(() => {
                         :style="{ top: currentMinute }"
                     ></div>
                     <div
-                        v-if="day === selectedParams.day && time === selectedParams.time && isDragging"
+                        v-if="day === selectedParams.day &&
+                              (time === selectedParams.time) && isDragging"
                         class="selected-field"
                         :style="{ top: selectedParams.top, bottom: selectedParams.bottom }"
-                    ></div>
+                    >
+                        <div class="selected-context">
+                            <div class="new-task-text">Новое событие</div>
+                            <div class="new-task-text">
+                                C {{ selectedParams.startHours }}:{{
+                                    (selectedParams.startMinutes < 10 ? '0' : '') + `${selectedParams.startMinutes}`
+                                }}    
+                            </div>
+                            <div class="new-task-text">
+                                До {{ selectedParams.endHours }}:{{
+                                    (selectedParams.endMinutes < 10 ? '0' : '') + `${selectedParams.endMinutes}`
+                                }}
+                            </div>
+                        </div>
+                    </div>
                     <div
                         class="task"
                         v-for="task in tasks[String(index)].filter((t) => `${t.start_hours}:00` == time)"
                         :key="task.id"
                         :style="{
                             top: `${task.start_minutes / 60 * 100}%`,
-                            bottom: `-${(task.end_hours - task.start_hours - 1 + task.end_minutes / 60) * 100}%`
+                            bottom: `${(task.end_hours - task.start_hours - 1 + task.end_minutes / 60) * -100}%`
                         }"
+                        @mousedown.stop
+                        @click="showTask(index, task.id)"
                     >
                         <div class="task-content">
                             {{ task.name }}
@@ -212,8 +273,23 @@ onUnmounted(() => {
     width: 96%;
     z-index: 11;
 }
+.selected-context {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+}
+.new-task-text {
+    padding-left: 10%;
+    margin: auto;
+}
 .head-line {
     display: flex;
+    align-items: center;
+}
+.head-line h3 {
+    padding-right: 1%;
 }
 .header-line-left {
     margin-left: auto;
@@ -223,9 +299,6 @@ onUnmounted(() => {
     display: flex;
     flex-direction: column;
     color: var(--color-bright-text);
-}
-.modal-content {
-    color: var(--color-dark-text);
 }
 .calendar-body {
     font-size: 1vw;
@@ -286,22 +359,13 @@ onUnmounted(() => {
     padding-top: 0%;
     padding-bottom: 1%;
 }
-::-webkit-scrollbar {
-    width: 6px;
-}
-::-webkit-scrollbar-thumb {
-    background-color: var(--color-bright-text);
-    border-radius: 6px;
-}
-::-webkit-scrollbar-thumb:hover {
-    border: 1px solid var(--color-container);
-}
+
 .current-line {
     position: absolute;
     left: 0;
     right: 0;
     height: 2px;
-    background-color: var(--color-bright-text);
+    background-color: var(--color-grey-text);
     border-radius: 8px;
     pointer-events: none;
     box-shadow:

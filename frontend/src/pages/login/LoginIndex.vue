@@ -8,7 +8,7 @@ document.title = "Chrono login"
 <template>
     <div class="grey-style">
         <mainContainer />
-        <navPanel />
+        <navPanel :style="{ 'position': 'fixed', 'z-index': '999' }"/>
         <canvasPanel />
     </div>
 </template>

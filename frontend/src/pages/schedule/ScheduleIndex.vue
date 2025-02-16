@@ -19,7 +19,7 @@ onMounted(async () => {
 
 <template>
     <div class="grey-style">
-        <navPanel :style="{ 'z-index': '0' }" />
+        <navPanel />
         <schedulePage :user="user"/>
         <invalidUserPanel v-show="user == -1"/>
     </div>

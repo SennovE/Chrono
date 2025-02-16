@@ -29,10 +29,16 @@
 .modal-content {
     width: 30%;
     min-width: min(550px, 100vw);
-    background: var(--color-container);
+    background: var(--color-background);
     padding: max(1%, 20px) max(2%, 20px) max(2%, 20px) max(2%, 20px);
     border-radius: 50px;
     box-sizing: border-box;
+    color: var(--color-container);
+}
+
+.modal-content input::placeholder,
+.modal-content textarea::placeholder {
+    color: var(--color-grey-text);
 }
 
 .close-button {
@@ -74,7 +80,7 @@
 }
 .custom-checkbox:hover .checkmark,
 .custom-checkbox input:checked + .checkmark {
-    background-color: var(--color-dark-text);
+    background-color: var(--color-grey-text);
 }
 .custom-checkbox:hover .checkmark::after,
 .custom-checkbox input:checked + .checkmark::after {
@@ -83,7 +89,26 @@
     top: 3px;
     width: 5px;
     height: 10px;
-    border: solid var(--color-bright-text);
+    border: solid var(--color-dark-text);
     border-width: 0 2px 2px 0;
     transform: rotate(45deg);
+}
+
+.date::placeholder {
+    color: var(--color-grey-text);
+}
+
+.modal-content input, .modal-content textarea {
+    color: var(--color-grey-text);
+}
+
+.modal-overlay textarea, .task-text {
+    height: 200px;
+    resize: none;
+    overflow: auto;
+    font-size: 16px;
+}
+
+input::-webkit-calendar-picker-indicator {
+    filter: invert(50%) sepia(100%) saturate(500%) hue-rotate(180deg);
 }

@@ -4,8 +4,6 @@
     pointer-events: all;
     color: var(--color-bright-text);
     width: 100%;
-    position: fixed;
-    z-index: 999;
     top: 0;
     left: 0;
 }

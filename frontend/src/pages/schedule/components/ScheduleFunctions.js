@@ -17,6 +17,61 @@ export async function authUser() {
     }
 }
 
+export async function deleteTask(router, taskId) {
+    try {
+        const token = getToken();
+        if (token == null) {
+            redirectToLogin(router)
+            return
+        }
+        await axios.delete(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/schedule/`, {
+            data: taskId,
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        })
+        return
+    } catch (error) {
+        return
+    }
+}
+
+export async function updateTask(router, taskId, name, descriptionText, startDate, startTime, endTime, recurring) {
+    try {
+        const token = getToken();
+        if (token == null) {
+            redirectToLogin(router)
+            return -1
+        }
+        await axios.put(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/schedule/`, {
+            task_id: taskId,
+            updated_task: {
+                name: name,
+                text: descriptionText,
+                start_time: `${startDate}T${startTime}`,
+                end_time: `${startDate}T${endTime}`,
+                recurring: recurring
+            }
+        }, {
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        })
+        return ""
+    } catch (error) {
+        if (error.response.data.detail[0].msg === "start_time should be less than end_time") {
+            return "Время начала должно быть меньше конца"
+        } else if (error.response.data.detail[0].msg.includes("datetime")) {
+            return "Дата должна быть реальной"
+        }
+        return error.response.data.detail[0].msg
+    }
+}
+
 export async function addScheduleTask(router, name, descriptionText, startDate, startTime, endTime, recurring) {
     if (name === "" ||
         startTime === "" ||
@@ -101,7 +156,7 @@ export function makeWeekDates() {
 }
 
 export function makeTime(ampm) {
-    let times = [""]
+    let times = ["0:00"]
     if (ampm.value) {
         for (let i = 1; i < 12 + 1; ++i) {
             times.push(`${i}:00 am`)
