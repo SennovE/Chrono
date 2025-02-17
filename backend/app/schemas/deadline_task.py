@@ -37,3 +37,14 @@ class DeadlineTaksUpdateForm(BaseModel):
 class DeadlineTaskAICreare(BaseModel):
     deadline_time: str
     description: str
+
+
+class DeadlineTaskList(BaseModel):
+  tasks: list[DeadlineTaskAICreare]
+
+  class Config:
+        arbitrary_types_allowed = True
+
+
+class DeadlineGenerate(BaseModel):
+    text: str
