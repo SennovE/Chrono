@@ -8,6 +8,7 @@ import {
     currentTimeFilter,
 } from "./ScheduleFunctions"
 import scheduleUpdateForm from "./ScheduleUpdateForm.vue"
+import scheduleGeneration from "./ScheduleGeneration.vue"
 import { useRouter } from "vue-router"
 
 const emit = defineEmits(['openNav'])

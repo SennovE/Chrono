@@ -52,8 +52,15 @@ class ScheduleGenerate(BaseModel):
     ''' TODO: настройки запроса, которые пользователь вводит для конкретной генерации на странице расписания, не из настроек'''
 
 
+class ScheduleAICreate(BaseModel):
+    name: str
+    text: str
+    start_time: str
+    end_time: str
+    recurring: bool
+
 class ScheduleList(BaseModel):
-  tasks: list[ScheduleUpdateForm]
+  tasks: list[ScheduleAICreate]
 
   class Config:
         arbitrary_types_allowed = True
