@@ -17,8 +17,9 @@ from app.utils.deadline_task import (
     complete_deadline_task,
     update_deadline_task,
     return_deadline_task,
+    submit_ai_gen
     )
-from app.utils.ai_generation import generate_deadline, submit_ai_gen
+from app.utils.ai_generation import generate_deadline
 from uuid import UUID
 from typing import List
 

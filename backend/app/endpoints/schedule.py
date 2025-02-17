@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 
 from app.database.connection import get_session
-from app.schemas import ScheduleForm, ScheduleResponse, ScheduleUpdateForm
+from app.schemas import ScheduleForm, ScheduleResponse, ScheduleUpdateForm, ScheduleGenerate
 from app.database.models import User
 from app.utils.user import get_current_user
 from app.utils.schedule import (
@@ -13,6 +13,7 @@ from app.utils.schedule import (
     delete_schedule_task,
     change_schedule_task,
 )
+from app.utils.ai_generation import schedule_generation
 
 api_router = APIRouter(prefix="/schedule", tags=["Schedule"])
 
@@ -98,3 +99,16 @@ async def update_user_task(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No task with with this ID",
         )
+
+
+@api_router.post('/schedule_generation',
+                 status_code=status.HTTP_200_OK,
+                 responses={
+                     status.HTTP_401_UNAUTHORIZED: {
+                         "descriprion": "Non authorized"
+                     }
+                 })
+async def ai_generation(response: ScheduleGenerate, \
+                        current_user: Annotated[User, Depends(get_current_user)]):
+    return await schedule_generation(response, current_user)
+    

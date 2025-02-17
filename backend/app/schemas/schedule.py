@@ -46,3 +46,14 @@ class ScheduleUpdateForm(BaseModel):
     end_time: datetime | None = Field(default=None)
     recurring: bool | None = Field(default=None)
 
+
+class ScheduleGenerate(BaseModel):
+    text: str
+    ''' TODO: настройки запроса, которые пользователь вводит для конкретной генерации на странице расписания, не из настроек'''
+
+
+class ScheduleList(BaseModel):
+  tasks: list[ScheduleUpdateForm]
+
+  class Config:
+        arbitrary_types_allowed = True
