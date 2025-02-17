@@ -1,4 +1,5 @@
 <script setup>
+/* eslint-disable */
 import { ref, defineEmits, watch } from "vue"
 import { useRouter } from "vue-router"
 import { deleteTask, updateTask } from "./ScheduleFunctions"

@@ -190,3 +190,53 @@ function getToken() {
     }
     return token
 }
+
+
+export async function AIGeneration(user_text) {
+    if (user_text == "") {
+        return "Введите запрос"
+    }
+    try {
+      const token = getToken();
+      const response = await axios.post(
+        `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/schedule/schedule_generation`,
+        { text: user_text },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error AI generation", error);
+    }
+}
+
+
+export async function SendAISchedule(aiSchedule) {
+    try {
+        const token = getToken();
+        const tasksPayload = aiSchedule.map(task => ({
+            name: task.name,
+            text: task.text,
+            start_time: new Date(task.start_time).toISOString(),
+            end_time: new Date(task.end_time).toISOString(),
+            recurring: task.recurring
+          }));
+
+        await axios.post(
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/schedule/send_ai_schedule`,
+          tasksPayload,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        
+      } catch (error) {
+        console.error("Error submitting AI tasks:", error);
+      }
+}

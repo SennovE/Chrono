@@ -12,6 +12,7 @@ from app.utils.schedule import (
     get_schedule_tasks,
     delete_schedule_task,
     change_schedule_task,
+    send_schedule
 )
 from app.utils.ai_generation import schedule_generation
 
@@ -112,3 +113,20 @@ async def ai_generation(response: ScheduleGenerate, \
                         current_user: Annotated[User, Depends(get_current_user)]):
     return await schedule_generation(response, current_user)
     
+
+@api_router.post('/send_ai_schedule',
+            status_code=status.HTTP_200_OK,
+            responses={
+                     status.HTTP_401_UNAUTHORIZED: {
+                         "descriprion": "Non authorized"
+                     }
+                 })
+async def send_ai_schedule(tasks: Annotated[list[ScheduleForm], Body()], \
+                               current_user: Annotated[User, Depends(get_current_user)],
+                               session: Annotated[AsyncSession, Depends(get_session)]):
+    is_success = await send_schedule(tasks, current_user, session)
+
+    if (is_success):
+        return {"message" : "Submit ai gen tasks"}
+    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, \
+                        detail="Error submit ai gen tasks")

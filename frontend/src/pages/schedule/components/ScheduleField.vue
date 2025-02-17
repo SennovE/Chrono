@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUnmounted } from "vue"
 import { getMonthName, makeTime, makeWeekDates, getScheduleTasks } from "./ScheduleFunctions"
 import scheduleForm from "./ScheduleForm.vue"
 import scheduleUpdateForm from "./ScheduleUpdateForm.vue"
+import scheduleGeneration from "./ScheduleGeneration.vue"
 import { useRouter } from "vue-router"
 
 const weekdays = ref(["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"])
@@ -174,6 +175,7 @@ onUnmounted(() => {
                     stroke-width="3" 
                     stroke-linejoin="round" />
             </svg>
+            <scheduleGeneration />
             <scheduleForm
                 class="header-line-left"
                 @taskAdded="fetchTasks"

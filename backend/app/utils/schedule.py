@@ -76,3 +76,32 @@ async def change_schedule_task(
             setattr(result, key, value)
     await session.commit()
     return True
+
+
+async def send_schedule(tasks: list[ScheduleForm], \
+                        current_user: User, \
+                        session: AsyncSession) -> bool:
+    for task in tasks:
+        schedule_task = Schedule(
+        name = task.name,
+        text = task.text,
+        year = task.start_time.year,
+        month = task.start_time.month,
+        day = task.start_time.day,
+        start_hours = task.start_time.hour,
+        start_minutes = task.start_time.minute,
+        end_hours = task.end_time.hour,
+        end_minutes = task.end_time.minute,
+        recurring = task.recurring,
+        week_day = task.start_time.weekday(),
+        owner_id = current_user.id,
+        )
+        session.add(schedule_task)
+    
+    try:
+        await session.commit()
+    except Exception as e:
+        await session.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+    
+    return True
