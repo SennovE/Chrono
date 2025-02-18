@@ -294,7 +294,6 @@ watch(weekShift, updateTime)
     border: 2px solid var(--color-container);
     border-radius: 8px;
     position: absolute;
-    width: 96%;
     z-index: 11;
 }
 .selected-context {
@@ -437,6 +436,12 @@ watch(weekShift, updateTime)
     white-space: nowrap;
     padding: 0% 5% 0% 5%;
     box-sizing: border-box;
+}
+
+@media (max-aspect-ratio: 3/2), (max-width: 700px) {
+    .calendar-container {
+        height: 70vh;
+    }
 }
 
 </style>
