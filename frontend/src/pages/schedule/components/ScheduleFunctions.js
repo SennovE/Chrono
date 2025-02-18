@@ -139,8 +139,7 @@ export async function getScheduleTasks(router) {
     }
 }
 
-export function makeWeekDates() {
-    const currentDate = new Date()
+export function makeWeekDates(currentDate) {
     const dayOfWeek = currentDate.getDay()
     const distanceToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
     const monday = new Date(currentDate)
@@ -155,9 +154,9 @@ export function makeWeekDates() {
     return weekDates
 }
 
-export function makeTime(ampm) {
+export function makeTime(am_pm) {
     let times = ["0:00"]
-    if (ampm.value) {
+    if (am_pm.value) {
         for (let i = 1; i < 12 + 1; ++i) {
             times.push(`${i}:00 am`)
         }

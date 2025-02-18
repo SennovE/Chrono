@@ -112,12 +112,12 @@ textarea, .task-text {
 }
 
 ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 0.4vw;
+    height: 0.4vw;
 }
 ::-webkit-scrollbar-thumb {
     background-color: var(--color-grey-text);
-    border-radius: 6px;
+    border-radius: 0.4vw;
 }
 ::-webkit-scrollbar-thumb:hover {
     border: 1px solid var(--color-container);
