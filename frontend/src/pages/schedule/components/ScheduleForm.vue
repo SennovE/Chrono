@@ -150,6 +150,7 @@ watch(() => props.isModalOpen, modalOpen)
     width: 50%;
     margin: 0;
     margin-top: 1%;
+    padding-right: 2%;
     text-align: left;
 }
 

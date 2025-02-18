@@ -1,13 +1,13 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from "vue"
+import { ref, computed, onMounted, onUnmounted, watch } from "vue"
 import { getMonthName, makeTime, makeWeekDates, getScheduleTasks } from "./ScheduleFunctions"
 import scheduleForm from "./ScheduleForm.vue"
 import scheduleUpdateForm from "./ScheduleUpdateForm.vue"
 import { useRouter } from "vue-router"
 
 const weekdays = ref(["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"])
-const ampm = ref(false)
-const times = ref(makeTime(ampm))
+const am_pm = ref(false)
+const times = ref(makeTime(am_pm))
 
 const currentMinute = ref("")
 const currentHour = ref("")
@@ -16,7 +16,7 @@ const weekdates = ref("")
 const currentMonthName = ref("")
 const currentYear = ref("")
 const currentTimeString = computed(() => {
-    if (ampm.value) {
+    if (am_pm.value) {
         const rawHour = currentHour.value % 12 || 12
         const suffix = currentHour.value < 12 ? "am" : "pm"
         return `${rawHour}:00 ${suffix}`
@@ -24,10 +24,12 @@ const currentTimeString = computed(() => {
         return `${currentHour.value}:00`
     }
 });
+const weekShift = ref(0)
 
 function updateTime() {
-    const now = new Date()
-    weekdates.value = makeWeekDates()
+    const day = new Date();
+    const now = new Date(day.getTime() + weekShift.value * 7 * 24 * 60 * 60 * 1000);
+    weekdates.value = makeWeekDates(now)
     currentMinute.value = `${now.getMinutes() / 60 * 100}%`
     currentHour.value = now.getHours()
     currentDayName.value = weekdays.value[(now.getDay() + 6) % 7]
@@ -145,6 +147,8 @@ onUnmounted(() => {
         clearInterval(interval)
     }
 })
+
+watch(weekShift, updateTime)
 </script>
 
 <template>
@@ -157,21 +161,31 @@ onUnmounted(() => {
             @clearUpdatingInfo="clearUpdatingInfo"
         />
         <div class="head-line">
-            <h3>{{ currentMonthName }} {{ currentYear }}</h3>
-            <svg width="30" height="40" xmlns="http://www.w3.org/2000/svg">
+            <svg
+                @click="weekShift--"
+                class="arrow-buttons"
+                viewBox="0 0 30 40"
+                xmlns="http://www.w3.org/2000/svg"
+            >
                 <polyline 
-                    points="20,10 10,20 20,30" 
-                    fill="none" 
-                    stroke="var(--color-bright-text)" 
-                    stroke-width="3" 
+                    points="20,10 10,20 20,30"
+                    fill="none"
+                    stroke="var(--color-bright-text)"
+                    stroke-width="3"
                     stroke-linejoin="round" />
             </svg>
-            <svg width="30" height="40" xmlns="http://www.w3.org/2000/svg">
+            <h3>{{ currentMonthName }} {{ currentYear }}</h3>
+            <svg
+                @click="weekShift++"
+                class="arrow-buttons"
+                viewBox="0 0 30 40"
+                xmlns="http://www.w3.org/2000/svg"
+            >
                 <polyline 
-                    points="10,10 20,20 10,30" 
-                    fill="none" 
-                    stroke="var(--color-bright-text)" 
-                    stroke-width="3" 
+                    points="10,10 20,20 10,30"
+                    fill="none"
+                    stroke="var(--color-bright-text)"
+                    stroke-width="3"
                     stroke-linejoin="round" />
             </svg>
             <scheduleForm
@@ -265,6 +279,16 @@ onUnmounted(() => {
 <style>
 @import "./ScheduleMain.css";
 
+.arrow-buttons {
+    width: 4vh;
+    height: auto;
+    transition: width 0.2s ease;
+    user-select: none;
+}
+.arrow-buttons:hover {
+    width: 3.5vh;
+}
+
 .selected-field {
     width: 96%;
     border: 2px solid var(--color-container);
@@ -290,6 +314,10 @@ onUnmounted(() => {
 }
 .head-line h3 {
     padding-right: 1%;
+    padding-left: 1%;
+    font-size: min(2vh, 2vw);
+    width: 10vw;
+    text-align: center;
 }
 .header-line-left {
     margin-left: auto;
@@ -365,7 +393,7 @@ onUnmounted(() => {
     left: 0;
     right: 0;
     height: 2px;
-    background-color: var(--color-grey-text);
+    background-color: var(--color-bright-text);
     border-radius: 8px;
     pointer-events: none;
     box-shadow:

@@ -162,38 +162,4 @@ watch(() => props.showTaskId, showTaskById)
 
 
 <style>
-.creation-button {
-    margin-top: 5%;
-    margin-bottom: 0;
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1%;
-}
-
-.field-group {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1%;
-    margin-top: 1%;
-}
-
-.field-group p {
-    width: 50%;
-    margin: 0;
-    margin-top: 1%;
-    text-align: left;
-}
-
-.overlay-fade-enter-from,
-.overlay-fade-leave-to {
-  opacity: 0;
-}
-.overlay-fade-enter-active,
-.overlay-fade-leave-active {
-  transition: opacity 0.3s ease;
-}
 </style>
