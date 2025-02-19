@@ -7,6 +7,16 @@ import { useRouter } from "vue-router"
 
 const emit = defineEmits(['openNav'])
 
+const daysOnField = ref(window.innerWidth < 768 ? 1 : 7)
+const daysShift = ref(daysOnField.value == 7 ? 0 : (new Date()).getDay() - 1)
+const dayIndexes = ref([])
+function makeDayIndexes() {
+    dayIndexes.value = []
+    const tmp = (daysShift.value % 7 + 7) % 7
+    for (let i = tmp; i < tmp + daysOnField.value; i++) {
+        dayIndexes.value.push(i % 7);
+    }
+}
 const weekdays = ref(["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"])
 const am_pm = ref(false)
 const times = ref(makeTime(am_pm))
@@ -27,18 +37,21 @@ const currentTimeString = computed(() => {
         return `${currentHour.value}:00`
     }
 });
-const weekShift = ref(0)
 
 function updateTime() {
     currentDate.value = new Date()
     currentDate.value.setHours(0, 0, 0, 0)
     const day = new Date()
-    const now = new Date(day.getTime() + weekShift.value * 7 * 24 * 60 * 60 * 1000)
-    weekdates.value = makeWeekDates(now)
+    const now = new Date(day.getTime() + Math.floor(daysShift.value / 7) * 7 * 24 * 60 * 60 * 1000)
+    weekdates.value = makeWeekDates(now, 7)
     currentMinute.value = `${now.getMinutes() / 60 * 100}%`
     currentHour.value = now.getHours()
     currentDayName.value = weekdays.value[(now.getDay() + 6) % 7]
-    currentMonthName.value = getMonthName(now.getMonth())
+    currentMonthName.value = getMonthName(
+        daysOnField.value == 7 ?
+        now.getMonth() :
+        (new Date(day.getTime() + (daysShift.value - (new Date()).getDay() + 1) * 24 * 60 * 60 * 1000)).getMonth()
+    )
     currentYear.value = now.getFullYear()
 }
 
@@ -122,6 +135,7 @@ function handleCellMove(time, event) {
     ) * -100}%`
 }
 
+makeDayIndexes()
 updateTime()
 
 const tasks = ref({
@@ -155,7 +169,9 @@ onUnmounted(() => {
     }
 })
 
-watch(weekShift, updateTime)
+watch(daysShift, updateTime)
+watch(daysShift, makeDayIndexes)
+watch(daysOnField, makeDayIndexes)
 </script>
 
 <template>
@@ -169,7 +185,7 @@ watch(weekShift, updateTime)
         />
         <div class="head-line">
             <svg
-                @click="weekShift--"
+                @click="daysShift -= daysOnField"
                 class="arrow-buttons"
                 viewBox="0 0 30 40"
                 xmlns="http://www.w3.org/2000/svg"
@@ -183,7 +199,7 @@ watch(weekShift, updateTime)
             </svg>
             <h3>{{ currentMonthName }} {{ currentYear }}</h3>
             <svg
-                @click="weekShift++"
+                @click="daysShift += daysOnField"
                 class="arrow-buttons"
                 viewBox="0 0 30 40"
                 xmlns="http://www.w3.org/2000/svg"
@@ -219,17 +235,17 @@ watch(weekShift, updateTime)
             </div>
             <div
                 class="column header-row"
-                v-for="(day, index) in weekdays"
-                :key="day"
+                v-for="index in dayIndexes"
+                :key="index"
             >
                 <b
                     v-if="weekdates[index].getTime() == currentDate.getTime()"
                     :style="{ 'border-bottom': '2px solid var(--color-bright-text)' }"
                 >
-                    {{ weekdates[index].getDate() }} | {{ day }}
+                    {{ weekdates[index].getDate() }} | {{ weekdays[index] }}
                 </b>
                 <b v-else>
-                    {{ weekdates[index].getDate() }} | {{ day }}
+                    {{ weekdates[index].getDate() }} | {{ weekdays[index] }}
                 </b>
             </div>
         </div>
@@ -243,9 +259,9 @@ watch(weekShift, updateTime)
                 <div class="column time-column"><span v-show="time != '0:00'">{{ time }}</span></div>
                 <div
                     class="column"
-                    v-for="(day, index) in weekdays"
-                    :key="(day, index)"
-                    @mousedown="handleMouseDown(day, time, $event, weekdates[index])"
+                    v-for="index in dayIndexes"
+                    :key="(weekdays[index], index)"
+                    @mousedown="handleMouseDown(weekdays[index], time, $event, weekdates[index])"
                     @mousemove="handleCellMove(time, $event)"
                     @mouseup="handleMouseUp"
                 >
@@ -255,7 +271,7 @@ watch(weekShift, updateTime)
                         :style="{ top: currentMinute }"
                     ></div>
                     <div
-                        v-if="day === selectedParams.day &&
+                        v-if="weekdays[index] === selectedParams.day &&
                               (time === selectedParams.time) && isDragging"
                         class="selected-field"
                         :style="{ top: selectedParams.top, bottom: selectedParams.bottom }"
@@ -375,6 +391,7 @@ watch(weekShift, updateTime)
 .time-column {
     flex: 0.3;
     min-width: 40px;
+    max-width: 80px;
     justify-content: flex-end;
     align-items: flex-start;
     padding: 0 1% 0 0;
