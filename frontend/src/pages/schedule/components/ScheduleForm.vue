@@ -5,6 +5,7 @@ import { addScheduleTask } from "./ScheduleFunctions"
 
 const emit = defineEmits(['taskAdded', 'closeModal', 'openModal'])
 const router = useRouter()
+const isMobile = window.innerWidth < 768
 
 const shortText = ref("")
 const descriptionText = ref("")
@@ -44,14 +45,10 @@ async function addScheduleTaskWrap() {
 
 function modalOpen() {
     if (props.selectedParams.date == "") return
-    startTime.value = (props.selectedParams.startHours < 10 ? '0' : '') +
-                      `${props.selectedParams.startHours}:` +
-                      (props.selectedParams.startMinutes < 10 ? '0' : '') +
-                      `${props.selectedParams.startMinutes}`
-    endTime.value = (props.selectedParams.endHours < 10 ? '0' : '') +
-                    `${props.selectedParams.endHours}:` +
-                    (props.selectedParams.endMinutes < 10 ? '0' : '') +
-                    `${props.selectedParams.endMinutes}`
+    startTime.value = String(props.selectedParams.startHours).padStart(2, '0') + ':' +
+                      String(props.selectedParams.startMinutes).padStart(2, '0')
+    endTime.value = String(props.selectedParams.endHours).padStart(2, '0') + ':' +
+                    String(props.selectedParams.endMinutes).padStart(2, '0')
     const year = props.selectedParams.date.getFullYear()
     const month = String(props.selectedParams.date.getMonth() + 1).padStart(2, '0')
     const day = String(props.selectedParams.date.getDate()).padStart(2, '0')
@@ -71,6 +68,7 @@ watch(() => props.isModalOpen, modalOpen)
         <button
             @click="emit('openModal')"
             class="form-button"
+            :style="{ 'font-size': isMobile ? '16px' : 'auto' }"
         >
             Добавить событие
         </button>

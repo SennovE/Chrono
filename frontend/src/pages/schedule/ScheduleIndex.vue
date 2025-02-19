@@ -5,6 +5,8 @@ import navPanel from "../../components/LoginNavPanel.vue";
 import schedulePage from "./components/SchedulePage.vue";
 import invalidUserPanel from "../../components/NotRegistered.vue"
 
+document.title = "Schedule"
+
 const user = ref("")
 const isNavOpen = ref(false)
 

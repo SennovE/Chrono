@@ -1,14 +1,20 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, defineEmits } from "vue"
-import { getMonthName, makeTime, makeWeekDates, getScheduleTasks } from "./ScheduleFunctions"
+import {
+    getMonthName,
+    makeTime,
+    makeWeekDates,
+    getScheduleTasks,
+    currentTimeFilter,
+} from "./ScheduleFunctions"
 import scheduleForm from "./ScheduleForm.vue"
 import scheduleUpdateForm from "./ScheduleUpdateForm.vue"
 import { useRouter } from "vue-router"
 
 const emit = defineEmits(['openNav'])
-const isMobile = ref(window.innerWidth < 768)
+const isMobile = window.innerWidth < 768
 
-const daysOnField = ref(isMobile.value ? 1 : 7)
+const daysOnField = ref(isMobile ? 1 : 7)
 const daysShift = ref(daysOnField.value == 7 ? 0 : (new Date()).getDay() - 1)
 const dayIndexes = ref([])
 function makeDayIndexes() {
@@ -18,7 +24,7 @@ function makeDayIndexes() {
         dayIndexes.value.push(i % 7);
     }
 }
-const weekdays = ref(["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"])
+const weekdays = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"]
 const am_pm = ref(false)
 const times = ref(makeTime(am_pm))
 
@@ -47,7 +53,7 @@ function updateTime() {
     weekdates.value = makeWeekDates(now, 7)
     currentMinute.value = `${now.getMinutes() / 60 * 100}%`
     currentHour.value = now.getHours()
-    currentDayName.value = weekdays.value[(now.getDay() + 6) % 7]
+    currentDayName.value = weekdays[(now.getDay() + 6) % 7]
     currentMonthName.value = getMonthName(
         daysOnField.value == 7 ?
         now.getMonth() :
@@ -198,7 +204,11 @@ watch(daysOnField, makeDayIndexes)
                     stroke-width="2"
                     stroke-linejoin="round" />
             </svg>
-            <h3>{{ currentMonthName }} {{ currentYear }}</h3>
+            <h3
+                :style="{ 'font-size': isMobile ? '16px' : 'auto' }"
+            >
+                {{ currentMonthName }} {{ currentYear }}
+            </h3>
             <svg
                 @click="daysShift += daysOnField"
                 class="arrow-buttons"
@@ -232,8 +242,7 @@ watch(daysOnField, makeDayIndexes)
             </svg>
         </div>
         <div class="row calendar-header" :style="{ 'font-size': isMobile ? '16px' : 'auto' }">
-            <div class="column time-column header-row">
-            </div>
+            <div class="column time-column header-row"></div>
             <div
                 class="column header-row"
                 v-for="index in dayIndexes"
@@ -286,19 +295,19 @@ watch(daysOnField, makeDayIndexes)
                             <div class="new-task-text">Новое событие</div>
                             <div class="new-task-text">
                                 C {{ selectedParams.startHours }}:{{
-                                    (selectedParams.startMinutes < 10 ? '0' : '') + `${selectedParams.startMinutes}`
+                                    String(selectedParams.startMinutes).padStart(2, '0')
                                 }}    
                             </div>
                             <div class="new-task-text">
                                 До {{ selectedParams.endHours }}:{{
-                                    (selectedParams.endMinutes < 10 ? '0' : '') + `${selectedParams.endMinutes}`
+                                    String(selectedParams.endMinutes).padStart(2, '0')
                                 }}
                             </div>
                         </div>
                     </div>
                     <div
                         class="task"
-                        v-for="task in tasks[String(index)].filter((t) => `${t.start_hours}:00` == time)"
+                        v-for="task in tasks[String(index)].filter((t) => currentTimeFilter(t, time, weekdates[index]))"
                         :key="task.id"
                         :style="{
                             top: `${task.start_minutes / 60 * 100}%`,
@@ -360,7 +369,7 @@ watch(daysOnField, makeDayIndexes)
     padding-right: 1%;
     padding-left: 1%;
     font-size: min(2vh, 2vw);
-    width: 10vw;
+    width: 15vw;
     text-align: center;
 }
 .header-line-left {
@@ -430,8 +439,12 @@ watch(daysOnField, makeDayIndexes)
 }
 .header-row {
     height: 2.5vh;
-    padding-top: 0%;
-    padding-bottom: 1%;
+    padding-top: max(1%, 10px);
+    padding-bottom: max(1%, 10px);
+}
+.header-row b {
+    padding-top: 2%;
+    padding-bottom: 2%;
 }
 
 .current-line {

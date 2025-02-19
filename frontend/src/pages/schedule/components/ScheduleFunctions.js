@@ -192,3 +192,19 @@ function getToken() {
     }
     return token
 }
+
+export function currentTimeFilter(task, time, date) {
+    if (`${task.start_hours}:00` != time) {
+        return false
+    }
+    if (task.recurring) {
+        return true
+    }
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    if (task.year == year && task.month == month && task.day == day) {
+        return true
+    }
+    return false
+}

@@ -58,20 +58,16 @@ function showTaskById() {
     const selectedTask = props.tasks[props.showTaskDay].find(task => task.id === props.showTaskId)
     shortText.value = selectedTask.name
     descriptionText.value = selectedTask.text
-    startDate.value = `${selectedTask.year}-` +
-                      (selectedTask.month < 10 ? '0' : '') + `${selectedTask.month}-` +
-                      (selectedTask.day < 10 ? '0' : '') + `${selectedTask.day}`
-    startDateString.value = (selectedTask.day < 10 ? '0' : '') + `${selectedTask.day}.` +
-                      (selectedTask.month < 10 ? '0' : '') + `${selectedTask.month}.` +
-                      `${selectedTask.year}`
-    startTime.value = (selectedTask.start_hours < 10 ? '0' : '') +
-                      `${selectedTask.start_hours}:` +
-                      (selectedTask.start_minutes < 10 ? '0' : '') +
-                      `${selectedTask.start_minutes}`
-    endTime.value = (selectedTask.end_hours < 10 ? '0' : '') +
-                    `${selectedTask.end_hours}:` +
-                    (selectedTask.end_minutes < 10 ? '0' : '') +
-                    `${selectedTask.end_minutes}`
+    startDate.value = String(selectedTask.year) + '-' +
+                      String(selectedTask.month).padStart(2, '0') + '-' +
+                      String(selectedTask.day).padStart(2, '0')
+    startDateString.value = String(selectedTask.day).padStart(2, '0') + '.' +
+                            String(selectedTask.month).padStart(2, '0') + '.' +
+                            String(selectedTask.year)
+    startTime.value = String(selectedTask.start_hours).padStart(2, '0') + ':' +
+                      String(selectedTask.start_minutes).padStart(2, '0')
+    endTime.value = String(selectedTask.end_hours).padStart(2, '0') + ':' +
+                    String(selectedTask.end_minutes).padStart(2, '0')
     recurring.value = selectedTask.recurring
     isModalUpdateOpen.value = 1
 }
