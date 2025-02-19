@@ -397,7 +397,7 @@ watch(daysOnField, makeDayIndexes)
 .time-column {
     flex: 0.3;
     min-width: 40px;
-    max-width: 80px;
+    max-width: 10vw;
     justify-content: flex-end;
     align-items: flex-start;
     padding: 0 1% 0 0;
