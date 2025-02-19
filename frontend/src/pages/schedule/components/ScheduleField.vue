@@ -6,8 +6,9 @@ import scheduleUpdateForm from "./ScheduleUpdateForm.vue"
 import { useRouter } from "vue-router"
 
 const emit = defineEmits(['openNav'])
+const isMobile = ref(window.innerWidth < 768)
 
-const daysOnField = ref(window.innerWidth < 768 ? 1 : 7)
+const daysOnField = ref(isMobile.value ? 1 : 7)
 const daysShift = ref(daysOnField.value == 7 ? 0 : (new Date()).getDay() - 1)
 const dayIndexes = ref([])
 function makeDayIndexes() {
@@ -230,7 +231,7 @@ watch(daysOnField, makeDayIndexes)
                 <rect y="18" width="24" height="2" fill="currentColor" />
             </svg>
         </div>
-        <div class="row calendar-header">
+        <div class="row calendar-header" :style="{ 'font-size': isMobile ? '16px' : 'auto' }">
             <div class="column time-column header-row">
             </div>
             <div
@@ -249,9 +250,14 @@ watch(daysOnField, makeDayIndexes)
                 </b>
             </div>
         </div>
-        <div class="calendar-body" @mouseleave="handleMouseUp">
+        <div
+            class="calendar-body"
+            @mouseleave="handleMouseUp"
+            :style="{ 'font-size': isMobile ? '16px' : 'auto' }"
+        >
             <div
                 class="row"
+                :style="{ height: isMobile ? '20%' : 'auto' }"
                 v-for="time in times"
                 :key="time"
                 :ref="time === currentTimeString ? (row) => {currentRow = row} : null"
@@ -391,7 +397,7 @@ watch(daysOnField, makeDayIndexes)
 .time-column {
     flex: 0.3;
     min-width: 40px;
-    max-width: 80px;
+    max-width: 10vw;
     justify-content: flex-end;
     align-items: flex-start;
     padding: 0 1% 0 0;
@@ -479,10 +485,10 @@ watch(daysOnField, makeDayIndexes)
     box-sizing: border-box;
 }
 
-@media (max-aspect-ratio: 3/2), (max-width: 700px) {
+/* @media (max-aspect-ratio: 3/2), (max-width: 700px) {
     .calendar-container {
-        height: 70vh;
+        height: 85vh;
     }
-}
+} */
 
 </style>
