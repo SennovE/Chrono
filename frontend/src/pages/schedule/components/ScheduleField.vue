@@ -1,9 +1,11 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from "vue"
+import { ref, computed, onMounted, onUnmounted, watch, defineEmits } from "vue"
 import { getMonthName, makeTime, makeWeekDates, getScheduleTasks } from "./ScheduleFunctions"
 import scheduleForm from "./ScheduleForm.vue"
 import scheduleUpdateForm from "./ScheduleUpdateForm.vue"
 import { useRouter } from "vue-router"
+
+const emit = defineEmits(['openNav'])
 
 const weekdays = ref(["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"])
 const am_pm = ref(false)
@@ -12,6 +14,7 @@ const times = ref(makeTime(am_pm))
 const currentMinute = ref("")
 const currentHour = ref("")
 const currentDayName = ref("")
+const currentDate = ref("")
 const weekdates = ref("")
 const currentMonthName = ref("")
 const currentYear = ref("")
@@ -27,8 +30,10 @@ const currentTimeString = computed(() => {
 const weekShift = ref(0)
 
 function updateTime() {
-    const day = new Date();
-    const now = new Date(day.getTime() + weekShift.value * 7 * 24 * 60 * 60 * 1000);
+    currentDate.value = new Date()
+    currentDate.value.setHours(0, 0, 0, 0)
+    const day = new Date()
+    const now = new Date(day.getTime() + weekShift.value * 7 * 24 * 60 * 60 * 1000)
     weekdates.value = makeWeekDates(now)
     currentMinute.value = `${now.getMinutes() / 60 * 100}%`
     currentHour.value = now.getHours()
@@ -38,6 +43,7 @@ function updateTime() {
 }
 
 const selectedParams = ref({
+    date: "",
     day: "",
     time: "",
     startHours: 0,
@@ -57,7 +63,7 @@ function openModal() {
     isModalOpen.value = true
 }
 
-const showTaskDay = ref("")
+const showTaskDay = ref(0)
 const showTaskId = ref("")
 function showTask(dayIndex, taskId) {
     showTaskDay.value = dayIndex
@@ -65,10 +71,10 @@ function showTask(dayIndex, taskId) {
 }
 function clearUpdatingInfo() {
     showTaskDay.value = 0
-    showTaskId.value = -1
+    showTaskId.value = ""
 }
 
-function handleMouseDown(day, time, event) {
+function handleMouseDown(day, time, event, date) {
     isDragging.value = true
     const cellRect = event.currentTarget.getBoundingClientRect()
     const clickY = event.clientY - cellRect.top;
@@ -76,6 +82,7 @@ function handleMouseDown(day, time, event) {
     const hours = parseInt(time.split(":")[0], 10) + Math.floor(minutes / 60)
     minutes %= 60
     selectedParams.value = {
+        date: date,
         day: day,
         time: `${hours}:00`,
         startHours: Math.max(hours, 0) | 0,
@@ -171,7 +178,7 @@ watch(weekShift, updateTime)
                     points="20,10 10,20 20,30"
                     fill="none"
                     stroke="var(--color-bright-text)"
-                    stroke-width="3"
+                    stroke-width="2"
                     stroke-linejoin="round" />
             </svg>
             <h3>{{ currentMonthName }} {{ currentYear }}</h3>
@@ -185,19 +192,28 @@ watch(weekShift, updateTime)
                     points="10,10 20,20 10,30"
                     fill="none"
                     stroke="var(--color-bright-text)"
-                    stroke-width="3"
+                    stroke-width="2"
                     stroke-linejoin="round" />
             </svg>
             <scheduleForm
                 class="header-line-left"
+                :style="{ 'padding-right': '2%' }"
                 @taskAdded="fetchTasks"
                 :isModalOpen="isModalOpen"
                 @closeModal="closeModal"
                 @openModal="openModal"
                 :selectedParams="selectedParams"
             />
+            <svg
+                @click="emit('openNav')"
+                class="arrow-buttons"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <rect y="4" width="24" height="2" fill="currentColor" />
+                <rect y="11" width="24" height="2" fill="currentColor" />
+                <rect y="18" width="24" height="2" fill="currentColor" />
+            </svg>
         </div>
-        <p></p>
         <div class="row calendar-header">
             <div class="column time-column header-row">
             </div>
@@ -206,11 +222,14 @@ watch(weekShift, updateTime)
                 v-for="(day, index) in weekdays"
                 :key="day"
             >
-                <b v-if="day === currentDayName" :style="{ 'border-bottom': '2px solid var(--color-bright-text)' }">
-                    {{ weekdates[index] }} | {{ day }}
+                <b
+                    v-if="weekdates[index].getTime() == currentDate.getTime()"
+                    :style="{ 'border-bottom': '2px solid var(--color-bright-text)' }"
+                >
+                    {{ weekdates[index].getDate() }} | {{ day }}
                 </b>
                 <b v-else>
-                    {{ weekdates[index] }} | {{ day }}
+                    {{ weekdates[index].getDate() }} | {{ day }}
                 </b>
             </div>
         </div>
@@ -226,12 +245,12 @@ watch(weekShift, updateTime)
                     class="column"
                     v-for="(day, index) in weekdays"
                     :key="(day, index)"
-                    @mousedown="handleMouseDown(day, time, $event)"
+                    @mousedown="handleMouseDown(day, time, $event, weekdates[index])"
                     @mousemove="handleCellMove(time, $event)"
                     @mouseup="handleMouseUp"
                 >
                     <div
-                        v-show="day === currentDayName && time === currentTimeString"
+                        v-show="weekdates[index].getTime() == currentDate.getTime() && time === currentTimeString"
                         class="current-line"
                         :style="{ top: currentMinute }"
                     ></div>
@@ -282,11 +301,14 @@ watch(weekShift, updateTime)
 .arrow-buttons {
     width: 4vh;
     height: auto;
-    transition: width 0.2s ease;
+    transform: scale(1);
+    display: inline-block;
+    transform-origin: center;
+    transition: transform 0.2s ease;
     user-select: none;
 }
 .arrow-buttons:hover {
-    width: 3.5vh;
+    transform: scale(0.875);
 }
 
 .selected-field {
@@ -310,6 +332,7 @@ watch(weekShift, updateTime)
 .head-line {
     display: flex;
     align-items: center;
+    padding-bottom: 1%;
 }
 .head-line h3 {
     padding-right: 1%;
@@ -383,6 +406,7 @@ watch(weekShift, updateTime)
     transform: translateY(-50%);
 }
 .header-row {
+    height: 2.5vh;
     padding-top: 0%;
     padding-bottom: 1%;
 }
@@ -391,7 +415,7 @@ watch(weekShift, updateTime)
     position: absolute;
     left: 0;
     right: 0;
-    height: 2px;
+    height: 0.2vh;
     background-color: var(--color-bright-text);
     border-radius: 8px;
     pointer-events: none;

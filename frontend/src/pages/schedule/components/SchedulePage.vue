@@ -1,12 +1,15 @@
 <script setup>
+import { defineEmits } from "vue"
 import calendar from "./ScheduleField.vue"
+
+const emit = defineEmits("openNav")
 
 </script>
 
 <template>
     <div class="schedule-container">
         <div class="schedule-field">
-            <calendar />
+            <calendar @openNav="emit('openNav')"/>
         </div>
     </div>
 </template>
