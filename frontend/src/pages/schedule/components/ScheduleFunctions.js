@@ -139,15 +139,19 @@ export async function getScheduleTasks(router) {
     }
 }
 
-export function makeWeekDates(currentDate) {
+export function makeWeekDates(currentDate, daysNumber) {
     const dayOfWeek = currentDate.getDay()
-    const distanceToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
-    const monday = new Date(currentDate.getTime() + distanceToMonday * 24 * 60 * 60 * 1000)
-    monday.setHours(0, 0, 0, 0)
+    let firstDay = null
+    if (daysNumber == 7) {
+        const distanceToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
+        firstDay = new Date(currentDate.getTime() + distanceToMonday * 24 * 60 * 60 * 1000)
+    } else {
+        firstDay = new Date(currentDate.getTime())
+    }
+    firstDay.setHours(0, 0, 0, 0)
     const weekDates = []
-    for (let i = 0; i < 7; i++) {
-        const weekDay = new Date(monday.getTime() + i * 24 * 60 * 60 * 1000);
-        // weekDay.setDate(monday.getDate() + i)
+    for (let i = 0; i < daysNumber; i++) {
+        const weekDay = new Date(firstDay.getTime() + i * 24 * 60 * 60 * 1000);
         weekDates.push(weekDay)
     }
     return weekDates
