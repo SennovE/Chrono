@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineEmits, watch } from "vue"
+import { ref, watch, defineProps, defineEmits } from "vue"
 import { useRouter } from "vue-router"
 import { addScheduleTask } from "./ScheduleFunctions"
 
@@ -43,6 +43,7 @@ async function addScheduleTaskWrap() {
 }
 
 function modalOpen() {
+    if (props.selectedParams.date == "") return
     startTime.value = (props.selectedParams.startHours < 10 ? '0' : '') +
                       `${props.selectedParams.startHours}:` +
                       (props.selectedParams.startMinutes < 10 ? '0' : '') +
@@ -51,6 +52,10 @@ function modalOpen() {
                     `${props.selectedParams.endHours}:` +
                     (props.selectedParams.endMinutes < 10 ? '0' : '') +
                     `${props.selectedParams.endMinutes}`
+    const year = props.selectedParams.date.getFullYear()
+    const month = String(props.selectedParams.date.getMonth() + 1).padStart(2, '0')
+    const day = String(props.selectedParams.date.getDate()).padStart(2, '0')
+    startDate.value = `${year}-${month}-${day}`
 }
 
 function modalClose() {
@@ -148,6 +153,7 @@ watch(() => props.isModalOpen, modalOpen)
 
 .field-group p {
     width: 50%;
+    min-width: 150px;
     margin: 0;
     margin-top: 1%;
     padding-right: 2%;

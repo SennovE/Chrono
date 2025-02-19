@@ -6,6 +6,7 @@ import schedulePage from "./components/SchedulePage.vue";
 import invalidUserPanel from "../../components/NotRegistered.vue"
 
 const user = ref("")
+const isNavOpen = ref(false)
 
 async function authUserWrap() {
     user.value = await authUser()
@@ -19,8 +20,12 @@ onMounted(async () => {
 
 <template>
     <div class="grey-style">
-        <navPanel />
-        <schedulePage :user="user"/>
+        <navPanel v-show="isNavOpen"/>
+        <schedulePage
+            :user="user"
+            :style="{ 'padding-top': !isNavOpen ? '1%' : '0%' }"
+            @openNav="() => { isNavOpen = !isNavOpen }"
+        />
         <invalidUserPanel v-show="user == -1"/>
     </div>
 </template>

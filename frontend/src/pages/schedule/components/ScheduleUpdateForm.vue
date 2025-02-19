@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineEmits, watch } from "vue"
+import { ref, defineProps, defineEmits, watch } from "vue"
 import { useRouter } from "vue-router"
 import { deleteTask, updateTask } from "./ScheduleFunctions"
 
@@ -20,7 +20,7 @@ const isModalUpdateOpen = ref(0)
 
 const props = defineProps({
     tasks: Object,
-    showTaskDay: String,
+    showTaskDay: Number,
     showTaskId: String,
 })
 
@@ -54,7 +54,7 @@ function modalClose() {
 }
 
 function showTaskById() {
-    if (props.showTaskId == -1) return
+    if (props.showTaskId == "") return
     const selectedTask = props.tasks[props.showTaskDay].find(task => task.id === props.showTaskId)
     shortText.value = selectedTask.name
     descriptionText.value = selectedTask.text
