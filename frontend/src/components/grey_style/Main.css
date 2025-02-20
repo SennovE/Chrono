@@ -149,3 +149,27 @@ textarea, .task-text {
 .bottom-text:hover::after {
     width: 100%;
 }
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgb(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.modal-content {
+    width: 30%;
+    min-width: min(550px, 100vw);
+    background: var(--color-background);
+    padding: max(1%, 20px) max(2%, 20px) max(2%, 20px) max(2%, 20px);
+    border-radius: 50px;
+    box-sizing: border-box;
+    color: var(--color-container);
+}

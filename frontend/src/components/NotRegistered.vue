@@ -5,8 +5,10 @@ const router = useRouter()
 </script>
 
 <template>
-    <div class="not-registered">
-        <div class="not-registered-content">
+    <div class="modal-overlay">
+        <div
+            class="modal-content"
+            :style="{ 'text-align': 'center' }">
             <h1>Для использования надо зайти в аккаунт</h1>
             <button @click="router.push({ name: 'Registration' })">Зарегистрироваться</button>
             <button @click="router.push({ name: 'Login Page' })">Войти</button>
@@ -16,5 +18,5 @@ const router = useRouter()
 
 
 <style>
-@import "./grey_style/NotRegistered.css";
+@import "./grey_style/Main.css";
 </style>
