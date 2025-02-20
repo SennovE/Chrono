@@ -107,6 +107,7 @@ watch(() => props.showTaskId, showTaskById)
                     <div class="field-group">
                         <p>День события:</p>
                         <div class="input-wrapper">
+                            <input v-if="isModalUpdateOpen == 2 && !recurring" type="date" v-model="startDate" class="date" />
                             <input v-if="isModalUpdateOpen == 2" type="date" v-model="startDate" class="date" />
                             <pre v-else>{{ startDateString }}</pre>
                         </div>

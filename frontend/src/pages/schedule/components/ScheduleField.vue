@@ -192,6 +192,7 @@ watch(daysOnField, makeDayIndexes)
         />
         <div class="head-line">
             <svg
+                v-if="!isMobile"
                 @click="daysShift -= daysOnField"
                 class="arrow-buttons"
                 viewBox="0 0 30 40"
@@ -204,12 +205,11 @@ watch(daysOnField, makeDayIndexes)
                     stroke-width="2"
                     stroke-linejoin="round" />
             </svg>
-            <h3
-                :style="{ 'font-size': isMobile ? '16px' : 'auto' }"
-            >
+            <h3 v-if="!isMobile">
                 {{ currentMonthName }} {{ currentYear }}
             </h3>
             <svg
+                v-if="!isMobile"
                 @click="daysShift += daysOnField"
                 class="arrow-buttons"
                 viewBox="0 0 30 40"
@@ -248,6 +248,37 @@ watch(daysOnField, makeDayIndexes)
                 v-for="index in dayIndexes"
                 :key="index"
             >
+                <div v-if="isMobile" :style="{ 'display': 'flex', 'flex-direction': 'row' }">
+                    <svg
+                        @click="daysShift -= daysOnField"
+                        class="arrow-buttons"
+                        viewBox="0 0 30 40"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <polyline 
+                            points="20,10 10,20 20,30"
+                            fill="none"
+                            stroke="var(--color-bright-text)"
+                            stroke-width="2"
+                            stroke-linejoin="round" />
+                    </svg>
+                    <h3>
+                        {{ currentMonthName }} {{ currentYear }}
+                    </h3>
+                    <svg
+                        @click="daysShift += daysOnField"
+                        class="arrow-buttons"
+                        viewBox="0 0 30 40"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <polyline 
+                            points="10,10 20,20 10,30"
+                            fill="none"
+                            stroke="var(--color-bright-text)"
+                            stroke-width="2"
+                            stroke-linejoin="round" />
+                    </svg>
+                </div>
                 <b
                     v-if="weekdates[index].getTime() == currentDate.getTime()"
                     :style="{ 'border-bottom': '2px solid var(--color-bright-text)' }"
@@ -438,12 +469,12 @@ watch(daysOnField, makeDayIndexes)
     transform: translateY(-50%);
 }
 .header-row {
-    height: 2.5vh;
+    display: flex;
+    flex-direction: column;
     padding-top: max(1%, 10px);
     padding-bottom: max(1%, 10px);
 }
 .header-row b {
-    padding-top: 2%;
     padding-bottom: 2%;
 }
 
