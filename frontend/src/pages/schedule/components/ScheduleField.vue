@@ -248,31 +248,31 @@ watch(daysOnField, makeDayIndexes)
                 v-for="index in dayIndexes"
                 :key="index"
             >
-                <div v-if="isMobile" :style="{ 'display': 'flex', 'flex-direction': 'row' }">
+                <div v-if="isMobile" :style="{ 'display': 'flex', 'flex-direction': 'row', 'align-items': 'center' }">
                     <svg
                         @click="daysShift -= daysOnField"
                         class="arrow-buttons"
-                        viewBox="0 0 30 40"
+                        viewBox="0 0 30 20"
                         xmlns="http://www.w3.org/2000/svg"
                     >
                         <polyline 
-                            points="20,10 10,20 20,30"
+                            points="20,0 10,10 20,20"
                             fill="none"
                             stroke="var(--color-bright-text)"
                             stroke-width="2"
                             stroke-linejoin="round" />
                     </svg>
-                    <h3>
+                    <h3 :style="{ 'margin-block-start': '0em', 'margin-block-end': '0em' }">
                         {{ currentMonthName }} {{ currentYear }}
                     </h3>
                     <svg
                         @click="daysShift += daysOnField"
                         class="arrow-buttons"
-                        viewBox="0 0 30 40"
+                        viewBox="0 0 30 20"
                         xmlns="http://www.w3.org/2000/svg"
                     >
                         <polyline 
-                            points="10,10 20,20 10,30"
+                            points="10,0 20,10 10,20"
                             fill="none"
                             stroke="var(--color-bright-text)"
                             stroke-width="2"
@@ -297,7 +297,7 @@ watch(daysOnField, makeDayIndexes)
         >
             <div
                 class="row"
-                :style="{ height: isMobile ? '20%' : 'auto' }"
+                :style="{ height: isMobile ? '20%' : '12%' }"
                 v-for="time in times"
                 :key="time"
                 :ref="time === currentTimeString ? (row) => {currentRow = row} : null"
@@ -429,8 +429,6 @@ watch(daysOnField, makeDayIndexes)
     min-width: 20px;
     display: flex;
     align-items: center;
-    padding-top: 2%;
-    padding-bottom: 2%;
     justify-content: center;
     position: relative;
 }
@@ -471,11 +469,8 @@ watch(daysOnField, makeDayIndexes)
 .header-row {
     display: flex;
     flex-direction: column;
-    padding-top: max(1%, 10px);
-    padding-bottom: max(1%, 10px);
-}
-.header-row b {
-    padding-bottom: 2%;
+    padding-top: 1%;
+    padding-bottom: 1%;
 }
 
 .current-line {
