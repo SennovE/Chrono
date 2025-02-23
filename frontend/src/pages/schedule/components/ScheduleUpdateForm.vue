@@ -1,9 +1,9 @@
 <script setup>
 import { ref, defineProps, defineEmits, watch } from "vue"
 import { useRouter } from "vue-router"
-import { deleteTask, updateTask } from "./ScheduleFunctions"
+import { deleteTask, updateTask, addScheduleTask } from "./ScheduleFunctions"
 
-const emit = defineEmits(['taskUpdated', "closeModal", "clearUpdatingInfo"])
+const emit = defineEmits(["closeModal"])
 const router = useRouter()
 
 const shortText = ref("")
@@ -13,6 +13,7 @@ const startDateString = ref("")
 const startTime = ref("")
 const endTime = ref("")
 const recurring = ref(false)
+const selectedOptionWeekDay = ref("")
 
 const response = ref("")
 
@@ -22,12 +23,29 @@ const props = defineProps({
     tasks: Object,
     showTaskDay: Number,
     showTaskId: String,
+    weekdays: Object,
+    isModalOpen: String,
+    selectedParams: Object,
 })
 
 async function deleteTaskWrap() {
     await deleteTask(router, props.showTaskId)
     modalClose()
-    emit('taskUpdated')
+}
+
+async function addScheduleTaskWrap() {
+    response.value = await addScheduleTask(
+        router,
+        shortText.value,
+        descriptionText.value,
+        startDate.value,
+        startTime.value,
+        endTime.value,
+        recurring.value
+    )
+    if (response.value == "") {
+        modalClose()
+    }
 }
 
 async function updateTaskWrap() {
@@ -43,19 +61,45 @@ async function updateTaskWrap() {
     )
     if (response.value == "") {
         modalClose()
-        emit('taskUpdated')
     }
 }
 
 function modalClose() {
+    shortText.value = ""
+    descriptionText.value = ""
+    startDate.value = ""
+    startTime.value = ""
+    endTime.value = ""
+    recurring.value = false
     response.value = ""
     isModalUpdateOpen.value = 0
-    emit("clearUpdatingInfo")
+    emit("closeModal")
+}
+
+function modalOpen() {
+    if (props.isModalOpen === "update") {
+        showTaskById()
+    } else if (props.isModalOpen === "new") {
+        modalNewTaskOpen()
+    }
+}
+
+function modalNewTaskOpen() {
+    isModalUpdateOpen.value = 3
+    if (props.selectedParams.date == "") return
+    startTime.value = String(props.selectedParams.startHours).padStart(2, '0') + ':' +
+                      String(props.selectedParams.startMinutes).padStart(2, '0')
+    endTime.value = String(props.selectedParams.endHours).padStart(2, '0') + ':' +
+                    String(props.selectedParams.endMinutes).padStart(2, '0')
+    const year = props.selectedParams.date.getFullYear()
+    const month = String(props.selectedParams.date.getMonth() + 1).padStart(2, '0')
+    const day = String(props.selectedParams.date.getDate()).padStart(2, '0')
+    startDate.value = `${year}-${month}-${day}`
 }
 
 function showTaskById() {
     if (props.showTaskId == "") return
-    const selectedTask = props.tasks[props.showTaskDay].find(task => task.id === props.showTaskId)
+    const selectedTask = props.tasks[props.showTaskDay].find(task => task.id == props.showTaskId)
     shortText.value = selectedTask.name
     descriptionText.value = selectedTask.text
     startDate.value = String(selectedTask.year) + '-' +
@@ -72,7 +116,7 @@ function showTaskById() {
     isModalUpdateOpen.value = 1
 }
 
-watch(() => props.showTaskId, showTaskById)
+watch(() => props.isModalOpen, modalOpen)
 </script>
 
 <template>
@@ -86,6 +130,7 @@ watch(() => props.showTaskId, showTaskById)
                 <div class="modal-content" @click.stop>
                     <div class="modal-header">
                         <h2 v-if="isModalUpdateOpen == 2">Изменить событие</h2>
+                        <h2 v-else-if="isModalUpdateOpen == 3">Добавить событие</h2>
                         <h2 v-else>{{ shortText }}</h2>
                         <div class="edit-button" @click="isModalUpdateOpen = 2">
                             <svg v-if="isModalUpdateOpen == 1" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -97,18 +142,36 @@ watch(() => props.showTaskId, showTaskById)
                             &times;
                         </button>
                     </div>
-                    <div v-if="isModalUpdateOpen == 2" class="input-wrapper">
+                    <div v-if="isModalUpdateOpen == 2 || isModalUpdateOpen == 3" class="input-wrapper">
                         <input placeholder="Название события" v-model="shortText" />
                     </div>
                     <p></p>
-                    <textarea v-if="isModalUpdateOpen == 2" placeholder="Добавьте описание" v-model="descriptionText"></textarea>
+                    <textarea
+                        v-if="isModalUpdateOpen == 2 || isModalUpdateOpen == 3"
+                        placeholder="Добавьте описание"
+                        v-model="descriptionText"
+                    ></textarea>
                     <pre v-else class="task-text">{{ !descriptionText ? "Без описания" : descriptionText }}</pre>
 
                     <div class="field-group">
                         <p>День события:</p>
                         <div class="input-wrapper">
-                            <input v-if="isModalUpdateOpen == 2 && !recurring" type="date" v-model="startDate" class="date" />
-                            <input v-if="isModalUpdateOpen == 2" type="date" v-model="startDate" class="date" />
+                            <input
+                                v-if="(isModalUpdateOpen == 2 || isModalUpdateOpen == 3) && !recurring"
+                                type="date"
+                                v-model="startDate"
+                                class="date"
+                            />
+                            <div
+                                v-else-if="isModalUpdateOpen == 2  || isModalUpdateOpen == 3"
+                                class="custom-select"
+                            >
+                                <select v-model="selectedOptionWeekDay">
+                                    <option v-for="option in props.weekdays" :key="option">
+                                        {{ option }}
+                                    </option>
+                                </select>
+                            </div>
                             <pre v-else>{{ startDateString }}</pre>
                         </div>
                     </div>
@@ -116,7 +179,12 @@ watch(() => props.showTaskId, showTaskById)
                     <div class="field-group">
                         <p>Начало:</p>
                         <div class="input-wrapper">
-                            <input v-if="isModalUpdateOpen == 2" type="time" v-model="startTime" class="date" />
+                            <input
+                                v-if="isModalUpdateOpen == 2 || isModalUpdateOpen == 3"
+                                type="time"
+                                v-model="startTime"
+                                class="date"
+                            />
                             <pre v-else>{{ startTime }}</pre>
                         </div>
                     </div>
@@ -124,12 +192,17 @@ watch(() => props.showTaskId, showTaskById)
                     <div class="field-group">
                         <p>Конец:</p>
                         <div class="input-wrapper">
-                            <input v-if="isModalUpdateOpen == 2" type="time" v-model="endTime" class="date" />
+                            <input
+                                v-if="isModalUpdateOpen == 2 || isModalUpdateOpen == 3"
+                                type="time"
+                                v-model="endTime"
+                                class="date"
+                            />
                             <pre v-else>{{ endTime }}</pre>
                         </div>
                     </div>
 
-                    <div v-if="isModalUpdateOpen == 2" class="field-group">
+                    <div v-if="isModalUpdateOpen == 2 || isModalUpdateOpen == 3" class="field-group">
                         <p>Повторяющееся:</p>
                         <label class="custom-checkbox">
                             <input
@@ -137,12 +210,25 @@ watch(() => props.showTaskId, showTaskById)
                                 v-model="recurring"
                                 :true-value=true
                                 :false-value=false
-                                :disabled="isModalUpdateOpen != 2"
+                                :disabled="isModalUpdateOpen == 1"
                             />
                             <span class="checkmark"></span>
                         </label>
                     </div>
-                    <button v-if="isModalUpdateOpen == 2" class="creation-button" @click="updateTaskWrap">Сохранить</button>
+                    <button
+                        v-if="isModalUpdateOpen == 2"
+                        class="creation-button"
+                        @click="updateTaskWrap"
+                    >
+                        Сохранить
+                    </button>
+                    <button
+                        v-if="isModalUpdateOpen == 3"
+                        class="creation-button"
+                        @click="addScheduleTaskWrap"
+                    >
+                        Добавить
+                    </button>
                     <p
                         v-if="isModalUpdateOpen == 2"
                         class="bottom-text"
@@ -157,6 +243,47 @@ watch(() => props.showTaskId, showTaskById)
     </div>
 </template>
 
-
 <style>
+.creation-button {
+    margin-top: 5%;
+    margin-bottom: 0;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1%;
+}
+.modal-header h2 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 70%;
+}
+
+.field-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1%;
+    margin-top: 1%;
+}
+
+.field-group p {
+    width: 50%;
+    min-width: 150px;
+    margin: 0;
+    margin-top: 1%;
+    padding-right: 2%;
+    text-align: left;
+}
+
+.overlay-fade-enter-from,
+.overlay-fade-leave-to {
+  opacity: 0;
+}
+.overlay-fade-enter-active,
+.overlay-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
 </style>

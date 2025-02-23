@@ -7,7 +7,6 @@ import {
     getScheduleTasks,
     currentTimeFilter,
 } from "./ScheduleFunctions"
-import scheduleForm from "./ScheduleForm.vue"
 import scheduleUpdateForm from "./ScheduleUpdateForm.vue"
 import { useRouter } from "vue-router"
 
@@ -15,7 +14,7 @@ const emit = defineEmits(['openNav'])
 const isMobile = window.innerWidth < 768
 
 const daysOnField = ref(isMobile ? 1 : 7)
-const daysShift = ref(daysOnField.value == 7 ? 0 : (new Date()).getDay() - 1)
+const daysShift = ref(daysOnField.value == 7 ? 0 : ((new Date()).getDay() + 6) % 7)
 const dayIndexes = ref([])
 function makeDayIndexes() {
     dayIndexes.value = []
@@ -74,13 +73,13 @@ const selectedParams = ref({
     bottom: "0%",
 })
 const isDragging = ref(false)
-const isModalOpen = ref(false)
+const isModalOpen = ref("")
 function closeModal() {
-    isModalOpen.value = false
+    isModalOpen.value = ""
     isDragging.value = false
-}
-function openModal() {
-    isModalOpen.value = true
+    showTaskDay.value = 0
+    showTaskId.value = ""
+    fetchTasks()
 }
 
 const showTaskDay = ref(0)
@@ -88,10 +87,7 @@ const showTaskId = ref("")
 function showTask(dayIndex, taskId) {
     showTaskDay.value = dayIndex
     showTaskId.value = taskId
-}
-function clearUpdatingInfo() {
-    showTaskDay.value = 0
-    showTaskId.value = ""
+    isModalOpen.value = "update"
 }
 
 function handleMouseDown(day, time, event, date) {
@@ -116,7 +112,7 @@ function handleMouseDown(day, time, event, date) {
 
 function handleMouseUp() {
     if (!isDragging.value) return
-    openModal()
+    isModalOpen.value = "new"
 }
 
 function handleCellMove(time, event) {
@@ -187,14 +183,15 @@ watch(daysOnField, makeDayIndexes)
             :tasks="tasks"
             :showTaskDay="showTaskDay"
             :showTaskId="showTaskId"
-            @taskUpdated="fetchTasks"
-            @clearUpdatingInfo="clearUpdatingInfo"
+            :weekdays="weekdays"
+            :isModalOpen="isModalOpen"
+            :selectedParams="selectedParams"
+            @closeModal="closeModal"
         />
         <div class="head-line">
             <svg
-                v-if="!isMobile"
                 @click="daysShift -= daysOnField"
-                class="arrow-buttons"
+                class="svg-buttons"
                 viewBox="0 0 30 40"
                 xmlns="http://www.w3.org/2000/svg"
             >
@@ -205,13 +202,12 @@ watch(daysOnField, makeDayIndexes)
                     stroke-width="2"
                     stroke-linejoin="round" />
             </svg>
-            <h3 v-if="!isMobile">
+            <h3>
                 {{ currentMonthName }} {{ currentYear }}
             </h3>
             <svg
-                v-if="!isMobile"
                 @click="daysShift += daysOnField"
-                class="arrow-buttons"
+                class="svg-buttons"
                 viewBox="0 0 30 40"
                 xmlns="http://www.w3.org/2000/svg"
             >
@@ -222,63 +218,37 @@ watch(daysOnField, makeDayIndexes)
                     stroke-width="2"
                     stroke-linejoin="round" />
             </svg>
-            <scheduleForm
-                class="header-line-left"
-                :style="{ 'padding-right': '2%' }"
-                @taskAdded="fetchTasks"
-                :isModalOpen="isModalOpen"
-                @closeModal="closeModal"
-                @openModal="openModal"
-                :selectedParams="selectedParams"
-            />
+            <svg
+                @click="isModalOpen = 'new'"
+                class="svg-buttons svg-plus"
+                viewBox="0 0 40 40"
+                xmlns="http://www.w3.org/2000/svg"
+                :style="{ 'margin-left': 'auto'}"
+            >
+                <line x1="20" y1="8" x2="20" y2="32" stroke="var(--color-bright-text)" stroke-width="2"/>
+                <line x1="8" y1="20" x2="32" y2="20" stroke="var(--color-bright-text)" stroke-width="2"/>
+            </svg>
             <svg
                 @click="emit('openNav')"
-                class="arrow-buttons"
+                class="svg-buttons"
                 viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg">
-                <rect y="4" width="24" height="2" fill="currentColor" />
-                <rect y="11" width="24" height="2" fill="currentColor" />
-                <rect y="18" width="24" height="2" fill="currentColor" />
+                <rect y="4" width="24" height="2" fill="var(--color-bright-text)" />
+                <rect y="11" width="24" height="2" fill="var(--color-bright-text)" />
+                <rect y="18" width="24" height="2" fill="var(--color-bright-text)" />
             </svg>
         </div>
-        <div class="row calendar-header" :style="{ 'font-size': isMobile ? '16px' : 'auto' }">
+        <div
+            v-if="!isMobile"
+            class="row calendar-header"
+            :style="{ 'font-size': isMobile ? '16px' : 'auto' }"
+        >
             <div class="column time-column header-row"></div>
             <div
                 class="column header-row"
                 v-for="index in dayIndexes"
                 :key="index"
             >
-                <div v-if="isMobile" :style="{ 'display': 'flex', 'flex-direction': 'row', 'align-items': 'center' }">
-                    <svg
-                        @click="daysShift -= daysOnField"
-                        class="arrow-buttons"
-                        viewBox="0 0 30 20"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <polyline 
-                            points="20,0 10,10 20,20"
-                            fill="none"
-                            stroke="var(--color-bright-text)"
-                            stroke-width="2"
-                            stroke-linejoin="round" />
-                    </svg>
-                    <h3 :style="{ 'margin-block-start': '0em', 'margin-block-end': '0em' }">
-                        {{ currentMonthName }} {{ currentYear }}
-                    </h3>
-                    <svg
-                        @click="daysShift += daysOnField"
-                        class="arrow-buttons"
-                        viewBox="0 0 30 20"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <polyline 
-                            points="10,0 20,10 10,20"
-                            fill="none"
-                            stroke="var(--color-bright-text)"
-                            stroke-width="2"
-                            stroke-linejoin="round" />
-                    </svg>
-                </div>
                 <b
                     v-if="weekdates[index].getTime() == currentDate.getTime()"
                     :style="{ 'border-bottom': '2px solid var(--color-bright-text)' }"
@@ -297,7 +267,7 @@ watch(daysOnField, makeDayIndexes)
         >
             <div
                 class="row"
-                :style="{ height: isMobile ? '20%' : '12%' }"
+                :style="{ height: '12%'}"
                 v-for="time in times"
                 :key="time"
                 :ref="time === currentTimeString ? (row) => {currentRow = row} : null"
@@ -347,7 +317,21 @@ watch(daysOnField, makeDayIndexes)
                         @mousedown.stop
                         @click="showTask(index, task.id)"
                     >
-                        <div class="task-content">
+                        <div
+                            class="task-content"
+                            :style="{
+                                'padding-top' :
+                                (task.end_hours - task.start_hours) * 60  + task.end_minutes - task.start_minutes >= 40 ?
+                                '10%' : 'auto'
+                            }"
+                        >
+                            <span v-if="(task.end_hours - task.start_hours) * 60  + task.end_minutes - task.start_minutes >= 50">{{
+                                String(task.start_hours) + ':' +
+                                String(task.start_minutes).padStart(2, '0') + ' - ' +
+                                String(task.end_hours) + ':' +
+                                String(task.end_minutes).padStart(2, '0')
+                            }}<br></span>
+                            
                             {{ task.name }}
                         </div>
                     </div>
@@ -360,7 +344,7 @@ watch(daysOnField, makeDayIndexes)
 <style>
 @import "./ScheduleMain.css";
 
-.arrow-buttons {
+.svg-buttons {
     width: 4vh;
     height: auto;
     transform: scale(1);
@@ -368,9 +352,19 @@ watch(daysOnField, makeDayIndexes)
     transform-origin: center;
     transition: transform 0.2s ease;
     user-select: none;
+    cursor: pointer;
+    padding-right: 1%;
+    padding-left: 1%;
 }
-.arrow-buttons:hover {
+.svg-buttons:hover {
     transform: scale(0.875);
+}
+.svg-plus {
+    transform-origin: 50% 50%;
+    transition: transform 0.3s ease;
+}
+.svg-plus:hover {
+    transform: rotate(90deg);
 }
 
 .selected-field {
@@ -434,8 +428,8 @@ watch(daysOnField, makeDayIndexes)
 }
 .time-column {
     flex: 0.3;
-    min-width: 40px;
-    max-width: 10vw;
+    min-width: 50px;
+    max-width: 12vw;
     justify-content: flex-end;
     align-items: flex-start;
     padding: 0 1% 0 0;
@@ -513,21 +507,22 @@ watch(daysOnField, makeDayIndexes)
     position: absolute;
     background: var(--color-container);
     border-radius: 8px;
-    opacity: 0.2;
+    opacity: 0.05;
 }
 .task-content {
     width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    padding: 0% 5% 0% 5%;
+    padding: 0% 5% 0% 10%;
     box-sizing: border-box;
+    text-align: left;
 }
 
-/* @media (max-aspect-ratio: 3/2), (max-width: 700px) {
+@media (max-aspect-ratio: 3/2), (max-width: 700px) {
     .calendar-container {
         height: 85vh;
     }
-} */
+}
 
 </style>
