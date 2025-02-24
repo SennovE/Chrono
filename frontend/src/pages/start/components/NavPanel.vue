@@ -79,7 +79,7 @@ const router = useRouter();
 }
 
 @media (max-aspect-ratio: 3/2), (max-width: 700px) {
-    .top-nav {
+    .top-nav-start {
         font-size: 12px;
     }
 }
