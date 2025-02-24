@@ -24,6 +24,7 @@ function makeDayIndexes() {
     }
 }
 const weekdays = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"]
+const shortWeekdays = ["Пн.", "Вт.", "Ср.", "Чт.", "Пт.", "Сб.", "Вс."]
 const am_pm = ref(false)
 const times = ref(makeTime(am_pm))
 
@@ -202,8 +203,11 @@ watch(daysOnField, makeDayIndexes)
                     stroke-width="2"
                     stroke-linejoin="round" />
             </svg>
-            <h3>
+            <h3 v-if="!isMobile">
                 {{ currentMonthName }} {{ currentYear }}
+            </h3>
+            <h3 v-else :style="{ 'width': '40vw', 'font-size': '16px' }">
+                {{ weekdates[dayIndexes[0]].getDate() }} | {{ shortWeekdays[dayIndexes[0]] }} {{ currentMonthName }} {{ currentYear }}
             </h3>
             <svg
                 @click="daysShift += daysOnField"
@@ -519,10 +523,13 @@ watch(daysOnField, makeDayIndexes)
     text-align: left;
 }
 
-@media (max-aspect-ratio: 3/2), (max-width: 700px) {
-    .calendar-container {
+@media (max-width: 768px) {
+    /* .calendar-container {
         height: 85vh;
-    }
+    } */
+    .column::before {
+    border-right: none;
+}
 }
 
 </style>
