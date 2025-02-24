@@ -225,7 +225,7 @@ watch(daysOnField, makeDayIndexes)
             </svg>
             <svg
                 @click="isModalOpen = 'new'"
-                class="svg-buttons svg-plus"
+                class="svg-buttons svg-right"
                 viewBox="0 0 40 40"
                 xmlns="http://www.w3.org/2000/svg"
                 :style="{ 'margin-left': 'auto'}"
@@ -233,14 +233,15 @@ watch(daysOnField, makeDayIndexes)
                 <line x1="20" y1="8" x2="20" y2="32" stroke="var(--color-bright-text)" stroke-width="2"/>
                 <line x1="8" y1="20" x2="32" y2="20" stroke="var(--color-bright-text)" stroke-width="2"/>
             </svg>
+            <scheduleGeneration />
             <svg
                 @click="emit('openNav')"
                 class="svg-buttons"
-                viewBox="0 0 24 24"
+                viewBox="0 0 40 40"
                 xmlns="http://www.w3.org/2000/svg">
-                <rect y="4" width="24" height="2" fill="var(--color-bright-text)" />
-                <rect y="11" width="24" height="2" fill="var(--color-bright-text)" />
-                <rect y="18" width="24" height="2" fill="var(--color-bright-text)" />
+                <rect y="10" width="30" height="2" fill="var(--color-bright-text)" />
+                <rect y="20" width="30" height="2" fill="var(--color-bright-text)" />
+                <rect y="30" width="30" height="2" fill="var(--color-bright-text)" />
             </svg>
         </div>
         <div
@@ -361,14 +362,17 @@ watch(daysOnField, makeDayIndexes)
     padding-right: 1%;
     padding-left: 1%;
 }
+.svg-buttons:hover path {
+  fill: var(--color-bright-text);
+}
 .svg-buttons:hover {
     transform: scale(0.875);
 }
-.svg-plus {
+.svg-right {
     transform-origin: 50% 50%;
     transition: transform 0.3s ease;
 }
-.svg-plus:hover {
+.svg-right:hover {
     transform: rotate(90deg);
 }
 

@@ -38,9 +38,37 @@ async function sendSchedule() {
 
 <template>
     <div>
-      <button @click="openModal" class="form-button">
-        Создать расписание
-      </button>
+      <svg
+        @click="openModal"
+        class="svg-buttons"
+        viewBox="0 0 80 80"
+        xmlns="http://www.w3.org/2000/svg"
+        :style="{ 'margin-left': 'auto'}"
+      >
+        <path d="
+          M50 10
+          Q50 30 70 30
+          Q50 30 50 50
+          Q50 30 30 30
+          Q50 30 50 10
+        " stroke="var(--color-bright-text)" stroke-width="4" fill="none"/>
+
+        <path d="
+          M20 30
+          Q20 40 30 40
+          Q20 40 20 50
+          Q20 40 10 40
+          Q20 40 20 30
+        " stroke="var(--color-bright-text)" stroke-width="4" fill="none"/>
+
+        <path d="
+          M30 50
+          Q30 60 40 60
+          Q30 60 30 70
+          Q30 60 20 60
+          Q30 60 30 50
+        " stroke="var(--color-bright-text)" stroke-width="4" fill="none"/>
+      </svg>
       <transition name="overlay-fade">
         <div v-if="isModalOpen" class="modal-overlay" @click="closeModal">
            <div class="modal-content" @click.stop>
@@ -76,53 +104,5 @@ async function sendSchedule() {
     </div>
   </template>
   
-  <style>
-  .overlay-fade-enter-from,
-  .overlay-fade-leave-to {
-    opacity: 0;
-  }
-  .overlay-fade-enter-active,
-  .overlay-fade-leave-active {
-    transition: opacity 0.3s ease;
-  }
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 100;
-  }
-  .modal-content {
-    background: var(--color-container);
-    padding: 20px;
-    border-radius: 8px;
-    width: 300px;
-    text-align: center;
-  }
-  .input-wrapper input {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-  }
-  .creation-button {
-    margin-top: 5%;
-    margin-bottom: 0;
-  }
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1%;
-  }
-  .close-button {
-    background: none;
-    border: none;
-    font-size: 1.5em;
-    cursor: pointer;
-  }
-  </style>
+<style>
+</style>
