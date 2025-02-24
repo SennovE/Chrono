@@ -1,19 +1,5 @@
 @import "../../../components/grey_style/Main.css";
 
-.form-button {
-    height: 4vh;
-    border-radius: 2vh;
-    padding: 0 1.5vh;
-    border-color:rgb(0, 0, 0, 0);
-    font-size: min(2vh, 2vw);
-    margin-top: 0%;
-    width: fit-content;
-}
-
-.form-button:hover {
-    border-color: var(--color-container);
-}
-
 .modal-content input::placeholder,
 .modal-content textarea::placeholder {
     color: var(--color-grey-text);

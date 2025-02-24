@@ -91,3 +91,24 @@ async def return_deadline_task(task: DeadlineTaskID, session: AsyncSession) -> b
         await session.rollback()
         raise HTTPException(status_code=500, detail=f"Database error: {e}")
     return True
+
+
+async def submit_ai_gen(tasks: list[DeadlineTaskCreateForm], \
+                        current_user: User, \
+                        session: AsyncSession) -> bool:
+    for task in tasks:
+        task_data = task.model_dump()
+        task_data["author_id"] = current_user.id
+        task_data["author"] = current_user.username
+        task_data["status"] = 0
+        db_task = DeadlineTask(**task_data)
+
+        session.add(db_task)
+    
+    try:
+        await session.commit()
+    except Exception as e:
+        await session.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+    
+    return True

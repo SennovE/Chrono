@@ -2,8 +2,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
 
 .grey-style {
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     position: absolute;
     z-index: 0;
     
@@ -98,6 +98,10 @@ button:active {
 textarea, .task-text {
     border-radius: 5px;
     border: 2px solid var(--color-dark-text);
+}
+.task-text {
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 .edit-button,
