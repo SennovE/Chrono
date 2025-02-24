@@ -38,7 +38,7 @@ import StartButton from "./components/StartButton.vue"
 @media (max-width: 768px) {
   .start-page {
     background: linear-gradient(to bottom, #f0f0f0, #ffffff);
-    background-image: url('./../../assets/main2.PNG'); /* Используем изображение */
+    background-image: url('./../../assets/main_mobile_version.PNG');
     background-size: contain; /* Чтобы полностью вмещалось */
     background-repeat: no-repeat;
     background-position: center center;
