@@ -78,21 +78,9 @@ const router = useRouter();
   margin-right: 2%;
 }
 
-@media (max-width: 768px) {
-
-  .top-nav-start ul {
-
-      flex-direction: column;
-      align-items: flex-start;
-  }
-
-  .right-button {
-      margin-left: 0;
-      margin-top: 10px;
-  }
-
-  .top-nav-start li {
-      padding: 10px 15px;
-  }
+@media (max-aspect-ratio: 3/2), (max-width: 700px) {
+    .top-nav {
+        font-size: 12px;
+    }
 }
 </style>

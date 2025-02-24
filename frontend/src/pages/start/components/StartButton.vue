@@ -5,9 +5,9 @@ const router = useRouter();
 </script>
 
 <template>
-  <div class="get-started-container_kera">
+  <div class="get-started-container">
     <ul>
-      <li @click="router.push({ name: 'Registration' })" class="get-started_kera">
+      <li @click="router.push({ name: 'Registration' })" class="get-started">
         <b>Начать</b>
       </li>
     </ul>
@@ -15,48 +15,69 @@ const router = useRouter();
 </template>
 
 <style scoped>
-.get-started-container_kera {
+.get-started-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 70vh;
+  height: 100vh;
   margin: 0;
   padding: 0;
   position: absolute;
-    top: 220px; /* Указание позиции отдельно */
-    left: 900px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
-.get-started-container::ul {
+.get-started-container ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.get-started_kera {
-  background-color: #ffc1e3; /* Светло-розовый цвет */
-  color: #6a1b9a; /* Темно-фиолетовый для контраста */
-  border: 2px solid #f48fb1; /* Акцент на границу */
-  padding: 20px 70px;
+.get-started {
+  margin: 350px 0 0;
+  background-color: #2d2d2d; 
+  color: #ffffff; 
+  border: 2px solid #444444; 
+  padding: 18px 60px;
   font-size: 18px;
   font-weight: bold;
   text-transform: uppercase;
   cursor: pointer;
-  border-radius: 25px; /* Закругленные края */
+  border-radius: 30px; /* Закругленные края */
   transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
   display: inline-block;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Мягкая тень */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Мягкая тень */
 }
 
-.get-started_kera:hover {
-  background-color: #f48fb1; /* Более насыщенный розовый */
+.get-started:hover {
+  background-color: #444444; /* Более насыщенный оттенок */
   transform: translateY(-3px);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
 }
 
-.get-started_kera:active {
-  background-color: #f06292; /* Насыщенный оттенок при нажатии */
+.get-started:active {
+  background-color: #555555;
   transform: translateY(0);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Мобильная версия */
+@media (max-width: 768px) {
+  .get-started-container {
+    width: 100%;
+    height: auto;
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    padding: 20px;
+  }
+
+  .get-started {
+    width: 100%;
+    padding: 15px 20px;
+    font-size: 16px;
+  }
 }
 </style>
