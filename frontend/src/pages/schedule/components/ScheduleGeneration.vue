@@ -103,6 +103,6 @@ async function sendSchedule() {
       </transition>
     </div>
   </template>
-  
+
 <style>
 </style>

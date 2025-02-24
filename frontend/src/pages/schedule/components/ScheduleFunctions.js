@@ -256,4 +256,8 @@ export async function SendAISchedule(aiSchedule) {
       } catch (error) {
         console.error("Error submitting AI tasks:", error);
       }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 3ebc16b716c8b788eb4f92e7a7485142c96f4171
