@@ -7,8 +7,8 @@ const router = useRouter();
 <template>
   <div class="get-started-container_kera">
     <ul>
-      <li @click="router.push({ name: 'Profile Page' })" class="get-started">
-        <b>Настройки</b>
+      <li @click="router.push({ name: 'Login Page' })" class="get-started">
+        <b>Log out</b>
       </li>
     </ul>
   </div>
