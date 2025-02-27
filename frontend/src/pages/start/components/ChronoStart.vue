@@ -29,12 +29,26 @@
     color: #111;
     margin-top: 0.5rem;
   }
-  @media (min-width: 768px) {
-  .title {
-    font-size: 6rem;
+  @media (max-width: 768px) {
+  .container2 {
+    padding: 20px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
+  
+  .title {
+    font-size: 3rem;
+    text-align: center;
+    margin: 0.5rem 0;
+  }
+  
   .subtitle {
-    font-size: 1.5rem;
+    font-size: 1rem;
+    text-align: center;
+    margin: 0.5rem 0;
   }
 }
   </style>
