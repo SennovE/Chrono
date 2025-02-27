@@ -78,9 +78,28 @@ const router = useRouter();
   margin-right: 2%;
 }
 
-@media (max-aspect-ratio: 3/2), (max-width: 650px) {
-    .top-nav-start {
-        font-size: 12px;
-    }
+@media (max-width: 650px) {
+  .top-nav-start {
+    padding: 8px 10px;
+  }
+  
+  .top-nav-start ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .top-nav-start li {
+    padding: 8px 10px;
+    font-size: 14px;
+    text-align: center;
+    margin: 2px 0;
+    flex: 1 1 auto;
+  }
+
+  .right-button {
+    margin-left: 0;
+  }
 }
 </style>

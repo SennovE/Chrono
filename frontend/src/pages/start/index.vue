@@ -44,29 +44,15 @@ import ChronoStart from "./components/ChronoStart.vue";
 
 @media (max-width: 768px) {
   .start-page {
-    background: linear-gradient(to bottom, #f0f0f0, #ffffff);
-    background-image: url('./../../assets/main 3.PNG');
-    background-size: contain; /* Чтобы полностью вмещалось */
-    background-repeat: no-repeat;
-    background-position: center center;
     padding: 20px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
-    height: 100vh;
-  }
-
-  .start-page h1 {
-    font-size: 24px;
-    text-align: center;
-  }
-
-  .start-page p {
-    font-size: 16px;
-    text-align: center;
+    min-height: 100vh;
+    background-size: cover;
+    background-position: center;
   }
 }
-  
 </style>
