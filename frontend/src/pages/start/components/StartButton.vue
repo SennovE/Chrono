@@ -65,19 +65,25 @@ const router = useRouter();
 /* Мобильная версия */
 @media (max-width: 768px) {
   .get-started-container {
-    width: 100%;
-    height: auto;
     position: relative;
-    top: auto;
-    left: auto;
+    top: 0;
+    left: 0;
     transform: none;
+    margin: 0;
     padding: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .get-started {
     width: 100%;
-    padding: 15px 20px;
+    margin: 20px auto;
+    padding: 12px 0;
     font-size: 16px;
+    text-align: center;
+    border-radius: 20px;
   }
 }
 </style>
