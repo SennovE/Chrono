@@ -35,7 +35,7 @@ const router = useRouter();
 }
 
 .get-started {
-  margin: 350px 0 0;
+  margin: 100px 0 0;
   background-color: #2d2d2d; 
   color: #ffffff; 
   border: 2px solid #444444; 

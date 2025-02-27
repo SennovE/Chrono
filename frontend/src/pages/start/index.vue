@@ -2,6 +2,7 @@
 
 import navPanel from "./components/NavPanel.vue"
 import StartButton from "./components/StartButton.vue"
+import ChronoStart from "./components/ChronoStart.vue";
 </script>
 <template>
 
@@ -10,8 +11,14 @@ import StartButton from "./components/StartButton.vue"
     <div class="content">
       <StartButton />
     </div>
+    <div>
+        <ChronoStart />
+    </div>
 
   </div>
+  
+
+  
 </template>
 
 
@@ -27,10 +34,10 @@ import StartButton from "./components/StartButton.vue"
   font-family: "Roboto", sans-serif;    
   color: #333333;
 
-  background-image: url('./../../assets/main2.PNG'); /* Путь к изображению */
-  background-size: cover; /* Масштабирование изображения */
-  background-repeat: no-repeat; /* Отключение повторения */
-  background-position: center; /* Центрирование изображения */
+  background-image: url('./../../assets/main 3.PNG');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 @import "../../components/StyleWhite.css";
@@ -38,7 +45,7 @@ import StartButton from "./components/StartButton.vue"
 @media (max-width: 768px) {
   .start-page {
     background: linear-gradient(to bottom, #f0f0f0, #ffffff);
-    background-image: url('./../../assets/main_mobile_version.PNG');
+    background-image: url('./../../assets/main 3.PNG');
     background-size: contain; /* Чтобы полностью вмещалось */
     background-repeat: no-repeat;
     background-position: center center;
