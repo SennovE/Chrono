@@ -2,7 +2,7 @@
   <div class="top-nav-start">
       <ul>
           <li @click="router.push({name: 'Registration'})"><b>Регистрация</b></li>
-          <li @click="router.push({name: 'Login Page'})"><b>Авторизация</b></li>
+          <li @click="router.push({name: 'Schedule Page'})"><b>Календарь</b></li>
           <li @click="router.push({name: 'Deadlines Page'})"><b>Дедлайны</b></li>
           <li
               class="right-button"
