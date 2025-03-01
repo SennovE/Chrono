@@ -31,8 +31,8 @@
   }
   @media (max-width: 768px) {
   .container2 {
-    padding: 20px;
-    height: auto;
+    padding: 90px;
+    height: 23%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -42,7 +42,7 @@
   .title {
     font-size: 3rem;
     text-align: center;
-    margin: 0.5rem 0;
+    margin-top: -1300px;
   }
   
   .subtitle {
