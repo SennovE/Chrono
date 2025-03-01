@@ -70,20 +70,22 @@ const router = useRouter();
     left: 0;
     transform: none;
     margin: 0;
-    padding: 20px;
+    padding: 30px;
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
   }
+  
 
   .get-started {
-    width: 100%;
-    margin: 20px auto;
+    width: 120%;
+    margin: 30px auto;
     padding: 12px 0;
-    font-size: 16px;
+    font-size: 14px;
     text-align: center;
-    border-radius: 20px;
+    border-radius: 30px;
+    margin: -10px 10px 220px -55%; 
   }
 }
 </style>
