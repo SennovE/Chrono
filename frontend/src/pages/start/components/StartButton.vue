@@ -85,7 +85,7 @@ const router = useRouter();
     font-size: 14px;
     text-align: center;
     border-radius: 30px;
-    margin: -10px 10px 220px -55%; 
+    margin: -10px 10px 10px -55%; 
   }
 }
 </style>
