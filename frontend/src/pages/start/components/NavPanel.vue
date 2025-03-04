@@ -38,8 +38,8 @@ const router = useRouter();
       0px 4px 8px rgba(0, 0, 0, 0.1),
       0px 6px 10px rgba(0, 0, 0, 0.1);
   z-index: 999;
-  padding: 10px 20px; /* Добавлен внутренний отступ */
-  border-bottom: 3px solid var(--color-light-purple); /* Мягкий акцент */
+  padding: 10px 20px;
+  border-bottom: 3px solid var(--color-light-purple);
 }
 
 
@@ -58,19 +58,19 @@ const router = useRouter();
   display: block;
   padding: 10px 20px;
   text-decoration: none;
-  border-radius: 25px; /* Закругленные края */
+  border-radius: 25px;
   transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   cursor: pointer;
-  color: #6a1b9a; /* Нежный фиолетовый */
+  color: #6a1b9a;
   font-weight: bold;
-  background-color: var(--color-soft-grey); /* Нежный светлый фон */
+  background-color: var(--color-soft-grey);
 }
 
 
 .top-nav-start li:hover {
-  background-color: var(--color-light-purple); /* Светло-фиолетовый фон при наведении */
-  color: #4a148c; /* Глубокий фиолетовый текст при наведении */
-  box-shadow: 0px 4px 12px rgba(106, 27, 154, 0.3); /* Фиолетовая тень при наведении */
+  background-color: var(--color-light-purple); 
+  color: #4a148c; 
+  box-shadow: 0px 4px 12px rgba(106, 27, 154, 0.3); 
 }
 
 .right-button {
@@ -80,26 +80,16 @@ const router = useRouter();
 
 @media (max-width: 650px) {
   .top-nav-start {
-    padding: 8px 10px;
+    padding: 8px 2px;
   }
-  
   .top-nav-start ul {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 6px;
+    gap: 2px;
   }
-
   .top-nav-start li {
-    padding: 8px 10px;
+    padding: 4px 10px;
     font-size: 14px;
-    text-align: center;
     margin: 2px 0;
-    flex: 1 1 auto;
-  }
-
-  .right-button {
-    margin-left: 0;
   }
 }
 </style>
