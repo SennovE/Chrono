@@ -336,6 +336,8 @@ export default {
     const editAITaskDate = ref("");
     const editAITaskTime = ref("");
 
+    document.body.style.overflowY = 'hidden';
+
     /**
      * Получение токена (JWT) из localStorage.
      */
@@ -911,17 +913,17 @@ export default {
 
 .content-container {
   flex: 1;
-  padding: 20px;
+  padding: 1.25rem; /* 20px */
   box-sizing: border-box;
   overflow: hidden;
-  background-color: #f8f9fa;
+  background-color: #ebedee;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 1.25rem; /* 20px */
 }
 
 .title {
@@ -929,66 +931,63 @@ export default {
   font-size: 4.5rem;
 }
 
-/* Container for Header Buttons */
 .header-buttons {
   display: flex;
-  gap: 10px;
+  gap: 0.625rem; /* 10px */
 }
 
-/* Add Task Easier Button */
 .add-easier-button {
   background: linear-gradient(45deg, #3498db, #e67e22);
   color: white;
   border: none;
-  width: 150px;
-  height: 50px;
+  width: 9.375rem; /* 150px */
+  height: 3.125rem; /* 50px */
   cursor: pointer;
   font-size: 1rem;
   font-weight: bold;
-  border-radius: 8px;
+  border-radius: 0.5rem; /* 8px */
   transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
   margin-left: -20%;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.25rem 0.375rem rgba(0, 0, 0, 0.1);
 }
 
 .add-easier-button:hover {
   background: linear-gradient(45deg, #2980b9, #d35400);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-0.125rem); /* 2px */
+  box-shadow: 0 0.375rem 0.5rem rgba(0, 0, 0, 0.15);
 }
 
 .add-easier-button:active {
   transform: translateY(0);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.25rem 0.375rem rgba(0, 0, 0, 0.1);
 }
 
-/* New Add Task Button */
 .add-task-button {
   background-color: white;
   color: #7f8c8d;
   border: 1px solid #ccc;
-  width: 150px;
-  height: 50px;
+  width: 9.375rem; /* 150px */
+  height: 3.125rem; /* 50px */
   cursor: pointer;
   font-size: 1rem;
   font-weight: bold;
-  border-radius: 8px;
+  border-radius: 0.5rem; /* 8px */
   transition: background-color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.25rem 0.375rem rgba(0, 0, 0, 0.1);
 }
 
 .add-task-button:hover {
   background-color: #f0f0f0;
   border-color: #a0a0a0;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-0.125rem); /* 2px */
+  box-shadow: 0 0.375rem 0.5rem rgba(0, 0, 0, 0.15);
 }
 
 .add-task-button:active {
   background-color: #e0e0e0;
   border-color: #909090;
   transform: translateY(0);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.25rem 0.375rem rgba(0, 0, 0, 0.1);
 }
 
 .deadline-wrapper {
@@ -998,27 +997,28 @@ export default {
 
 .scroll-button {
   position: fixed;
-  width: 40px;
-  height: 40px;
+  width: 2.5rem; /* 40px */
+  height: 2.5rem; /* 40px */
   background-color: white;
-  border: 2px solid #bdc3c7;
+  border: 0.05rem solid #bdc3c7; /* 2px */
   border-radius: 50%;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
   padding: 0;
   z-index: 10;
 }
 
 .scroll-button.scroll-left {
-  left: 310px;
-  top: 24%;
+  /* Если требуется позиционирование относительно контейнера, можно использовать проценты */
+  left: 14.7rem; /* 250px, можно заменить на процентное значение при необходимости */
+  top: 27%;
   transform: translateY(-50%);
 }
 
 .scroll-button.scroll-right {
-  right: 35px;
-  top: 24%;
+  right: 1.3rem; /* 30px */
+  top: 27%;
   transform: translateY(-50%);
 }
 
@@ -1031,21 +1031,13 @@ export default {
   transform: translateY(-50%) scale(0.95);
 }
 
-.scroll-left {
-  left: 10px;
-}
-
-.scroll-right {
-  right: 10px;
-}
-
 .deadline-list {
   display: flex;
   overflow-x: auto;
   scroll-behavior: smooth;
   flex-wrap: nowrap;
   width: 100%;
-  margin: 0 60px;
+  margin: 0 3.75rem; /* 60px */
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
@@ -1057,7 +1049,7 @@ export default {
 .deadline-day-wrapper {
   display: flex;
   flex-direction: column;
-  margin-right: 20px;
+  margin-right: 1.25rem; /* 20px */
   position: relative;
 }
 
@@ -1067,17 +1059,17 @@ export default {
   flex-direction: column;
   align-items: center;
   background-color: #ffffff;
-  border-radius: 20px;
-  padding: 15px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  width: 300px;
+  border-radius: 1.25rem; /* 20px */
+  padding: 0.9375rem; /* 15px */
+  box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.1);
+  width: 18.75rem; /* 300px */
 }
 
 .day-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 0.625rem; /* 10px */
 }
 
 .day-title {
@@ -1089,24 +1081,24 @@ export default {
 
 .filter-buttons {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 0.625rem; /* 10px */
+  right: 0.625rem; /* 10px */
   display: flex;
-  gap: 5px;
+  gap: 0.3125rem; /* 5px */
   z-index: 10;
 }
 
 .filter-button {
   background: #fff;
-  border: 2px solid #87CEEB;
+  border: 0.125rem solid #87CEEB; /* 2px */
   color: #87CEEB;
-  border-radius: 20px;
-  padding: 6px 16px;
+  border-radius: 1.25rem; /* 20px */
+  padding: 0.375rem 1rem; /* 6px 16px */
   font-size: 0.9rem;
   font-weight: 600;
   transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s;
   cursor: pointer;
-  margin-bottom: 15px;
+  margin-bottom: 0.9375rem; /* 15px */
 }
 
 .filter-button:hover {
@@ -1119,11 +1111,11 @@ export default {
 }
 
 .tasks {
-  margin-top: 35px;
+  margin-top: 2.1875rem; /* 35px */
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  min-height: 50px;
+  gap: 0.625rem; /* 10px */
+  min-height: 3.125rem; /* 50px */
   width: 100%;
 }
 
@@ -1133,29 +1125,27 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 50px;
+  min-height: 3.125rem; /* 50px */
 }
 
 .task-card {
   display: flex;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: 0.25rem; /* 4px */
   border: 1px solid #ccc;
-  border-radius: 20px;
-  padding: 15px;
+  border-radius: 1.25rem; /* 20px */
+  padding: 0.9375rem; /* 15px */
   background-color: #ffffff;
-  gap: 10px;
+  gap: 0.625rem; /* 10px */
   flex-direction: row;
   position: relative;
-  /* Базовая тень карточки */
-  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.1875rem 0.3125rem rgba(0, 0, 0, 0.1);
   transition: background-color 0.3s, box-shadow 0.3s;
 }
 
 .task-card:hover {
   background-color: #f0f8ff;
-  /* При наведении тень становится больше и темнее */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.2);
 }
 
 .task-status {
@@ -1165,8 +1155,8 @@ export default {
 }
 
 .task-status input {
-  width: 15px;
-  height: 15px;
+  width: 0.9375rem; /* 15px */
+  height: 0.9375rem; /* 15px */
   cursor: pointer;
 }
 
@@ -1192,12 +1182,12 @@ export default {
 .task-time-container {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 0.3125rem; /* 5px */
 }
 
 .time-icon {
-  width: 12px;
-  height: 12px;
+  width: 0.75rem; /* 12px */
+  height: 0.75rem; /* 12px */
   color: #555;
   flex-shrink: 0;
 }
@@ -1208,71 +1198,70 @@ export default {
   line-height: 1;
 }
 
-/* Стили для фонов дедлайна */
 .deadline-bg-red {
   background-color: #ffcccc;
-  padding: 2px 6px;
-  border-radius: 15px;
+  padding: 0.125rem 0.375rem; /* 2px 6px */
+  border-radius: 0.9375rem; /* 15px */
 }
 
 .deadline-bg-yellow {
   background-color: #ffffcc;
-  padding: 2px 6px;
-  border-radius: 15px;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.9375rem;
 }
 
 .deadline-bg-purple {
   background-color: #e6ccff;
-  padding: 2px 6px;
-  border-radius: 15px;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.9375rem;
 }
 
 .new-task-form {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-top: 15px;
+  gap: 0.625rem; /* 10px */
+  margin-top: 0.9375rem; /* 15px */
 }
 
 .new-task-input {
   flex: 2;
-  padding: 5px;
-  height: 35px;
+  padding: 0.3125rem; /* 5px */
+  height: 2.1875rem; /* 35px */
   border: 1px solid #ccc;
-  border-radius: 50px;
+  border-radius: 3.125rem; /* 50px */
   font-size: 0.9rem;
   color: #555;
   background-color: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.1);
   transition: border-color 0.3s, box-shadow 0.3s;
-  padding-left: 10px;
+  padding-left: 0.625rem; /* 10px */
   box-sizing: border-box;
 }
 
 .new-task-input:focus {
   border-color: #3498db;
-  box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+  box-shadow: 0 0 0.5rem rgba(52, 152, 219, 0.5);
 }
 
 .new-task-time {
   flex: 1;
-  padding: 5px;
-  height: 35px;
+  padding: 0.3125rem;
+  height: 2.1875rem;
   border: 1px solid #ccc;
-  border-radius: 50px;
+  border-radius: 3.125rem;
   font-size: 0.9rem;
   text-align: center;
   color: #555;
   appearance: none;
   background-color: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.1);
   transition: border-color 0.3s, box-shadow 0.3s;
   box-sizing: border-box;
 }
 
 .new-task-time:focus {
   border-color: #3498db;
-  box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+  box-shadow: 0 0 0.5rem rgba(52, 152, 219, 0.5);
 }
 
 .new-task-time::placeholder {
@@ -1285,8 +1274,8 @@ export default {
 }
 
 .create-task-button {
-  width: 40px;
-  height: 40px;
+  width: 2.5rem; /* 40px */
+  height: 2.5rem; /* 40px */
   color: gray;
   font-size: 1.2rem;
   border: none;
@@ -1299,13 +1288,12 @@ export default {
   transform: scale(1.1);
 }
 
-/* Кнопки редактирования, удаления и возврата */
 .action-buttons {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 0.625rem; /* 10px */
+  right: 0.625rem; /* 10px */
   display: flex;
-  gap: 5px;
+  gap: 0.3125rem; /* 5px */
 }
 
 .edit-button,
@@ -1314,8 +1302,8 @@ export default {
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 5px;
-  border-radius: 5px;
+  padding: 0.3125rem; /* 5px */
+  border-radius: 0.3125rem; /* 5px */
   transition: background-color 0.3s, color 0.3s;
   font-size: 0.8rem;
   white-space: nowrap;
@@ -1324,8 +1312,8 @@ export default {
 .return-button {
   background-color: #2ecc71;
   color: white;
-  padding: 5px 10px;
-  border-radius: 15px;
+  padding: 0.3125rem 0.625rem; /* 5px 10px */
+  border-radius: 0.9375rem; /* 15px */
   font-weight: bold;
   transition: background-color 0.3s, transform 0.2s;
 }
@@ -1343,7 +1331,6 @@ export default {
   background-color: rgba(52, 152, 219, 0.1);
 }
 
-/* Модальные окна */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -1359,11 +1346,11 @@ export default {
 
 .modal-content {
   background-color: #fff;
-  padding: 30px;
-  border-radius: 10px;
-  width: 400px;
+  padding: 1.875rem; /* 30px */
+  border-radius: 0.625rem; /* 10px */
+  width: 25rem; /* 400px */
   max-width: 90%;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0.3125rem 0.9375rem rgba(0, 0, 0, 0.3);
   position: relative;
 }
 
@@ -1377,30 +1364,30 @@ export default {
 }
 
 .modal-content label {
-  margin-bottom: 15px;
+  margin-bottom: 0.9375rem; /* 15px */
 }
 
 .modal-content input[type="text"],
 .modal-content input[type="time"],
 .modal-content input[type="date"] {
   width: 100%;
-  padding: 8px;
-  margin-top: 5px;
+  padding: 0.5rem; /* 8px */
+  margin-top: 0.3125rem; /* 5px */
   box-sizing: border-box;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 0.3125rem; /* 5px */
 }
 
 .modal-buttons {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 0.625rem; /* 10px */
 }
 
 .modal-buttons button {
-  padding: 8px 16px;
+  padding: 0.5rem 1rem; /* 8px 16px */
   border: none;
-  border-radius: 5px;
+  border-radius: 0.3125rem; /* 5px */
   cursor: pointer;
 }
 
@@ -1418,16 +1405,15 @@ export default {
   opacity: 0.9;
 }
 
-/* Новые стили для AI Deadlines Result Modal */
 .ai-deadlines-list {
-  max-height: 300px;
+  max-height: 18.75rem; /* 300px */
   overflow-y: auto;
-  margin-bottom: 20px;
+  margin-bottom: 1.25rem; /* 20px */
 }
 
 .ai-task {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
+  padding: 0.625rem; /* 10px */
+  border-bottom: 0.0625rem solid #ddd; /* 1px */
 }
 
 .ai-task:last-child {
@@ -1435,29 +1421,29 @@ export default {
 }
 
 .ai-task p {
-  margin: 5px 0;
+  margin: 0.3125rem 0; /* 5px 0 */
 }
 
-/* Стили для заголовка задачи внутри AI модального окна */
 .ai-task-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 5px;
+  margin-bottom: 0.3125rem; /* 5px */
 }
 
-/* Стили для спиннера */
 .loading-spinner {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100px;
+  min-height: 6.25rem; /* 100px */
 }
+
 .spinner {
   animation: spin 1s linear infinite;
-  width: 50px;
-  height: 50px;
+  width: 3.125rem; /* 50px */
+  height: 3.125rem; /* 50px */
 }
+
 @keyframes spin {
   100% { transform: rotate(360deg); }
 }
