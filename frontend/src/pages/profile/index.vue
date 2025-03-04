@@ -4,33 +4,42 @@ import userAvatar from "./components/UserAvatar.vue";
 import SettingsButton from "./components/SettingsButton.vue";
 import TodayTasks from "./components/TodayTasks.vue";
 import StatisticData from "./components/StatisticData.vue";
-import UserSettings from "./components/UserSettings";
+//import UserSettings from "./components/UserSettings";
 </script>
 
 
 <template>
-    <div>
+    <div class = "profile-page">
         <navPanel />
-    </div>
-    <div>
-        <userAvatar />
-    </div>
-    <div>
-        <SettingsButton />
-    </div>
-    <div>
-        <TodayTasks />
-    </div>
-    <div>
-        <StatisticData />
-    </div>
-    <div>
-        <UserSettings />
+        <div>
+            <userAvatar />
+        </div>
+        <div>
+            <SettingsButton />
+        </div>
+        <div>
+            <TodayTasks />
+        </div>
+        <div>
+            <StatisticData />
+        </div>
+        <div>
+            <UserSettings />
+        </div>
     </div>
 </template>
 
 <style>
-
-@import "../../components/StyleWhite.css";
-
+.profile-page {
+    font-family: "Roboto", sans-serif;    
+    background-image: url('./../../assets/finalmain.PNG');
+    height: 100vh;
+    
+}
+@media (max-width: 768px) {
+    .profile-page {
+    background-size: cover;
+    background-position: center;
+  }
+}
 </style>

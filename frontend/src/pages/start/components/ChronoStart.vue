@@ -33,8 +33,6 @@
   .container2 {
     padding: 90px;
     height: 23%;
-    display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
   }

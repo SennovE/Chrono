@@ -1,16 +1,13 @@
 <template>
-    <div class="top-nav_kera_kera">
-        <ul>
-            <li @click="router.push({name: 'Welcome'})"><b>Главная</b></li>
-            <li @click="router.push({name: 'Schedule Page'})"><b>Расписание</b></li>
-            <li @click="router.push({name: 'Deadlines Page'})"><b>Дедлайны</b></li>
-            <li
-                class="right-button"
-                @click="router.push({name: 'Profile Page'})"
-            ><b>Профиль</b></li>
-        </ul>
-    </div>
+  <div class="top-nav-start">
+      <ul>
+          <li @click="router.push({name: 'Welcome'})"><b>Главная</b></li>
+          <li @click="router.push({name: 'Schedule Page'})"><b>Календарь</b></li>
+          <li @click="router.push({name: 'Deadlines Page'})"><b>Дедлайны</b></li>
+      </ul>
+  </div>
 </template>
+
 
 <script setup>
 import { useRouter } from "vue-router";
@@ -27,7 +24,8 @@ const router = useRouter();
   --color-soft-grey: #f5f5f5;
 }
 
-.top-nav_kera_kera {
+
+.top-nav-start {
   width: 100%;
   background: linear-gradient(to right, var(--color-pastel-pink), var(--color-pastel-purple));
   position: fixed;
@@ -37,11 +35,13 @@ const router = useRouter();
       0px 4px 8px rgba(0, 0, 0, 0.1),
       0px 6px 10px rgba(0, 0, 0, 0.1);
   z-index: 999;
-  padding: 10px 20px; /* Добавлен внутренний отступ */
-  border-bottom: 3px solid var(--color-light-purple); /* Мягкий акцент */
+  padding: 10px 20px;
+  border-bottom: 3px solid var(--color-light-purple);
 }
 
-.top-nav_kera_kera ul {
+
+.top-nav-start ul {
+
   display: flex;
   list-style-type: none;
   justify-content: flex-start;
@@ -50,22 +50,24 @@ const router = useRouter();
   padding: 0;
 }
 
-.top-nav_kera_kera li {
+
+.top-nav-start li {
   display: block;
   padding: 10px 20px;
   text-decoration: none;
-  border-radius: 25px; /* Закругленные края */
+  border-radius: 25px;
   transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   cursor: pointer;
-  color: #6a1b9a; /* Нежный фиолетовый */
+  color: #6a1b9a;
   font-weight: bold;
-  background-color: var(--color-soft-grey); /* Нежный светлый фон */
+  background-color: var(--color-soft-grey);
 }
 
-.top-nav_kera li:hover {
-  background-color: var(--color-light-purple); /* Светло-фиолетовый фон при наведении */
-  color: #4a148c; /* Глубокий фиолетовый текст при наведении */
-  box-shadow: 0px 4px 12px rgba(106, 27, 154, 0.3); /* Фиолетовая тень при наведении */
+
+.top-nav-start li:hover {
+  background-color: var(--color-light-purple); 
+  color: #4a148c; 
+  box-shadow: 0px 4px 12px rgba(106, 27, 154, 0.3); 
 }
 
 .right-button {
@@ -73,19 +75,18 @@ const router = useRouter();
   margin-right: 2%;
 }
 
-@media (max-width: 768px) {
-  .top-nav_kera ul {
-      flex-direction: column;
-      align-items: flex-start;
+@media (max-width: 650px) {
+  .top-nav-start {
+    padding: 8px 2px;
   }
-
-  .right-button {
-      margin-left: 0;
-      margin-top: 10px;
+  .top-nav-start ul {
+    display: flex;
+    gap: 2px;
   }
-
-  .top-nav_kera li {
-      padding: 10px 15px;
+  .top-nav-start li {
+    padding: 4px 10px;
+    font-size: 14px;
+    margin: 2px 0;
   }
 }
 </style>
