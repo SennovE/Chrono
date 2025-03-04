@@ -49,8 +49,6 @@ import { ref,  onMounted } from "vue";
   }
   
   </script>
-  import axios from "axios";
-  import { ref, computed, onMounted } from "vue";
   <style scoped>
   .user-avatar {
     display: flex;

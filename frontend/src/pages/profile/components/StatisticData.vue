@@ -1,16 +1,16 @@
 <template>
-  <div class="task-statistics">
+  <div class="get-task-statistics">
     <h2>Статистика задач</h2>
     
-    <div class="controls">
+    <div class="choose-day-weak">
       <button 
-        :class="{ active: selectedPeriod === 'day' }" 
+        :class="{ active1: selectedPeriod === 'day' }" 
         @click="selectedPeriod = 'day'"
       >
         День
       </button>
       <button 
-        :class="{ active: selectedPeriod === 'week' }" 
+        :class="{ active1: selectedPeriod === 'week' }" 
         @click="selectedPeriod = 'week'"
       >
         Неделя
@@ -90,7 +90,7 @@ export default {
     // Функция для агрегации данных
     const aggregateData = () => {
       const counts = {
-        active: 0,
+        active1: 0,
         completed: 0,
         overdue: 0,
       };
@@ -101,7 +101,7 @@ export default {
         } else if (task.status === 2) {
           counts.overdue += 1;
         } else if (task.status === 0) {
-          counts.active += 1;
+          counts.active1 += 1;
         }
       });
 
@@ -119,7 +119,7 @@ export default {
             {
               label: 'Количество задач',
               backgroundColor: ['#3498db', '#2ecc71', '#e74c3c'],
-              data: [counts.active, counts.completed, counts.overdue]
+              data: [counts.active1, counts.completed, counts.overdue]
             }
           ]
         };
@@ -127,7 +127,7 @@ export default {
         // Для недели отображаем динамику по дням
         const daysOfWeek = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
         const counts = {
-          active: Array(7).fill(0),
+          active1: Array(7).fill(0),
           completed: Array(7).fill(0),
           overdue: Array(7).fill(0)
         };
@@ -143,7 +143,7 @@ export default {
           } else if (task.status === 2) {
             counts.overdue[adjustedDayIndex] += 1;
           } else if (task.status === 0) {
-            counts.active[adjustedDayIndex] += 1;
+            counts.active1[adjustedDayIndex] += 1;
           }
         });
 
@@ -153,7 +153,7 @@ export default {
             {
               label: 'Активные',
               backgroundColor: '#3498db',
-              data: counts.active
+              data: counts.active1
             },
             {
               label: 'Завершенные',
@@ -235,11 +235,10 @@ export default {
 </script>
 
 <style scoped>
-.task-statistics {
+.get-task-statistics {
   position: absolute;
     top: 100px; /* Указание позиции отдельно */
     left:1320px;
-  /* Удалено абсолютное позиционирование */
   border: 1px solid #dddddd; /* Светло-серая граница */
   padding: 16px; /* Увеличен паддинг для внутреннего отступа */
   border-radius: 8px;
@@ -251,18 +250,18 @@ export default {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Легкая тень для глубины */
 }
 
-.task-statistics h2 {
+.get-task-statistics h2 {
   text-align: center;
   margin-bottom: 20px;
   color: #333333; /* Темно-серый цвет заголовка */
 }
 
-.controls {
+.choose-day-weak {
   text-align: center;
   margin-bottom: 20px; /* Увеличен отступ */
 }
 
-.controls button {
+.choose-day-weak button {
   background-color: #f0f0f0; /* Светло-серый фон кнопок */
   border: 1px solid #cccccc; /* Светло-серая граница */
   color: #333333; /* Темно-серый текст */
@@ -274,7 +273,7 @@ export default {
   font-size: 14px; /* Уменьшен размер шрифта */
 }
 
-.controls button.active, .controls button:hover {
+.choose-day-weak button.active1, .controls button:hover {
   background-color: #e0e0e0; /* Светло-серый фон при наведении и активном состоянии */
 }
 
@@ -285,7 +284,7 @@ export default {
 }
 
 .error {
-  color: #ff4d4d; /* Красный цвет для ошибок */
+  color: #ff4d4d;
   text-align: center;
   margin-top: 16px;
 }

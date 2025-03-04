@@ -20,8 +20,6 @@ const router = useRouter();
   justify-content: center;
   align-items: center;
   height: 100vh;
-  margin: 0;
-  padding: 0;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -44,14 +42,14 @@ const router = useRouter();
   font-weight: bold;
   text-transform: uppercase;
   cursor: pointer;
-  border-radius: 30px; /* Закругленные края */
+  border-radius: 30px;
   transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
   display: inline-block;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Мягкая тень */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .get-started:hover {
-  background-color: #444444; /* Более насыщенный оттенок */
+  background-color: #444444; 
   transform: translateY(-3px);
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
 }
