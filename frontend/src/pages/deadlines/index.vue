@@ -336,6 +336,8 @@ export default {
     const editAITaskDate = ref("");
     const editAITaskTime = ref("");
 
+    document.body.style.overflowY = 'hidden';
+
     /**
      * Получение токена (JWT) из localStorage.
      */
@@ -1011,13 +1013,13 @@ export default {
 }
 
 .scroll-button.scroll-left {
-  left: 310px;
+  left: 250px;
   top: 24%;
   transform: translateY(-50%);
 }
 
 .scroll-button.scroll-right {
-  right: 35px;
+  right: 30px;
   top: 24%;
   transform: translateY(-50%);
 }
