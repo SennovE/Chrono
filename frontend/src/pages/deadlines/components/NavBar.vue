@@ -152,7 +152,6 @@ export default {
   background-color: transparent;
   border-color: transparent;
   color: #4da3ff;
-  font-weight: bold;
 }
 
 /* Убираем отступ у текста, чтобы сдвиг производился только для иконки */
