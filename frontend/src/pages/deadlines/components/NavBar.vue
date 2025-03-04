@@ -151,7 +151,7 @@ export default {
 .active-link {
   background-color: transparent;
   border-color: transparent;
-  color: #4da3ff;
+  color: #278fff;
 }
 
 /* Убираем отступ у текста, чтобы сдвиг производился только для иконки */
