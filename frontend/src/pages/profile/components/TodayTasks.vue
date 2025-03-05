@@ -303,7 +303,7 @@ export default {
   border: 1px solid var(--color-dark-grey);
   padding: 2px;
   border-radius: 4px;
-  width: 50%;
+  width: 30%;
   background-color: var(--color-brighter-black);
   color: var(--color-black);
 }
