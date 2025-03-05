@@ -6,7 +6,11 @@
       Загрузка заданий...
     </div>
     
-    <div class="carousel-container" v-else-if="tasks.length > 0">
+    <div
+      class="carousel-container"
+      v-else-if="tasks.length > 0"
+      ref="carouselContainer"
+    >
       <button
         class="nav-button up"
         @click="prev"
@@ -19,21 +23,16 @@
       <div class="tasks-wrapper">
         <div
           class="tasks"
-          :style="`transform: translateY(-${currentIndex * (100 / visibleTasksCount)}%);`"
+          
         >
           <div
             class="task-card"
             v-for="task in visibleTasksList"
-            :key="task.id"
-            :style="`height: ${100 / visibleTasksCount}%`"
-          >
+            :key="task.id">
             <div class="task-content">
-              <h3>{{ task.title }}</h3>
-              <p>{{ task.description }}</p>
-              <!-- Отображение времени дедлайна -->
-              <p class="task-time">Время: {{ formatTime(task.deadline_time) }}</p>
+              <h3>{{ task.description}}</h3>
+              <p class="task-time">{{ formatTime(task.deadline_time) }}</p>
             </div>
-            <!-- Кнопка редактирования задачи -->
             <button
               class="edit-button"
               @click.stop="openEditModal(task)"
@@ -66,7 +65,7 @@
     <p v-if="error" class="error">{{ error }}</p>
   </div>
 
-  <!-- Модальное окно для редактирования задачи -->
+
   <div v-if="isModalOpen" class="modal-overlay" @click.self="closeEditModal">
     <div class="modal-content">
       <h2>Редактировать задачу</h2>
@@ -99,20 +98,16 @@ import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
 export default {
   name: 'TaskCarousel',
   setup() { 
-    // Реактивные переменные
     const user = ref({ 
       username: "Loading...", 
       avatarUrl: "https://via.placeholder.com/190" 
     });
-    
-    const tasks = ref([]); // Отфильтрованные и отсортированные задачи на сегодня и не завершённые
-    const allTasks = ref([]); // Все задачи, полученные с сервера
+    const tasks = ref([]);
+    const allTasks = ref([]); 
     const currentIndex = ref(0);
-    const visibleTasksCount = ref(4); // Количество видимых задач
+    const visibleTasksCount = ref(3); 
     const error = ref(null);
-    const loading = ref(true); // Индикатор загрузки
-
-    // Переменные для редактирования задачи
+    const loading = ref(true);
     const isModalOpen = ref(false);
     const editTask = ref({
       id: null,
@@ -120,8 +115,7 @@ export default {
       date: '',
       time: ''
     });
-    
-    // Функция для получения токена из localStorage
+    const carouselContainer = ref(null);
     const getToken = () => {
       const token = localStorage.getItem("chronoJWTToken");
       if (!token) {
@@ -129,12 +123,10 @@ export default {
       }
       return token;
     };
-
-    // Функция для получения данных пользователя
     const fetchUser = async () => {
       try {
         const token = getToken();
-        const response = await axios.get("http://localhost:8080/api/v1/user/me", {
+        const response = await axios.get(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/user/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         user.value = response.data;
@@ -143,41 +135,27 @@ export default {
         error.value = "Не удалось загрузить данные пользователя.";
       }
     };
-
-    // Функция для получения, фильтрации и сортировки задач на сегодня и не завершённых
     const fetchDeadlines = async () => {
       try {
         loading.value = true;
         const token = getToken();
         const response = await axios.get(
-          "http://localhost:8080/api/v1/deadline_task/get_tasks/",
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/get_tasks/`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        
-        // Преобразуем deadline_time в объект Date
         allTasks.value = response.data.map(task => ({
           ...task,
           deadline_time: new Date(task.deadline_time),
         }));
-        
-        // Определяем сегодняшнюю дату
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        
-        // Определяем завтрашнюю дату
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
-        
-        // Фильтруем задачи, дедлайн которых сегодня и не завершены
         let todaysTasks = allTasks.value.filter(task => {
           const deadline = task.deadline_time;
           return deadline >= today && deadline < tomorrow && task.status == 0;
         });
-        
-        // Сортируем задачи по времени дедлайна (от ранних к поздним)
         todaysTasks.sort((a, b) => a.deadline_time - b.deadline_time);
-        
-        // Преобразуем deadline_time обратно в ISO строку (если необходимо для форматирования)
         tasks.value = todaysTasks.map(task => ({
           ...task,
           deadline_time: task.deadline_time.toISOString(),
@@ -191,15 +169,13 @@ export default {
         loading.value = false;
       }
     };
-
-    // Функция для отметки задачи как выполненной
     const markTaskAsComplete = async (taskId) => {
       const confirmDelete = confirm("Вы уверены, что хотите отметить эту задачу как выполненную?");
       if (!confirmDelete) return;
       try {
         const token = getToken();
         await axios.post(
-          "http://localhost:8080/api/v1/deadline_task/complete_task",
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/complete_task`,
           { id: taskId },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -210,11 +186,23 @@ export default {
       }
     };
 
-    // Функции навигации карусели
     const prev = () => { if (currentIndex.value > 0) currentIndex.value--; };
-    const next = () => { if ((currentIndex.value + visibleTasksCount.value) < tasks.value.length) currentIndex.value++; };
+    const next = () => {
+    if (((currentIndex.value + 1) * visibleTasksCount.value) < tasks.value.length) {
+    currentIndex.value++;
+   }
+  };
 
-    // Функция открытия модального окна для редактирования задачи
+    // Обработчик события колесика мыши
+    const handleWheel = (event) => {
+      event.preventDefault();
+      if (event.deltaY > 0) {
+        next();
+      } else if (event.deltaY < 0) {
+        prev();
+      }
+    };
+
     const openEditModal = (task) => {
       editTask.value = {
         id: task.id,
@@ -224,11 +212,8 @@ export default {
       };
       isModalOpen.value = true;
     };
-
-    // Функция закрытия модального окна
     const closeEditModal = () => { isModalOpen.value = false; };
 
-    // Функция отправки изменений задачи на сервер (работающая версия)
     const submitEdit = async () => {
       try {
         const token = getToken();
@@ -259,19 +244,16 @@ export default {
       return `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
     });
 
-    const isLastPage = computed(() => (currentIndex.value + visibleTasksCount.value) >= tasks.value.length);
-    const visibleTasksList = computed(() => {
-      const start = currentIndex.value * visibleTasksCount.value;
-      const end = start + visibleTasksCount.value;
-      return tasks.value.slice(start, end);
-    });
+    const isLastPage = computed(() => ((currentIndex.value + 1) * visibleTasksCount.value) >= tasks.value.length);
+
+    const visibleTasksList = computed(() => 
+  tasks.value.slice(currentIndex.value, currentIndex.value + visibleTasksCount.value)
+);
+
+  
 
     const updateVisibleTasksCount = () => {
-      const width = window.innerWidth;
-      if (width >= 1200) visibleTasksCount.value = 4;
-      else if (width >= 992) visibleTasksCount.value = 3;
-      else if (width >= 768) visibleTasksCount.value = 2;
-      else visibleTasksCount.value = 1;
+      visibleTasksCount.value = 3;
       currentIndex.value = 0;
     };
 
@@ -280,9 +262,15 @@ export default {
       fetchDeadlines();
       updateVisibleTasksCount();
       window.addEventListener('resize', updateVisibleTasksCount);
+      if (carouselContainer.value) {
+        carouselContainer.value.addEventListener('wheel', handleWheel, { passive: false });
+      }
     });
     onBeforeUnmount(() => {
       window.removeEventListener('resize', updateVisibleTasksCount);
+      if (carouselContainer.value) {
+        carouselContainer.value.removeEventListener('wheel', handleWheel);
+      }
     });
 
     return {
@@ -304,6 +292,7 @@ export default {
       closeEditModal,
       submitEdit,
       formatTime,
+      carouselContainer,
     };
   },
 };
@@ -312,13 +301,11 @@ export default {
 <style scoped>
 .task-carousel {
   border: 1px solid var(--color-dark-grey);
-  padding: 16px;
-  border-radius: 8px;
+  padding: 2px;
+  border-radius: 4px;
   width: 50%;
-  margin-top: 10px;
   background-color: var(--color-brighter-black);
   color: var(--color-black);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .task-carousel h2 {
@@ -370,7 +357,6 @@ export default {
 }
 
 .tasks-wrapper {
-  overflow: hidden;
   flex-grow: 1;
   height: 100%;
   width: 100%;
@@ -400,7 +386,7 @@ export default {
 }
 
 .task-content {
-  margin-bottom: 8px;
+  margin-bottom: 5px;
 }
 
 .task-content h3 {
@@ -413,7 +399,6 @@ export default {
   color: var(--color-grey);
 }
 
-/* Стили для времени задачи – исправлен отступ */
 .task-time {
   font-size: 0.9em;
   margin-top: 4px;
@@ -540,16 +525,16 @@ export default {
 
 @media (max-width: 768px) {
   .task-carousel {
-    width: 95%;
-    padding: 12px;
-    margin: 80px auto;
+    width: 85%;
+    padding: 1px;
+    margin: 23px auto;
   }
   .task-card {
     padding: 8px;
   }
   
   .nav-button {
-    padding: 8px;
+    padding: 4px;
     font-size: 16px;
     width: 35px;
     height: 35px;
