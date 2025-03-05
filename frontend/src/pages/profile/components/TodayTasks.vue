@@ -313,7 +313,6 @@ export default {
   margin-bottom: 16px;
   color: var(--color-black);
 }
-
 .loading-indicator {
   text-align: center;
   font-size: 18px;
@@ -406,9 +405,7 @@ export default {
 }
 
 .delete-button {
-  position: absolute;
-  top: 8px;
-  right: 8px;
+  
   background: transparent;
   border: none;
   color: var(--color-red);
@@ -539,5 +536,6 @@ export default {
     width: 35px;
     height: 35px;
   }
+
 }
 </style>
