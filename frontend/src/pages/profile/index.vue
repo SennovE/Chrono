@@ -30,13 +30,6 @@ import TodayTasks from "./components/TodayTasks.vue";
 </template>
 
 <style>
-body {
-  overflow-y: hidden;
-  
-}
-html, body {
-  overflow-x: hidden;
-}
 .profile-page {
     overflow-y: hidden;
     font-family: "Roboto", sans-serif;    

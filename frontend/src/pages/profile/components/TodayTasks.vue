@@ -6,7 +6,11 @@
       Загрузка заданий...
     </div>
     
-    <div class="carousel-container" v-else-if="tasks.length > 0">
+    <div
+      class="carousel-container"
+      v-else-if="tasks.length > 0"
+      ref="carouselContainer"
+    >
       <button
         class="nav-button up"
         @click="prev"
@@ -19,18 +23,23 @@
       <div class="tasks-wrapper">
         <div
           class="tasks"
-          :style="`transform: translateY(-${currentIndex * (100 / visibleTasksCount)}%);`"
+          
         >
           <div
             class="task-card"
             v-for="task in visibleTasksList"
-            :key="task.id"
-            :style="`height: ${100 / visibleTasksCount}%`"
-          >
+            :key="task.id">
             <div class="task-content">
-              <h3>{{ task.title }}</h3>
-              <p>{{ task.description }}</p>
+              <h3>{{ task.description}}</h3>
+              <p class="task-time">{{ formatTime(task.deadline_time) }}</p>
             </div>
+            <button
+              class="edit-button"
+              @click.stop="openEditModal(task)"
+              title="Редактировать задачу"
+            >
+              ✎
+            </button>
             <button
               class="delete-button"
               @click.stop="markTaskAsComplete(task.id)"
@@ -55,7 +64,33 @@
     <p v-else-if="!error">Нет заданий на сегодня.</p>
     <p v-if="error" class="error">{{ error }}</p>
   </div>
+
+
+  <div v-if="isModalOpen" class="modal-overlay" @click.self="closeEditModal">
+    <div class="modal-content">
+      <h2>Редактировать задачу</h2>
+      <form @submit.prevent="submitEdit">
+        <label>
+          Описание:
+          <input type="text" v-model="editTask.description" required />
+        </label>
+        <label>
+          Дата дедлайна:
+          <input type="date" v-model="editTask.date" required />
+        </label>
+        <label>
+          Время дедлайна:
+          <input type="time" v-model="editTask.time" required />
+        </label>
+        <div class="modal-buttons">
+          <button type="button" @click="closeEditModal">Отмена</button>
+          <button type="submit">Сохранить</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </template>
+
 <script>
 import axios from 'axios';
 import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
@@ -63,20 +98,24 @@ import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
 export default {
   name: 'TaskCarousel',
   setup() { 
-    // Реактивные переменные
     const user = ref({ 
       username: "Loading...", 
       avatarUrl: "https://via.placeholder.com/190" 
     });
-    
-    const tasks = ref([]); // Отфильтрованные задачи на сегодня и не завершённые
-    const allTasks = ref([]); // Все задачи, полученные с сервера
+    const tasks = ref([]);
+    const allTasks = ref([]); 
     const currentIndex = ref(0);
-    const visibleTasksCount = ref(4); // Количество видимых задач
+    const visibleTasksCount = ref(3); 
     const error = ref(null);
-    const loading = ref(true); // Индикатор загрузки
-    
-    // Функция для получения токена из localStorage
+    const loading = ref(true);
+    const isModalOpen = ref(false);
+    const editTask = ref({
+      id: null,
+      description: '',
+      date: '',
+      time: ''
+    });
+    const carouselContainer = ref(null);
     const getToken = () => {
       const token = localStorage.getItem("chronoJWTToken");
       if (!token) {
@@ -84,15 +123,11 @@ export default {
       }
       return token;
     };
-
-    // Функция для получения данных пользователя
     const fetchUser = async () => {
       try {
         const token = getToken();
-        const response = await axios.get("http://localhost:8080/api/v1/user/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const response = await axios.get(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/user/me`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
         user.value = response.data;
       } catch (err) {
@@ -100,50 +135,33 @@ export default {
         error.value = "Не удалось загрузить данные пользователя.";
       }
     };
-
-    // Функция для получения и фильтрации задач на сегодня и не завершённых
     const fetchDeadlines = async () => {
       try {
         loading.value = true;
         const token = getToken();
         const response = await axios.get(
-          "http://localhost:8080/api/v1/deadline_task/get_tasks/",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/get_tasks/`,
+          { headers: { Authorization: `Bearer ${token}` } }
         );
-        
-        // Преобразуем deadline_time в объект Date и добавляем поле completed
         allTasks.value = response.data.map(task => ({
           ...task,
           deadline_time: new Date(task.deadline_time),
         }));
-        
-        // Определяем сегодняшнюю дату
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        
-        // Определяем завтрашнюю дату
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
-        
-        // Фильтруем задачи, дедлайн которых сегодня и не завершены
-        const todaysTasks = allTasks.value.filter(task => {
+        let todaysTasks = allTasks.value.filter(task => {
           const deadline = task.deadline_time;
           return deadline >= today && deadline < tomorrow && task.status == 0;
         });
-        
-        // Преобразуем deadline_time обратно в ISO строку, если необходимо
+        todaysTasks.sort((a, b) => a.deadline_time - b.deadline_time);
         tasks.value = todaysTasks.map(task => ({
           ...task,
           deadline_time: task.deadline_time.toISOString(),
         }));
         
-        // Сбрасываем индекс карусели при загрузке новых задач
         currentIndex.value = 0;
-        
       } catch (err) {
         console.error("Error fetching deadlines:", err);
         error.value = "Не удалось загрузить задания.";
@@ -151,92 +169,108 @@ export default {
         loading.value = false;
       }
     };
-
-    // Функция для отметки задачи как выполненной
     const markTaskAsComplete = async (taskId) => {
       const confirmDelete = confirm("Вы уверены, что хотите отметить эту задачу как выполненную?");
       if (!confirmDelete) return;
-      
       try {
         const token = getToken();
-        // Отправляем запрос для завершения задачи
         await axios.post(
-          "http://localhost:8080/api/v1/deadline_task/complete_task",
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/complete_task`,
           { id: taskId },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
-
-        console.log(`Задача с ID ${taskId} отмечена как выполненная.`);
-
-        // Обновляем список задач
         await fetchDeadlines();
-      } catch (error) {
-        console.error("Error completing task:", error);
+      } catch (err) {
+        console.error("Error completing task:", err);
         alert("Не удалось отметить задачу как выполненную.");
       }
     };
 
-    // Функции навигации карусели
-    const prev = () => {
-      if (currentIndex.value > 0) {
-        currentIndex.value--;
-      }
-    };
-
+    const prev = () => { if (currentIndex.value > 0) currentIndex.value--; };
     const next = () => {
-      if ((currentIndex.value + visibleTasksCount.value) < tasks.value.length) {
-        currentIndex.value++;
+    if (((currentIndex.value + 1) * visibleTasksCount.value) < tasks.value.length) {
+    currentIndex.value++;
+   }
+  };
+
+    // Обработчик события колесика мыши
+    const handleWheel = (event) => {
+      event.preventDefault();
+      if (event.deltaY > 0) {
+        next();
+      } else if (event.deltaY < 0) {
+        prev();
       }
     };
 
-    // Вычисляемое свойство для форматированной даты
+    const openEditModal = (task) => {
+      editTask.value = {
+        id: task.id,
+        description: task.description,
+        date: task.deadline_time.slice(0, 10),
+        time: task.deadline_time.slice(11, 16)
+      };
+      isModalOpen.value = true;
+    };
+    const closeEditModal = () => { isModalOpen.value = false; };
+
+    const submitEdit = async () => {
+      try {
+        const token = getToken();
+        const { id, description, date, time } = editTask.value;
+        const [year, month, day] = date.split("-");
+        const [hours, minutes] = time.split(":");
+        const deadlineDate = new Date(year, month - 1, day, hours, minutes);
+        const deadline_time = deadlineDate.toISOString();
+
+        await axios.put(
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/update_task`,
+          { id, description, deadline_time },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        await fetchDeadlines();
+        closeEditModal();
+      } catch (error) {
+        console.error("Error updating task:", error);
+      }
+    };
+
+    // Функция форматирования времени из ISO-строки (HH:MM)
+    const formatTime = (isoString) => isoString.slice(11, 16);
+
     const formattedToday = computed(() => {
       const today = new Date();
-      const year = today.getFullYear();
-      const month = String(today.getMonth() + 1).padStart(2, '0');
-      const day = String(today.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
+      return `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
     });
 
-    // Вычисляемое свойство для определения, достигнут ли конец списка
-    const isLastPage = computed(() => {
-      return (currentIndex.value + visibleTasksCount.value) >= tasks.value.length;
-    });
+    const isLastPage = computed(() => ((currentIndex.value + 1) * visibleTasksCount.value) >= tasks.value.length);
 
-    // Вычисляемое свойство для отображаемых задач в текущей странице карусели
-    const visibleTasksList = computed(() => {
-      const start = currentIndex.value * visibleTasksCount.value;
-      const end = start + visibleTasksCount.value;
-      return tasks.value.slice(start, end);
-    });
+    const visibleTasksList = computed(() => 
+  tasks.value.slice(currentIndex.value, currentIndex.value + visibleTasksCount.value)
+);
 
-    // Обработчик изменения размера окна для адаптации количества видимых задач
+  
+
     const updateVisibleTasksCount = () => {
-      const width = window.innerWidth;
-      if (width >= 1200) {
-        visibleTasksCount.value = 4;
-      } else if (width >= 992) {
-        visibleTasksCount.value = 3;
-      } else if (width >= 768) {
-        visibleTasksCount.value = 2;
-      } else {
-        visibleTasksCount.value = 1;
-      }
+      visibleTasksCount.value = 3;
       currentIndex.value = 0;
     };
+
     onMounted(() => {
       fetchUser();
       fetchDeadlines();
       updateVisibleTasksCount();
       window.addEventListener('resize', updateVisibleTasksCount);
+      if (carouselContainer.value) {
+        carouselContainer.value.addEventListener('wheel', handleWheel, { passive: false });
+      }
     });
-
     onBeforeUnmount(() => {
       window.removeEventListener('resize', updateVisibleTasksCount);
+      if (carouselContainer.value) {
+        carouselContainer.value.removeEventListener('wheel', handleWheel);
+      }
     });
 
     return {
@@ -252,20 +286,26 @@ export default {
       markTaskAsComplete,
       error,
       loading,
+      isModalOpen,
+      editTask,
+      openEditModal,
+      closeEditModal,
+      submitEdit,
+      formatTime,
+      carouselContainer,
     };
   },
 };
 </script>
+
 <style scoped>
 .task-carousel {
+  border: 1px solid var(--color-dark-grey);
+  padding: 2px;
   border-radius: 4px;
   width: 50%;
-  max-width: 800px;
-  background-color: #f0f0f0;
+  background-color: var(--color-brighter-black);
   color: var(--color-black);
-  margin: -300px auto;
-  padding: 20px; 
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .task-carousel h2 {
@@ -287,90 +327,81 @@ export default {
 }
 
 .nav-button {
-  background-color: var(--color-deep-purple); /* Акцентный пурпурный цвет */
+  background-color: var(--color-deep-purple);
   border: none;
-  color: #ffffff; /* Белый текст */
-  padding: 12px;
+  color: #ffffff;
+  padding: 8px;
   cursor: pointer;
   border-radius: 50%;
-  font-size: 9px;
-  transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+  font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
-  margin: 4px 0; /* Добавляет вертикальный отступ между кнопками */
-  flex-shrink: 0; /* Не позволяет кнопкам сжиматься */
-}
-
-.nav-buttons-container {
-  display: flex;
-  flex-direction: column; /* Кнопки располагаются вертикально */
-  justify-content: center;
-  align-items: center;
-  margin-right: 8px; /* Расстояние между кнопками и задачами */
+  width: 35px;
+  height: 35px;
+  margin: 0 5px;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
 }
 
 .nav-button:disabled {
-  background-color: var(--color-dark-grey); /* Светло-серая кнопка при отключении */
+  background-color: var(--color-dark-grey);
   cursor: not-allowed;
   opacity: 0.6;
 }
 
 .nav-button:hover:not(:disabled) {
-  background-color: #5e0cff; /* Немного светлее пурпурный при наведении */
-  transform: scale(1.1); /* Увеличивает кнопку при наведении */
-  box-shadow: 0 4px 8px rgba(94, 12, 255, 0.3);
+  background-color: #311d58;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(94, 12, 255, 0.3);
 }
 
 .tasks-wrapper {
-  overflow: hidden;
-  flex-grow: 1; /* Задачи занимают оставшееся пространство */
-  height: 100%; /* Высота равна контейнеру */
-}
-
-.tasks-wrapper {
-  overflow: hidden;
+  flex-grow: 1;
+  height: 100%;
   width: 100%;
-  height: calc(100% / var(--visible-tasks-count) * var(--visible-tasks-count)); /* Высота контейнера */
   margin: 0 16px;
 }
 
 .tasks {
   display: flex;
-  flex-direction: column; /* Вертикальное расположение задач */
+  flex-direction: column;
   transition: transform 0.5s ease-in-out;
 }
 
 .task-card {
-  position: relative; /* Для позиционирования кнопки удаления */
-  background: var(--color-dark-grey); /* Светло-серый фон карточки */
+  position: relative;
+  background: var(--color-dark-grey);
   margin: 8px 0;
   padding: 16px;
   border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Лёгкая тень для карточки */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   box-sizing: border-box;
   transition: background-color 0.3s, box-shadow 0.3s;
 }
 
 .task-card:hover {
-  background-color: #f5f5f5; /* Очень светло-серый фон при наведении */
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15); /* Усиленная тень при наведении */
+  background-color: #f5f5f5;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
 .task-content {
-  margin-bottom: 8px;
+  margin-bottom: 5px;
 }
 
 .task-content h3 {
   margin: 0 0 8px 0;
-  color: var(--color-black); /* Темно-серый цвет заголовка */
+  color: var(--color-black);
 }
 
 .task-content p {
   margin: 0;
-  color: var(--color-grey); /* Светло-серый текст */
+  color: var(--color-grey);
+}
+
+.task-time {
+  font-size: 0.9em;
+  margin-top: 4px;
+  color: var(--color-grey);
 }
 
 .delete-button {
@@ -392,10 +423,119 @@ export default {
   color: #cc0000;
 }
 
+.edit-button {
+  background: transparent;
+  border: none;
+  color: var(--color-blue, #007bff);
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.edit-button:hover {
+  color: darkblue;
+}
+
+.error {
+  color: var(--color-red);
+  text-align: center;
+  margin-top: 16px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 1.875rem; /* 30px */
+  border-radius: 0.625rem; /* 10px */
+  width: 25rem; /* 400px */
+  max-width: 90%;
+  box-shadow: 0 0.3125rem 0.9375rem rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  text-align: center;
+}
+
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-content label {
+  margin-bottom: 0.9375rem; /* 15px */
+  font-size: 0.9em;
+  color: #333;
+}
+
+.modal-content input[type="text"],
+.modal-content input[type="time"],
+.modal-content input[type="date"] {
+  width: 100%;
+  padding: 0.5rem; /* 8px */
+  margin-top: 0.3125rem; /* 5px */
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 0.3125rem; /* 5px */
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.625rem; /* 10px */
+  margin-top: 1rem;
+}
+
+.modal-buttons button {
+  padding: 0.5rem 1rem; /* 8px 16px */
+  border: none;
+  border-radius: 0.3125rem; /* 5px */
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.modal-buttons button[type="button"] {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.modal-buttons button[type="submit"] {
+  background-color: #3498db;
+  color: white;
+}
+
+.modal-buttons button:hover {
+  opacity: 0.9;
+}
 
 @media (max-width: 768px) {
+  .task-carousel {
+    width: 85%;
+    padding: 1px;
+    margin: 23px auto;
+  }
+  .task-card {
+    padding: 8px;
+  }
+  
+  .nav-button {
+    padding: 4px;
+    font-size: 16px;
+    width: 35px;
+    height: 35px;
+  }
 
 }
 </style>
-
-  
