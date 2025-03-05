@@ -1,7 +1,5 @@
-from app.database.models import DeadlineTask
 from app.database.connection import get_session
-from app.schemas import DeadlineTaskDebugResponse, DeadlineTaskCreateForm, \
-DeadlineTaskResponse, DeadlineTaksUpdateForm, DeadlineTaskID
+from app.schemas import UserTextSettings
 
 from fastapi import APIRouter, Depends, status, HTTPException, Security
 from sqlalchemy.future import select
@@ -9,10 +7,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
 from fastapi import APIRouter, Body, Security
 from app.utils.user import get_current_user, User
+from app.schemas.settings import WorkingHoursForm
 from app.utils.settings import (
     update_email,
     update_password,
-    verify_password
+    verify_password,
+    set_text_settings,
+    working_hours
 )
 from app.utils.settings import (
     EmailUpdateForm,
@@ -92,3 +93,38 @@ async def Update_email(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Wrong  password",
             )
+
+
+@api_router.post("/add_text_settings", 
+                 status_code=status.HTTP_200_OK,
+                 responses={
+                     status.HTTP_401_UNAUTHORIZED: {
+                         "descriprion": "Non authorized"
+                     }
+                 })
+async def add_text_settings(response: UserTextSettings, \
+                            current_user: Annotated[User, Depends(get_current_user)], \
+                            session: Annotated[AsyncSession, Depends(get_session)]):
+    is_success = await set_text_settings(response, current_user, session)
+
+    if (is_success):
+        return {"message": "Add text settings"}
+    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Error add text settings")
+
+
+@api_router.post("/set_working_hours", 
+                 status_code=status.HTTP_200_OK,
+                 responses={
+                     status.HTTP_401_UNAUTHORIZED: {
+                         "descriprion": "Non authorized"
+                     }
+                 })
+async def set_working_hours(response: WorkingHoursForm, \
+                            current_user: Annotated[User, Depends(get_current_user)], \
+                            session: Annotated[AsyncSession, Depends(get_session)]):
+    is_success = await working_hours(response, current_user, session)
+    
+    if (is_success):
+        return {"message" : "Set wotking hours"}
+    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, \
+                        detail="Error working hours")

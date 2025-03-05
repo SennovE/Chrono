@@ -3,7 +3,7 @@
     <!-- Блок профиля: аватар и имя пользователя -->
     <div class="user-profile">
       <div class="avatar">
-        <img src="../../../../public/default_profile.jpg" />
+        <img src="../../../public/default_profile.jpg" />
       </div>
       <div class="user-info">
         <p class="username">{{ username }}</p>
@@ -178,4 +178,5 @@ export default {
   color: #000;
 }
 
+/* 0.82 коэф. из rem в проценты */
 </style>
