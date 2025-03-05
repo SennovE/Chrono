@@ -226,11 +226,8 @@ export default {
       } else {
         visibleTasksCount.value = 1;
       }
-      // Сбрасываем индекс при изменении количества видимых задач
       currentIndex.value = 0;
     };
-
-    // Жизненный цикл компонента
     onMounted(() => {
       fetchUser();
       fetchDeadlines();
@@ -238,7 +235,6 @@ export default {
       window.addEventListener('resize', updateVisibleTasksCount);
     });
 
-    // Удаляем обработчик при уничтожении компонента
     onBeforeUnmount(() => {
       window.removeEventListener('resize', updateVisibleTasksCount);
     });
@@ -262,35 +258,30 @@ export default {
 </script>
 <style scoped>
 .task-carousel {
-  position: absolute;
-    top: 40px; /* Указание позиции отдельно */
-    left: 450px;
-  border: 1px solid var(--color-dark-grey); /* Светло-серая граница */
-  padding: 16px; /* Увеличен паддинг для внутреннего отступа */
-  border-radius: 8px;
-  width: 50%; /* Ширина может быть скорректирована при необходимости */
+  border-radius: 4px;
+  width: 50%;
   max-width: 800px;
-  margin: 100px auto; /* Центрирование компонента с отступом сверху */
-  background-color: var(--color-brighter-black); /* Белый фон */
-  color: var(--color-black); /* Темно-серый текст */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Лёгкая тень для глубины */
+  background-color: #f0f0f0;
+  color: var(--color-black);
+  margin: -300px auto;
+  padding: 20px; 
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .task-carousel h2 {
   text-align: center;
   margin-bottom: 16px;
-  color: var(--color-black); /* Темно-серый цвет заголовка */
+  color: var(--color-black);
 }
-
 .loading-indicator {
   text-align: center;
   font-size: 18px;
-  color: var(--color-grey); /* Светло-серый цвет */
+  color: var(--color-grey);
 }
 
 .carousel-container {
   display: flex;
-  flex-direction: row; /* Горизонтальное расположение */
+  flex-direction: row;
   align-items: center;
   position: relative;
 }
@@ -383,12 +374,10 @@ export default {
 }
 
 .delete-button {
-  position: absolute;
-  top: 8px;
-  right: 8px;
+  
   background: transparent;
   border: none;
-  color: var(--color-red); /* Красный цвет для кнопки удаления */
+  color: var(--color-red);
   font-size: 20px;
   cursor: pointer;
   opacity: 0;
@@ -400,40 +389,12 @@ export default {
 }
 
 .delete-button:hover {
-  color: #cc0000; /* Более тёмный красный при наведении */
+  color: #cc0000;
 }
 
-.error {
-  color: var(--color-red); /* Красный цвет для ошибок */
-  text-align: center;
-  margin-top: 16px;
-}
-
-@media (max-width: 1200px) {
-  .task-carousel {
-    width: 80%; /* Увеличена ширина на средних экранах */
-  }
-  .task-card {
-    padding: 12px; /* Уменьшен паддинг */
-  }
-}
 
 @media (max-width: 768px) {
-  .task-carousel {
-    width: 95%; /* Увеличена ширина на мобильных устройствах */
-    padding: 12px; /* Уменьшен паддинг */
-    margin: 80px auto; /* Отступ снизу уменьшен */
-  }
-  .task-card {
-    padding: 8px; /* Дополнительное уменьшение паддинга */
-  }
-  
-  .nav-button {
-    padding: 8px;
-    font-size: 16px;
-    width: 35px;
-    height: 35px;
-  }
+
 }
 </style>
 
