@@ -1,4 +1,6 @@
 <template>
+  <div class="page-wrapper">
+  <div class="background-layer"></div>
   <div class="page-container">
     <NavBar :username="user.username" />
     <div class="content-container">
@@ -282,7 +284,7 @@
         </form>
       </div>
     </div>
-
+  </div>
   </div>
 </template>
 
@@ -904,6 +906,11 @@ export default {
 /* Импортируем шрифт Inter из Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 
+.page-wrapper {
+  position: relative;
+  z-index: 0;
+}
+
 .page-container {
   display: flex;
   min-height: 100vh;
@@ -916,7 +923,19 @@ export default {
   padding: 1.25rem; /* 20px */
   box-sizing: border-box;
   overflow: hidden;
-  background-color: #ebedee;
+}
+
+.background-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 140vw;
+  height: 140vh;
+  /* Пример фона – можно заменить на нужное изображение или другой стиль */
+  background: url('../../../public/background_dl.jpg') no-repeat center center;
+  background-size: cover;
+  z-index: -1;
+  opacity: 0.8;
 }
 
 .header {
@@ -1074,7 +1093,7 @@ export default {
 
 .day-title {
   font-size: 1.5rem;
-  color: #333;
+  color: #000000;
   text-align: center;
   margin: 0 auto;
 }
