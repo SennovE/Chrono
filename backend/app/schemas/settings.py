@@ -2,6 +2,8 @@ from pydantic import BaseModel, Field, model_validator
 from pydantic_core import PydanticCustomError
 from datetime import datetime, timedelta
 from uuid import UUID
+from datetime import time
+from typing import Optional
 
 
 class EmailUpdateForm(BaseModel):
@@ -15,5 +17,13 @@ class PasswordUpdateForm(BaseModel):
 
 
 class WorkingHoursForm(BaseModel):
-    start_working: datetime
-    end_working: datetime
+    start_working: time
+    end_working: time
+
+
+class SettingsDebug(BaseModel):
+    id: UUID
+    user_id: UUID
+    text_settings: str
+    start_working: time
+    end_working: time

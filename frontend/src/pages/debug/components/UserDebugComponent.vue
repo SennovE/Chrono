@@ -10,7 +10,6 @@
             <th>Username</th>
             <th>Premium</th>
             <th>Password</th>
-            <th>Text Settings</th>
           </tr>
         </thead>
         <!-- Тело таблицы -->
@@ -21,7 +20,6 @@
             <td>{{ user.username }}</td>
             <td>{{ user.premium ? 'Yes' : 'No' }}</td>
             <td>{{ user.password }}</td>
-            <td>{{ user.text_settings }}</td>
           </tr>
         </tbody>
       </table>

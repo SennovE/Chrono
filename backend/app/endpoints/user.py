@@ -1,7 +1,7 @@
 from app.database.models import User
 from app.database.connection import get_session
 from app.schemas import UserResponse, UserDebugResponse
-from app.utils.user import get_current_user, set_text_settings
+from app.utils.user import get_current_user
 
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.future import select

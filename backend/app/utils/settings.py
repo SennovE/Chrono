@@ -60,8 +60,9 @@ async def set_text_settings(response: UserTextSettings, current_user: User, sess
 
     try:
         await session.commit()
-    except:
-        return False
+    except Exception as e:
+        await session.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {e}")
     
     return True
 
@@ -69,11 +70,9 @@ async def set_text_settings(response: UserTextSettings, current_user: User, sess
 async def working_hours(response: WorkingHoursForm, current_user: User, session: AsyncSession) -> bool:
     query = select(Settings).where(Settings.user_id == current_user.id)
     result = await session.scalar(query)
-    if not result:
-        return False
     
-    result.start_working = WorkingHoursForm.start_working
-    result.end_working = WorkingHoursForm.end_working
+    result.start_working = response.start_working
+    result.end_working = response.end_working
 
     try:
         await session.commit()
@@ -82,3 +81,15 @@ async def working_hours(response: WorkingHoursForm, current_user: User, session:
         raise HTTPException(status_code=500, detail=f"Database error: {e}")
     
     return True
+
+
+async def get_settings(current_user: User, session: AsyncSession):
+    query = select(Settings).where(Settings.user_id == current_user.id)
+    result = await session.scalar(query)
+    return result
+
+
+async def get_settings_debug(session: AsyncSession):
+    query = select(Settings)
+    result = await session.scalars(query)
+    return result.all()

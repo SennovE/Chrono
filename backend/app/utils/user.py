@@ -25,7 +25,8 @@ async def get_user_by_email(session: AsyncSession, email: str) -> User | None:
 async def register_user(session: AsyncSession, user_data: RegistrationForm) -> bool:
     user = User(**user_data.model_dump(exclude_unset=True))
     session.add(user)
-
+    await session.flush()
+    
     settings = Settings(user_id=user.id)
     session.add(settings)
     

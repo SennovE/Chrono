@@ -7,13 +7,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
 from fastapi import APIRouter, Body, Security
 from app.utils.user import get_current_user, User
-from app.schemas.settings import WorkingHoursForm
+from app.schemas.settings import WorkingHoursForm, SettingsDebug
 from app.utils.settings import (
     update_email,
     update_password,
     verify_password,
     set_text_settings,
-    working_hours
+    working_hours,
+    get_settings,
+    get_settings_debug,
 )
 from app.utils.settings import (
     EmailUpdateForm,
@@ -128,3 +130,31 @@ async def set_working_hours(response: WorkingHoursForm, \
         return {"message" : "Set wotking hours"}
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, \
                         detail="Error working hours")
+
+
+@api_router.get("/get_user_settings", \
+                status_code=status.HTTP_200_OK,
+                 responses={
+                     status.HTTP_401_UNAUTHORIZED: {
+                         "descriprion": "Non authorized"
+                     }
+                 })
+async def get_user_settings(current_user: Annotated[User, Depends(get_current_user)], \
+                            session: Annotated[AsyncSession, Depends(get_session)]):
+    result = await get_settings(current_user, session)
+    return result
+
+
+@api_router.get(
+    "/get_settings_debug",
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "Could not validate credentials",
+        }
+    },
+)
+async def get_user_settings_debug(session: Annotated[AsyncSession, Depends(get_session)],
+                                  ) -> list[SettingsDebug]:
+    result = await get_settings_debug(session)
+    return result
