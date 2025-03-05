@@ -50,30 +50,31 @@ import { ref,  onMounted } from "vue";
   
   </script>
   <style scoped>
+.user-avatar {
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  background-color: #f9f9f9;
+  margin: 120px 160px;
+}
+
+.user-name {
+  margin: 200px 0px 10px -100px;  
+  font-size: 1.3em;
+  color: #000;
+  text-align: center; 
+}
+
+@media (max-width: 600px) {
   .user-avatar {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 240px; /* Ширина контейнера */
-    border-radius: 50%;
-    background-color: #f9f9f9;
-    position: absolute;
-    top: 150px; /* Указание позиции отдельно */
-    left: 150px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
-    height: 190px;
-    object-fit: cover;
+    width: 120px;
+    height: 120px;
+    margin: 60px 0px;
   }
   
-  
   .user-name {
-  position: absolute; /* Абсолютное позиционирование текста */
-  bottom: -50px; /* Отступ от нижнего края контейнера */
-  left: 20px; /* Отступ от левого края контейнера */
-  font-size: 1.3em;
-  color: #000000;
-  text-align: left; /* Текст выравнивается по левому краю */
-  
+    font-size: 1em;
+    margin: 110px 0px 10px -40px;  
+  }
 }
   </style>
-  

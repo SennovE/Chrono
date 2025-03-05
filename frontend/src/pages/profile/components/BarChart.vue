@@ -32,7 +32,6 @@
     }
   });
   
-  // Регистрация компонентов Chart.js
   ChartJS.register(Title, Tooltip, Legend, CategoryScale, LinearScale, BarElement)
   </script>
   
