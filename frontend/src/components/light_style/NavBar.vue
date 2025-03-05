@@ -47,7 +47,7 @@ export default {
   setup() {
     const navLinks = [
       { path: "/profile", label: "Профиль", icon: "fa fa-user" },
-      { path: "/settings", label: "Настройки", icon: "fa fa-cog" },
+      { path: "/settings", label: "Настройки ИИ", icon: "fa fa-cog" },
       { path: "/schedule", label: "Расписание", icon: "fa fa-calendar" },
       { path: "/deadlines", label: "Дедлайны", icon: "fa fa-clock" },
     ];

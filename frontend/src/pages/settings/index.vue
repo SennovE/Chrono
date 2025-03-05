@@ -53,12 +53,17 @@ async function fetchSettings() {
   }
 }
 
+function formatTime(time) {
+  // Предполагается, что время приходит в виде "08:00:00"
+  return time.slice(0, 5);
+}
+
 // Обновление локальных переменных при получении настроек
 watch(settings, (newSettings) => {
   if(newSettings){
     textInput.value = newSettings.text_settings || "";
-    workingStart.value = newSettings.start_working || "";
-    workingEnd.value = newSettings.end_working || "";
+    workingStart.value = newSettings.start_working ? formatTime(newSettings.start_working) : "";
+    workingEnd.value = newSettings.end_working ? formatTime(newSettings.end_working) : "";
   }
 });
 
@@ -117,38 +122,56 @@ onMounted(async () => {
 
 <template>
   <div class="page-container">
-    <NavBar :username="user.username" />
-
-    <!-- Секция для текстовых настроек генерации -->
-    <div class="text-settings">
-      <h1>Текстовые настройки генерации</h1>
-      <div v-if="settings">
-        <div v-if="!editingText">
-          <p class="text-display">{{ settings.text_settings || "Нет настроек" }}</p>
-          <button class="btn" @click="editingText = true">Изменить</button>
-        </div>
-        <div v-else>
-          <input type="text" v-model="textInput" class="text-input" placeholder="Введите текстовые настройки" />
-          <button class="btn" @click="saveTextSettings">Сохранить</button>
-          <button class="btn btn-cancel" @click="editingText = false">Отмена</button>
-        </div>
-      </div>
+    <!-- Навигационная панель слева -->
+    <div class="nav-container">
+      <NavBar :username="user.username" />
     </div>
 
-    <!-- Секция для установки рабочего времени -->
-    <div class="working-hours" v-if="settings">
-      <h1>Рабочее время</h1>
-      <div class="time-form">
-        <label>
-          Начало:
-          <input type="time" v-model="workingStart" class="time-input" />
-        </label>
-        <label>
-          Конец:
-          <input type="time" v-model="workingEnd" class="time-input" />
-        </label>
+    <!-- Настройки справа -->
+    <div class="settings-container">
+      <!-- Секция для текстовых настроек генерации -->
+      <div class="text-settings">
+        <h3>Текстовые настройки генерации</h3>
+        <div v-if="settings">
+          <div v-if="!editingText">
+            <div class="text-box">{{ settings.text_settings || "Нет настроек" }}</div>
+            <div class="button-container">
+              <button class="btn btn-small" @click="editingText = true">Изменить</button>
+            </div>
+          </div>
+          <div v-else>
+            <textarea
+              v-model="textInput"
+              class="text-box"
+              placeholder="Введите текстовые настройки"
+            ></textarea>
+            <div class="button-container">
+              <button class="btn btn-small" @click="saveTextSettings">Сохранить</button>
+              <button class="btn btn-cancel btn-small" @click="editingText = false">
+                Отмена
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-      <button class="btn" @click="saveWorkingHours">Сохранить</button>
+
+      <!-- Секция для установки рабочего времени -->
+      <div class="working-hours" v-if="settings">
+        <h3>Рабочее время</h3>
+        <div class="time-form">
+          <label>
+            Начало:
+            <input type="time" v-model="workingStart" class="time-input" />
+          </label>
+          <label>
+            Конец:
+            <input type="time" v-model="workingEnd" class="time-input" />
+          </label>
+        </div>
+        <div class="button-container">
+          <button class="btn btn-small" @click="saveWorkingHours">Сохранить</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -158,40 +181,109 @@ onMounted(async () => {
 
 .page-container {
   display: flex;
+  flex-direction: row;
   background: #f7f9fc;
   font-family: 'Inter', sans-serif;
+  height: 100vh;
 }
 
+/* Контейнер для настроек справа */
+.settings-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  font-size: 1rem;
+}
+
+/* Стили для секций настроек */
 .text-settings,
 .working-hours {
   background: #fff;
-  margin: 20px;
+  margin-bottom: 20px;
   padding: 20px;
   border-radius: 8px;
-  width: 100%;
-  max-width: 600px;
+  width: 40%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-left: auto;
+  margin-right: auto;
 }
 
-h1 {
-  text-align: center;
-  margin-bottom: 20px;
+h3 {
+  text-align: left;
+  margin-bottom: 1rem;
+  margin-top: 0.5rem;
   font-weight: 700;
+  color: #838385;
 }
 
-.text-display {
-  font-size: 18px;
-  margin-bottom: 10px;
-}
-
-.text-input,
-.time-input {
-  width: calc(100% - 20px);
+.text-box,
+textarea.text-box {
+  width: 100%;
+  height: 200px; /* фиксированная высота */
+  margin: 0; /* убраны внешние отступы */
   padding: 10px;
-  margin: 10px 0;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 12px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  font-size: 0.95rem;
+  font-family: 'Inter', sans-serif;
+  text-align: left;
+  vertical-align: top;
+  line-height: 1.5;
+  margin-bottom: 0.8rem;
+}
+
+/* Дополнительное правило для textarea */
+textarea.text-box {
+  resize: none;
+}
+/*
+.text-box {
+  width: 100%;
+  height: 200px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  text-align: left;
+  display: block;
+  margin-bottom: 0.8rem;
+  box-sizing: border-box;
+  overflow-y: auto;
+  font-size: 1rem;
+}
+
+
+textarea.text-box {
+  width: 100%;
+  height: 200px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  text-align: left;
   font-size: 16px;
+  box-sizing: border-box;
+  resize: none;
+  overflow-y: auto;
+  font-size: 1rem;
+}
+*/
+.text-box::-webkit-scrollbar {
+  width: 8px;
+}
+
+.text-box::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.text-box::-webkit-scrollbar-thumb {
+  background: #cacaca;
+  border-radius: 4px;
+}
+
+.text-box::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 .time-form {
@@ -199,20 +291,35 @@ h1 {
   justify-content: space-between;
   align-items: center;
   gap: 10px;
+  margin-bottom: 10px;
 }
 
 .time-form label {
   flex: 1;
   display: flex;
   flex-direction: column;
+  font-size: 1rem;
+}
+
+.time-input {
+  width: calc(100% - 20px);
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
   font-size: 16px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .btn {
   padding: 10px 20px;
   border: none;
   border-radius: 4px;
-  background-color: #3498db;
+  background-color: #4285F4;
   color: #fff;
   font-size: 16px;
   cursor: pointer;
@@ -230,5 +337,22 @@ h1 {
 
 .btn-cancel:hover {
   background-color: #c0392b;
+}
+
+.btn-small {
+  width: 6rem;
+  height: 2.2rem;
+  font-size: 14px;
+  border-radius: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: -0.15rem;
+  margin-left: 0.6rem;
+}
+
+.text-box,
+textarea.text-box {
+  font-family: 'Inter', sans-serif;
 }
 </style>
