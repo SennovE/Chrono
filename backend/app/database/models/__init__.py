@@ -1,5 +1,5 @@
 from .user import User
-from .schedule import Schedule
+from .schedule import Schedule, TaskGroup
 from .deadline_task import DeadlineTask
 from .settings import Settings
 
@@ -8,4 +8,5 @@ __all__ = [
     "Schedule",
     "DeadlineTask",
     "Settings",
+    "TaskGroup",
 ]

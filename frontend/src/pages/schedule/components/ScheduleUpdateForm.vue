@@ -13,7 +13,9 @@ const startDateString = ref("")
 const startTime = ref("")
 const endTime = ref("")
 const recurring = ref(false)
-const selectedOptionWeekDay = ref("")
+const selectedOptionWeekDay = ref("Понедельник")
+const selectedTaskGroup = ref("-")
+const taskColor = ref("")
 
 const response = ref("")
 
@@ -26,6 +28,7 @@ const props = defineProps({
     weekdays: Object,
     isModalOpen: String,
     selectedParams: Object,
+    taskGroups: Object,
 })
 
 async function deleteTaskWrap() {
@@ -41,7 +44,8 @@ async function addScheduleTaskWrap() {
         startDate.value,
         startTime.value,
         endTime.value,
-        recurring.value
+        recurring.value,
+        taskColor.value,
     )
     if (response.value == "") {
         modalClose()
@@ -57,7 +61,8 @@ async function updateTaskWrap() {
         startDate.value,
         startTime.value,
         endTime.value,
-        recurring.value
+        recurring.value,
+        taskColor.value,
     )
     if (response.value == "") {
         modalClose()
@@ -72,6 +77,7 @@ function modalClose() {
     endTime.value = ""
     recurring.value = false
     response.value = ""
+    taskColor.value = ""
     isModalUpdateOpen.value = 0
     emit("closeModal")
 }
@@ -95,6 +101,8 @@ function modalNewTaskOpen() {
     const month = String(props.selectedParams.date.getMonth() + 1).padStart(2, '0')
     const day = String(props.selectedParams.date.getDate()).padStart(2, '0')
     startDate.value = `${year}-${month}-${day}`
+    const tmp = new Date(startDate.value)
+    selectedOptionWeekDay.value = props.weekdays[(tmp.getDay() + 6) % 7]
 }
 
 function showTaskById() {
@@ -113,10 +121,29 @@ function showTaskById() {
     endTime.value = String(selectedTask.end_hours).padStart(2, '0') + ':' +
                     String(selectedTask.end_minutes).padStart(2, '0')
     recurring.value = selectedTask.recurring
+    taskColor.value = selectedTask.taskColor
     isModalUpdateOpen.value = 1
+    const tmp = new Date(startDate.value)
+    selectedOptionWeekDay.value = props.weekdays[(tmp.getDay() + 6) % 7]
+}
+
+function changeRecurring() {
+    if (!recurring.value) {
+        const currDay = props.weekdays.indexOf(selectedOptionWeekDay.value)
+        const tmp = new Date()
+        tmp.setDate(tmp.getDate() - (tmp.getDay() + 6) % 7 + currDay)
+        const year = tmp.getFullYear()
+        const month = String(tmp.getMonth() + 1).padStart(2, '0')
+        const day = String(tmp.getDate()).padStart(2, '0')
+        startDate.value = `${year}-${month}-${day}`
+    } else {
+        const tmp = new Date(startDate.value)
+        selectedOptionWeekDay.value = props.weekdays[(tmp.getDay() + 6) % 7]
+    }
 }
 
 watch(() => props.isModalOpen, modalOpen)
+watch(() => recurring.value, changeRecurring)
 </script>
 
 <template>
@@ -166,7 +193,7 @@ watch(() => props.isModalOpen, modalOpen)
                                 v-else-if="isModalUpdateOpen == 2  || isModalUpdateOpen == 3"
                                 class="custom-select"
                             >
-                                <select v-model="selectedOptionWeekDay">
+                                <select v-model="selectedTaskGroup">
                                     <option v-for="option in props.weekdays" :key="option">
                                         {{ option }}
                                     </option>
@@ -201,7 +228,20 @@ watch(() => props.isModalOpen, modalOpen)
                             <pre v-else>{{ endTime }}</pre>
                         </div>
                     </div>
-
+                    <div class="field-group">
+                        <p>Группа:</p>
+                        <div class="input-wrapper">
+                            <div
+                                class="custom-select"
+                            >
+                                <select v-model="selectedOptionWeekDay">
+                                    <option v-for="option in props.weekdays" :key="option">
+                                        {{ option }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                     <div v-if="isModalUpdateOpen == 2 || isModalUpdateOpen == 3" class="field-group">
                         <p>Повторяющееся:</p>
                         <label class="custom-checkbox">
