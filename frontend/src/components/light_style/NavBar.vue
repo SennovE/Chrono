@@ -3,7 +3,7 @@
     <!-- Блок профиля: аватар и имя пользователя -->
     <div class="user-profile">
       <div class="avatar">
-        <img src="../../../../public/default_profile.jpg" />
+        <img src="../../../public/default_profile.jpg" />
       </div>
       <div class="user-info">
         <p class="username">{{ username }}</p>
@@ -47,7 +47,7 @@ export default {
   setup() {
     const navLinks = [
       { path: "/profile", label: "Профиль", icon: "fa fa-user" },
-      { path: "/settings", label: "Настройки", icon: "fa fa-cog" },
+      { path: "/settings", label: "Настройки ИИ", icon: "fa fa-cog" },
       { path: "/schedule", label: "Расписание", icon: "fa fa-calendar" },
       { path: "/deadlines", label: "Дедлайны", icon: "fa fa-clock" },
     ];
@@ -178,4 +178,5 @@ export default {
   color: #000;
 }
 
+/* 0.82 коэф. из rem в проценты */
 </style>

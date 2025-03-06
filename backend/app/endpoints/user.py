@@ -1,7 +1,7 @@
 from app.database.models import User
 from app.database.connection import get_session
-from app.schemas import UserResponse, UserDebugResponse, UserTextSettings
-from app.utils.user import get_current_user, set_text_settings
+from app.schemas import UserResponse, UserDebugResponse
+from app.utils.user import get_current_user
 
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.future import select
@@ -60,20 +60,3 @@ async def delete_user_by_email(email: str, db: AsyncSession = Depends(get_sessio
             )
         await db.delete(db_user)
     return db_user
-
-
-@api_router.post("/add_text_settings", 
-                 status_code=status.HTTP_200_OK,
-                 responses={
-                     status.HTTP_401_UNAUTHORIZED: {
-                         "descriprion": "Non authorized"
-                     }
-                 })
-async def add_text_settings(response: UserTextSettings, \
-                            current_user: Annotated[User, Depends(get_current_user)], \
-                            session: Annotated[AsyncSession, Depends(get_session)]):
-    is_success = await set_text_settings(response, current_user, session)
-
-    if (is_success):
-        return {"message": f"Add text settings"}
-    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Error add text settings")

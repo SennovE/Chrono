@@ -291,7 +291,7 @@
 <script>
 import axios from "axios";
 import { ref, computed, onMounted } from "vue";
-import NavBar from "./components/NavBar.vue";
+import NavBar from "../../components/light_style/NavBar.vue";
 
 export default {
   name: "DeadlinePage",

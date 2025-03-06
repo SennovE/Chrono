@@ -9,8 +9,8 @@ from sqlalchemy import exc, select
 
 from app.config import DefaultSettings, get_settings
 from app.database.connection import get_session
-from app.schemas import RegistrationForm, UserTextSettings
-from app.database.models import User
+from app.schemas import RegistrationForm
+from app.database.models import User, Settings
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -25,6 +25,11 @@ async def get_user_by_email(session: AsyncSession, email: str) -> User | None:
 async def register_user(session: AsyncSession, user_data: RegistrationForm) -> bool:
     user = User(**user_data.model_dump(exclude_unset=True))
     session.add(user)
+    await session.flush()
+    
+    settings = Settings(user_id=user.id)
+    session.add(settings)
+    
     try:
         await session.commit()
     except exc.IntegrityError:
@@ -78,19 +83,6 @@ async def get_current_user(
     if user is None:
         raise credentials_exception
     return user
-
-
-async def set_text_settings(response: UserTextSettings, current_user: User, session: AsyncSession) -> bool:
-    query = select(User).where(User.id == current_user.id)
-    result = await session.scalar(query)
-    result.text_settings = response.text
-
-    try:
-        await session.commit()
-    except:
-        return False
-    
-    return True
 
 
 async def register_user_via_google(session: AsyncSession, user_info: str):

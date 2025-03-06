@@ -6,24 +6,20 @@
         <thead>
           <tr>
             <th>ID</th>
-            <th>Text</th>
-            <th>Start Time</th>
-            <th>End Time</th>
-            <th>Recurring</th>
-            <th>Week day</th>
-            <th>Owner ID</th>
+            <th>User ID</th>
+            <th>Text Settings</th>
+            <th>Start Working</th>
+            <th>End Working</th>
           </tr>
         </thead>
         <!-- Тело таблицы -->
         <tbody>
-          <tr v-for="task in tasks" :key="task.id">
-            <td>{{ task.id }}</td>
-            <td>{{ task.text }}</td>
-            <td>{{ task.start_time }}</td>
-            <td>{{ task.end_time }}</td>
-            <td>{{ task.recurring ? 'Yes' : 'No' }}</td>
-            <td>{{ task.week_day }}</td>
-            <td>{{ task.owner_id }}</td>
+          <tr v-for="setting in settings" :key="setting.id">
+            <td>{{ setting.id }}</td>
+            <td>{{ setting.user_id }}</td>
+            <td>{{ setting.text_settings }}</td>
+            <td>{{ setting.start_working }}</td>
+            <td>{{ setting.end_working }}</td>
           </tr>
         </tbody>
       </table>
@@ -35,21 +31,21 @@ import axios from 'axios';
 export default {
 data() {
     return {
-        tasks: []
+        settings: []
     }
 },
 methods: {
-    async get_tasks() {
-        const response = await axios.get('http://localhost:8080/api/v1/schedule/debug/shedule_tasks_table/');
-        this.tasks = response.data;
+    async get_settings() {
+        const response = await axios.get(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/settings/get_settings_debug`);
+        this.settings = response.data;
     }
 },
 mounted() {
     // Загружаем пользователей при монтировании компонента
-    this.get_tasks();
+    this.get_settings();
   },
 
-name: 'CalendarTaskDebugComponent'  
+name: 'SettingsComponent'  
 };
 
 </script>

@@ -14,7 +14,6 @@ class UserDebugResponse(BaseModel):
     username: str
     premium: bool
     password: str
-    text_settings: Optional[str]
 
 
 class UserCreateForm(BaseModel):
