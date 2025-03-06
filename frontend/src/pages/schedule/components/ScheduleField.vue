@@ -152,6 +152,7 @@ const tasks = ref({
     "5": [],
     "6": []
 })
+const taskGroups = ref([])
 
 async function fetchTasks() {
     tasks.value = await getScheduleTasks(useRouter)
