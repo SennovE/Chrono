@@ -2,7 +2,7 @@
   <div class="page-wrapper">
   <div class="background-layer"></div>
   <div class="page-container">
-    <NavBar :username="user.username" />
+    <NavBar :username="user.username" :deadlines="deadlines" />
     <div class="content-container">
       <!-- Header Section with Title and Add Task Easier & Add Task Buttons -->
       <div class="header">

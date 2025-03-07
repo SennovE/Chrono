@@ -10,8 +10,18 @@
       </div>
     </div>
 
-    <!-- Тонкая серая линия -->
-    <!-- <div class="divider"></div> -->
+    <!-- Блок статистики задач за день -->
+    <div class="daily-stats">
+      <div class="stat-item">
+        <span class="stat-text">{{ completedCount }} Выполнено</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-text">{{ incompleteCount }} Невыполнено</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-text">{{ missedCount }} Пропущено</span>
+      </div>
+    </div>
 
     <!-- Группы навигационных ссылок -->
     <nav class="nav-links">
@@ -34,8 +44,10 @@
   </div>
 </template>
 
-
 <script>
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import axios from 'axios';
+
 export default {
   name: "NavBar",
   props: {
@@ -52,7 +64,97 @@ export default {
       { path: "/deadlines", label: "Дедлайны", icon: "fa fa-clock" },
     ];
 
-    return { navLinks };
+    const deadlines = ref([]);
+    let intervalId = null;
+
+    const getToken = () => {
+      const token = localStorage.getItem("chronoJWTToken");
+      if (!token) {
+        throw new Error("Token is missing. Please log in.");
+      }
+      return token;
+    };
+    
+    const fetchDeadlines = async () => {
+      try {
+        const token = getToken();
+        const response = await axios.get(
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/get_tasks/`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        // Преобразуем время дедлайна в ISO-формат
+        deadlines.value = response.data.map(task => ({
+          ...task,
+          deadline_time: new Date(task.deadline_time).toISOString(),
+        }));
+      } catch (error) {
+        console.error("Error fetching deadlines:", error);
+      }
+    };
+
+    onMounted(() => {
+      // Первый вызов сразу при загрузке
+      fetchDeadlines();
+
+      // Периодический опрос каждые 30 секунд
+      intervalId = setInterval(() => {
+        fetchDeadlines();
+      }, 30000);
+    });
+
+    // Очищаем интервал при размонтировании компонента (во избежание утечек памяти)
+    onBeforeUnmount(() => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    });
+
+    // Проверка, что две даты принадлежат одному дню
+    const isSameDay = (date1, date2) => {
+      return (
+        date1.getFullYear() === date2.getFullYear() &&
+        date1.getMonth() === date2.getMonth() &&
+        date1.getDate() === date2.getDate()
+      );
+    };
+
+    // Задачи, дедлайн которых сегодня
+    const todayDeadlines = computed(() => {
+      return deadlines.value.filter(task => {
+        const taskDate = new Date(task.deadline_time);
+        return isSameDay(taskDate, new Date());
+      });
+    });
+
+    // Задача выполнена (status === 1)
+    const completedCount = computed(() => {
+      return todayDeadlines.value.filter(task => task.status === 1).length;
+    });
+
+    // Задача невыполнена (status === 0) и дедлайн еще не наступил
+    const incompleteCount = computed(() => {
+      return todayDeadlines.value.filter(
+        task => task.status === 0 && new Date(task.deadline_time) > new Date()
+      ).length;
+    });
+
+    // Задача пропущена (status === 0) и дедлайн уже прошел
+    const missedCount = computed(() => {
+      return todayDeadlines.value.filter(
+        task => task.status === 0 && new Date(task.deadline_time) <= new Date()
+      ).length;
+    });
+
+    return {
+      navLinks,
+      completedCount,
+      incompleteCount,
+      missedCount,
+    };
   },
 };
 </script>
@@ -100,12 +202,46 @@ export default {
   margin: 0;
 }
 
-/* Тонкая серая линия – увеличена ширина до 90% */
-.divider {
-  height: 1px;
-  background-color: #ccc;
-  width: 90%;
-  margin-left: 0.75rem;
+/* Блок статистики задач за день */
+.daily-stats {
+  text-align: left;
+  font-size: 1.3rem; /* Используем тот же размер, что и у остального текста */
+  margin-left: -1.25rem;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.7rem 1.25rem;
+  margin-left: -1.25rem;
+  font-size: 0.96rem;
+}
+
+
+.daily-stats .stat-item:nth-child(1) {
+  background-color: #dbe3f1;
+}
+
+.daily-stats .stat-item:nth-child(2) {
+  background-color: #e3e9f3; 
+}
+
+.daily-stats .stat-item:nth-child(3) {
+  background-color: #f0f4f7;
+}
+
+.stat-text {
+  margin-left: 2rem;
+}
+
+.stat-icon {
+  margin-right: 0.5rem;
+  font-size: 1.2rem;
+  color: currentColor;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 1px currentColor;
+  margin-left: 0.5rem;
 }
 
 /* Группы навигационных ссылок */
@@ -121,7 +257,6 @@ export default {
   color: #000;
   padding: 0.7rem 1.25rem;
   border: 0.0625rem solid transparent;
-  border-radius: 0.25rem;
   transition: background-color 0.3s, color 0.3s;
   width: calc(100% + 2.5rem);
   margin-left: -1.25rem;
@@ -132,9 +267,8 @@ export default {
   background-color: #f0f0f0;
 }
 
-/* Анимация для иконок */
 .nav-icon {
-  margin-left: 0.5rem; /* Иконки отступают слева */
+  margin-left: 0.5rem;
   margin-right: 0.625rem;
   font-size: 1rem;
   background: none;
@@ -154,12 +288,10 @@ export default {
   color: #278fff;
 }
 
-/* Убираем отступ у текста, чтобы сдвиг производился только для иконки */
 .nav-label {
   margin-left: 0;
 }
 
-/* Стили для ссылки "О нас" */
 .about {
   text-align: center;
   margin-top: auto;
@@ -177,6 +309,4 @@ export default {
 .about-link:hover {
   color: #000;
 }
-
-/* 0.82 коэф. из rem в проценты */
 </style>
