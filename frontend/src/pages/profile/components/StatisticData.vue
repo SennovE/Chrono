@@ -13,7 +13,7 @@
         :class="{ active1: selectedPeriod === 'week' }" 
         @click="selectedPeriod = 'week'"
       >
-        Неделя
+        Даты
       </button>
     </div>
     
@@ -32,7 +32,7 @@
 <script>
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
-import BarChart from './BarChart.vue'; // Убедитесь, что путь правильный
+import BarChart from './BarChart.vue';
 import { useRouter } from "vue-router";
 
 export default {
@@ -41,7 +41,6 @@ export default {
     BarChart
   },
   setup() {
-
     const router = useRouter();
     const tasks = ref([]);
     const loading = ref(true);
@@ -61,20 +60,18 @@ export default {
         loading.value = true;
         error.value = null;
         const token = getToken();
-        if (token == null) {
-            redirectToLogin()
-            return -1
+        if (!token) {
+          redirectToLogin();
+          return;
         }
         const response = await axios.get(
-          "http://localhost:8080/api/v1/deadline_task/get_tasks/",
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/get_tasks/`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
-        
-        // Предполагаем, что API возвращает поле status и deadline_time
         tasks.value = response.data.map(task => ({
           ...task,
           deadline_time: new Date(task.deadline_time),
@@ -87,136 +84,155 @@ export default {
       }
     };
 
-    // Функция для агрегации данных
-    const aggregateData = () => {
-      const counts = {
-        active1: 0,
-        completed: 0,
-        overdue: 0,
-      };
-
-      tasks.value.forEach(task => {
-        if (task.status === 1) {
-          counts.completed += 1;
-        } else if (task.status === 2) {
-          counts.overdue += 1;
-        } else if (task.status === 0) {
-          counts.active1 += 1;
-        }
-      });
-
-      return counts;
-    };
-
-    // Функция для получения данных для графика в зависимости от выбранного периода
+    // Формирование данных для графика с обработкой просроченных дедлайнов
     const getChartData = () => {
+      const now = new Date();
       if (selectedPeriod.value === 'day') {
-        // Для дня отображаем общее количество задач по статусам
-        const counts = aggregateData();
-        return {
-          labels: ['Активные', 'Завершенные', 'Просроченные'],
-          datasets: [
-            {
-              label: 'Количество задач',
-              backgroundColor: ['#3498db', '#2ecc71', '#e74c3c'],
-              data: [counts.active1, counts.completed, counts.overdue]
-            }
-          ]
-        };
-      } else  {
-        // Для недели отображаем динамику по дням
-        const daysOfWeek = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-        const counts = {
-          active1: Array(7).fill(0),
-          completed: Array(7).fill(0),
-          overdue: Array(7).fill(0)
-        };
-
-        tasks.value.forEach(task => {
-          const taskDate = task.deadline_time;
-          const dayIndex = taskDate.getDay(); // 0 (Воскресенье) - 6 (Суббота)
-          // Преобразуем Sunday to 6, Monday to 0, etc.
-          const adjustedDayIndex = (dayIndex + 6) % 7; // 0 - Пн, 6 - Вс
-
+        // Фильтруем задачи только на сегодняшний день
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+        const todaysTasks = tasks.value.filter(task => task.deadline_time >= today && task.deadline_time < tomorrow);
+  
+        const counts = { active1: 0, completed: 0, overdue: 0 };
+        todaysTasks.forEach(task => {
           if (task.status === 1) {
-            counts.completed[adjustedDayIndex] += 1;
-          } else if (task.status === 2) {
-            counts.overdue[adjustedDayIndex] += 1;
+            counts.completed++;
           } else if (task.status === 0) {
-            counts.active1[adjustedDayIndex] += 1;
+            // Если дедлайн уже прошёл, считаем задачу просроченной
+            if (task.deadline_time < now) {
+              counts.overdue++;
+            } else {
+              counts.active1++;
+            }
+          } else if (task.status === 2) {
+            counts.overdue++;
           }
         });
-
         return {
-          labels: daysOfWeek,
+          labels: ['Активные', 'Завершенные', 'Просроченные'],
+          datasets: [{
+            label: 'Количество задач',
+            backgroundColor: ['#89b4fa', '#a6e3a1', '#fab387'],
+            data: [counts.active1, counts.completed, counts.overdue]
+          }]
+        };
+      } else {
+        // Группировка по датам (начало дня)
+        const groups = {};
+        tasks.value.forEach(task => {
+          const d = new Date(task.deadline_time);
+          d.setHours(0, 0, 0, 0);
+          const timeKey = d.getTime();
+          if (!groups[timeKey]) {
+            groups[timeKey] = { active1: 0, completed: 0, overdue: 0, date: new Date(timeKey) };
+          }
+          if (task.status === 1) {
+            groups[timeKey].completed++;
+          } else if (task.status === 0) {
+            if (task.deadline_time < now) {
+              groups[timeKey].overdue++;
+            } else {
+              groups[timeKey].active1++;
+            }
+          } else if (task.status === 2) {
+            groups[timeKey].overdue++;
+          }
+        });
+        const sortedKeys = Object.keys(groups).sort((a, b) => a - b);
+        const labels = sortedKeys.map(key => {
+          const dateObj = groups[key].date;
+          return dateObj.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
+        });
+        return {
+          labels: labels,
           datasets: [
             {
               label: 'Активные',
-              backgroundColor: '#3498db',
-              data: counts.active1
+              backgroundColor: '#89b4fa',
+              data: sortedKeys.map(key => groups[key].active1)
             },
             {
               label: 'Завершенные',
-              backgroundColor: '#2ecc71',
-              data: counts.completed
+              backgroundColor: '#a6e3a1',
+              data: sortedKeys.map(key => groups[key].completed)
             },
             {
               label: 'Просроченные',
-              backgroundColor: '#e74c3c',
-              data: counts.overdue
+              backgroundColor: '#fab387',
+              data: sortedKeys.map(key => groups[key].overdue)
             }
           ]
         };
       }
     };
 
-    const chartOptions = computed(() => ({
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'top',
-        },
-        title: {
-          display: true,
-          text: selectedPeriod.value === 'day' ? 'Статистика за День' : 'Статистика за Неделю'
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            stepSize: 1,       // Интервал между отметками
-            precision: 0,      // Убирает десятичные знаки
-            // Можно добавить callback для дополнительной настройки
-            // callback: function(value) {
-            //   if (Number.isInteger(value)) {
-            //     return value;
-            //   }
-            // }
-          },
-          grid: {
-            display: false      // Скрыть сетку по оси Y
-          }
-        },
-        x: {
-          grid: {
-            display: false      // Скрыть сетку по оси X (если нужно)
-          }
-        }
+    // Вычисление максимального значения из данных для оси Y
+    const chartOptions = computed(() => {
+      let maxValue = 0;
+      if (chartData.value && chartData.value.datasets) {
+        chartData.value.datasets.forEach(dataset => {
+          dataset.data.forEach(val => {
+            if (val > maxValue) {
+              maxValue = val;
+            }
+          });
+        });
       }
-    }));
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: {
+              color: "#cdd6f4"
+            }
+          },
+          title: {
+            display: true,
+            text: selectedPeriod.value === 'day' ? 'Статистика за День' : 'Статистика по датам',
+            color: "#89b4fa"
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1,
+              min: 0,
+              callback: function(value) {
+                return Number.isInteger(value) ? value : '';
+              },
+              color: "#cdd6f4"
+            },
+            grid: {
+              color: "#302d41"
+            },
+            suggestedMax: maxValue + 1,
+          },
+          x: {
+            ticks: {
+              color: "#cdd6f4"
+            },
+            grid: {
+              display: false
+            }
+          }
+        }
+      };
+    });
 
     const chartData = computed(() => {
       const data = getChartData();
-      console.log('Chart Data:', data); // Для отладки
+      console.log('Chart Data:', data);
       return data;
     });
+
     function redirectToLogin() {
-    router.push({
-        name: "Login Page",
-    })
-  }
+      router.push({ name: "Login Page" });
+    }
 
     onMounted(() => {
       fetchTasks();
@@ -237,63 +253,72 @@ export default {
 <style scoped>
 .get-task-statistics {
   position: absolute;
-    top: 100px; /* Указание позиции отдельно */
-    left:1320px;
-  border: 1px solid #dddddd; /* Светло-серая граница */
-  padding: 16px; /* Увеличен паддинг для внутреннего отступа */
-  border-radius: 8px;
-  width: 20%; /* Уменьшена ширина */
-  max-width: 600px; /* Уменьшен максимальный размер */
-  margin: 40px auto; /* Центрирование компонента */
-  background-color: #ffffff; /* Светлый фон */
-  color: #333333; /* Темно-серый текст */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Легкая тень для глубины */
+  top: 100px;
+  left: 75%;
+  transform: translateX(-50%);
+  background-color: #1e1e2e; /* Фон Mocha */
+  border: 1px solid #302d41;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 700px; /* Уменьшенная ширина панели */
+  min-height: 850px;
+  color: #cdd6f4;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .get-task-statistics h2 {
   text-align: center;
   margin-bottom: 20px;
-  color: #333333; /* Темно-серый цвет заголовка */
+  color: #89b4fa;
+  font-size: 24px;
 }
 
 .choose-day-weak {
   text-align: center;
-  margin-bottom: 20px; /* Увеличен отступ */
+  margin-bottom: 20px;
 }
 
 .choose-day-weak button {
-  background-color: #f0f0f0; /* Светло-серый фон кнопок */
-  border: 1px solid #cccccc; /* Светло-серая граница */
-  color: #333333; /* Темно-серый текст */
-  padding: 8px 16px; /* Уменьшен паддинг */
-  margin: 0 50px;
+  background-color: #2e2e42;
+  border: 1px solid #302d41;
+  color: #cdd6f4;
+  padding: 10px 20px;
+  margin: 0 10px;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 16px;
   transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
-  font-size: 14px; /* Уменьшен размер шрифта */
 }
 
-.choose-day-weak button.active1, .controls button:hover {
-  background-color: #e0e0e0; /* Светло-серый фон при наведении и активном состоянии */
+.choose-day-weak button:hover {
+  background-color: #3a3a55;
+}
+
+.choose-day-weak button.active1 {
+  background-color: #89b4fa;
+  color: #1e1e2e;
+  border-color: #89b4fa;
 }
 
 .loading-indicator {
   text-align: center;
-  font-size: 14px; /* Увеличен размер шрифта для лучшей читаемости */
-  color: #666666; /* Светло-серый цвет */
+  font-size: 16px;
+  color: #a6adc8;
+  margin-top: 20px;
 }
 
 .error {
-  color: #ff4d4d;
+  color: #fab387;
   text-align: center;
-  margin-top: 16px;
+  margin-top: 20px;
+  font-size: 16px;
 }
 
 .chart-container {
   position: relative;
-  height: 400px; /* Установлена подходящая высота для графика */
-  width: 100%; /* Ширина 100% контейнера */
+  height: 400px; /* Уменьшенная высота графика */
+  width: 100%;
+  margin: 20px 0;
 }
-
-
 </style>

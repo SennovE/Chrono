@@ -28,7 +28,7 @@ import { ref,  onMounted } from "vue";
     const fetchUser = async () => {
       try {
         const token = getToken();
-        const response = await axios.get("http://localhost:8080/api/v1/user/me", {
+        const response = await axios.get(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/user/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -61,7 +61,7 @@ import { ref,  onMounted } from "vue";
 .user-name {
   margin: 200px 0px 10px -100px;  
   font-size: 1.3em;
-  color: #000;
+  color: #ffffff;
   text-align: center; 
 }
 

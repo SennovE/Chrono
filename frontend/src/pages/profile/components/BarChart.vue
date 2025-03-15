@@ -1,40 +1,43 @@
 <template>
-    <Bar :chartData="chartData" :options="chartOptions" />
-  </template>
+  <Bar :chartData="chartData" :options="chartOptions" />
+</template>
   
-  <script>
-  import { defineComponent } from 'vue';
-  import { Bar } from 'vue-chartjs'
-  import { 
-    Chart as ChartJS,
-    Title,
-    Tooltip,
-    Legend,
-    CategoryScale,
-    LinearScale,
-    BarElement
-  } from 'chart.js'
+<script>
+import { defineComponent } from 'vue';
+import { Bar } from 'vue-chartjs';
+import { 
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement
+} from 'chart.js';
   
-  export default defineComponent({
-    name: 'BarChart',
-    components: {
-      Bar
+export default defineComponent({
+  name: 'BarChart',
+  components: {
+    Bar
+  },
+  props: {
+    chartData: {
+      type: Object,
+      required: true
     },
-    props: {
-      chartData: {
-        type: Object,
-        required: true
-      },
-      chartOptions: {
-        type: Object,
-        default: () => ({})
-      }
+    chartOptions: {
+      type: Object,
+      default: () => ({})
     }
-  });
+  }
+});
   
-  ChartJS.register(Title, Tooltip, Legend, CategoryScale, LinearScale, BarElement)
-  </script>
+ChartJS.register(Title, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
+</script>
   
-  <style scoped>
-  </style>
-  
+<style scoped>
+/* Фон графика в стиле Macchiato */
+canvas {
+  background-color: #24273A;
+}
+</style>
