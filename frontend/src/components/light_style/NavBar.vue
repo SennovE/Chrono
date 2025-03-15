@@ -1,14 +1,14 @@
 <template>
   <div class="navigation-container">
     <!-- Блок профиля: аватар и имя пользователя -->
-    <div class="user-profile">
+    <router-link to="/profile" class="user-profile">
       <div class="avatar">
         <img src="../../../public/default_profile.jpg" />
       </div>
       <div class="user-info">
         <p class="username">{{ username }}</p>
       </div>
-    </div>
+    </router-link>
 
     <!-- Тонкая серая линия -->
     <!-- <div class="divider"></div> -->
@@ -46,7 +46,7 @@ export default {
   },
   setup() {
     const navLinks = [
-      { path: "/profile", label: "Профиль", icon: "fa fa-user" },
+      { path: "/profile", label: "Стать Premium", icon: "fa fa-crown" },
       { path: "/settings", label: "Настройки ИИ", icon: "fa fa-cog" },
       { path: "/schedule", label: "Расписание", icon: "fa fa-calendar" },
       { path: "/deadlines", label: "Дедлайны", icon: "fa fa-clock" },
@@ -76,6 +76,8 @@ export default {
   display: flex;
   align-items: center;
   margin-bottom: 1rem;
+  color: #000;
+  text-decoration: none;
 }
 
 .avatar {
