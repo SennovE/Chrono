@@ -267,12 +267,21 @@ export default {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-.get-task-statistics h2 {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #89b4fa;
-  font-size: 24px;
+
+/* Если экран ещё уже – меняем позиционирование, чтобы не перекрывать другие элементы */
+@media (max-width: 600px) {
+  .get-task-statistics {
+    position: relative; /* Относительное позиционирование вместо абсолютного */
+    top: -850px; /* Отступ сверху можно настроить отдельно */
+    left: 90px;
+    transform: none;
+    max-width: 100%;
+    width: 45%;
+    margin: 20px auto;
+    min-height: 40px;
+  }
 }
+
 
 .choose-day-weak {
   text-align: center;
@@ -317,7 +326,7 @@ export default {
 
 .chart-container {
   position: relative;
-  height: 400px; /* Уменьшенная высота графика */
+  height: 140px; /* Уменьшенная высота графика */
   width: 100%;
   margin: 20px 0;
 }

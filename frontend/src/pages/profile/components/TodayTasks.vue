@@ -234,7 +234,6 @@ export default {
       }
     };
 
-    // Функция форматирования времени из ISO-строки (HH:MM)
     const formatTime = (isoString) => isoString.slice(11, 16);
 
     const isLastPage = computed(() => ((currentIndex.value + 1) * visibleTasksCount.value) >= tasks.value.length);
@@ -294,7 +293,8 @@ export default {
   border: 1px solid #302d41;
   padding: 20px;
   border-radius: 8px;
-  width: 50%;
+  width: 45%;
+  margin-top: 200px;
   /* Позиция не изменяется – панель остаётся там, где была */
   color: #cdd6f4;
 }
