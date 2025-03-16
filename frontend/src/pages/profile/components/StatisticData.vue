@@ -252,35 +252,22 @@ export default {
 
 <style scoped>
 .get-task-statistics {
-  position: absolute;
-  top: 100px;
-  left: 75%;
-  transform: translateX(-50%);
-  background-color: #1e1e2e; /* Фон Mocha */
+  background-color: #1e1e2e;
   border: 1px solid #302d41;
   padding: 20px;
   border-radius: 10px;
   width: 90%;
-  max-width: 700px; /* Уменьшенная ширина панели */
-  min-height: 850px;
+  max-width: 500px;
+  height: 650px;
   color: #cdd6f4;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  margin-top: -800px;
+  margin-left: 1200px;/* Center and provide margin */
 }
 
 
 /* Если экран ещё уже – меняем позиционирование, чтобы не перекрывать другие элементы */
-@media (max-width: 600px) {
-  .get-task-statistics {
-    position: relative; /* Относительное позиционирование вместо абсолютного */
-    top: -850px; /* Отступ сверху можно настроить отдельно */
-    left: 90px;
-    transform: none;
-    max-width: 100%;
-    width: 45%;
-    margin: 20px auto;
-    min-height: 40px;
-  }
-}
+
 
 
 .choose-day-weak {
@@ -329,5 +316,17 @@ export default {
   height: 140px; /* Уменьшенная высота графика */
   width: 100%;
   margin: 20px 0;
+}
+@media (max-width: 600px) {
+  .get-task-statistics {
+    position: relative; /* Remove absolute positioning */
+    top: auto;
+    left: auto;
+    transform: none;
+    max-width: 100%;
+    width: 45%; /* Adjusted width for smaller screens */
+    margin: 20px auto; /* Center on smaller screens */
+    min-height: 40px;
+  }
 }
 </style>

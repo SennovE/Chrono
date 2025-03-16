@@ -55,7 +55,7 @@ import { ref,  onMounted } from "vue";
   height: 190px;
   border-radius: 50%;
   background-color: #f9f9f9;
-  margin: 120px 160px;
+  margin: 70px 160px;
 }
 
 .user-name {

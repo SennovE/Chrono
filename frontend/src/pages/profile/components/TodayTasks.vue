@@ -294,7 +294,7 @@ export default {
   padding: 20px;
   border-radius: 8px;
   width: 45%;
-  margin-top: 200px;
+  margin-top: 0px;
   /* Позиция не изменяется – панель остаётся там, где была */
   color: #cdd6f4;
 }
@@ -353,7 +353,6 @@ export default {
 }
 
 .tasks {
-  display: flex;
   flex-direction: column;
   transition: transform 0.5s ease-in-out;
 }

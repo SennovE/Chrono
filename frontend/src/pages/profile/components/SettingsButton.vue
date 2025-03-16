@@ -15,26 +15,17 @@ const router = useRouter();
 
 <style scoped>
 .get-started-container_kera {
-  position: absolute;
-  top: 400px;
-  left: 160px;
-  display: flex;
-  /* Начальное позиционирование для больших экранов */
+  position: relative;
+  margin-left: 160px ;
+  margin-top:  1px;
 }
 
-
-
-.get-started-container_kera ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
 
 .get-started {
   background: linear-gradient(135deg, #1e1e2e, #2e2e42);
   color: #cdd6f4;
   border: 1px solid #302d41;
-  padding: 15px 40px;
+  padding: 15px 10px;
   font-size: 14px;
   font-weight: bold;
   text-transform: uppercase;
