@@ -1,71 +1,143 @@
-from app.database.models import DeadlineTask, Schedule
+from app.database.models import DeadlineTask, Schedule, Settings
 from app.schemas import DeadlineGenerate, DeadlineTaskCreateForm, DeadlineTaskList, \
   ScheduleGenerate, ScheduleList, ScheduleUpdateForm
-from app.utils.user import User
+from app.utils.user import User, get_user_settings
 
 
-from openai import OpenAI
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import exc
 import datetime
-from pydantic import BaseModel
 from fastapi import HTTPException
 from typing import List
+from sqlalchemy import exc, select, delete
+import aiohttp
+import json
 
-api_key = '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'
 
-async def generate_deadline(response: DeadlineGenerate, \
-                        current_user: User) -> list[DeadlineTask]:
-    client = OpenAI(api_key=api_key)
+async def generate_deadline(response: DeadlineGenerate,
+                            current_user: User,
+                            session: AsyncSession,
+                            api_key: str) -> list[DeadlineTask]:
+    async def send_request() -> list[DeadlineTask]:
+        url = "https://api.deepseek.com/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
 
-    completion = client.beta.chat.completions.parse(model="gpt-4o", messages=[
-      {"role": "system", "content": f"Ты превращаешь текстовый запрос пользователя в одну или несколько моделей создания дедлайна. \
-       Верни список дедлайнов по запросу пользователя. \
-       Если пользователь не вводит точное время, выбери подходящее сам (например: рано вечером - в 18:00). Сейчас {datetime.datetime.now()}. \
-        Не пиши никакое время в description или указание дня недели, части дня, только описание события. Сначала идут предпочтения пользователя, то есть его личные настройки, \
-        потом идет запрос - то, что ты должен добавить как дедлайн. Учитывай предпочтения пользователя по дням недели, если пользователь пишет, \
-        что обычно просыпается в 10, а по четвергам в 7, учитывай это и можешь ставить дедлайны раньше 10."},
-      {"role": "user", "content": f'Предпочтения пользователя: {current_user.text_settings}, запрос пользователя: {response.text}'}],
-      response_format=DeadlineTaskList)
+        settings = await get_user_settings(current_user, session)
+
+        payload = {
+            "model": "deepseek-chat",
+            "messages": [
+                {
+                    "role": "system",
+                    "content": (
+                        "Ты превращаешь текстовый запрос пользователя в одну или несколько моделей создания дедлайна. "
+                        "Верни список дедлайнов по запросу пользователя. "
+                        "Если ты считаешь, что в какой-то промежуток пользователю надо отдохнуть, не генерируй задач, которые занимают это время, просто оставь пустое место. "
+                        f"Если пользователь не вводит точное время, выбери подходящее сам (например: рано вечером - в 18:00). Сейчас {datetime.datetime.now()}. "
+                        "Не пиши никакое время в description или указание дня недели, части дня, только описание события. Сначала идут предпочтения пользователя, то есть его личные настройки, "
+                        "потом идет запрос - то, что ты должен добавить как дедлайн. Учитывай предпочтения пользователя по дням недели, если пользователь пишет, "
+                        f"что обычно просыпается в 10, а по четвергам в 7, учитывай это и можешь ставить дедлайны раньше 10. deadline_time должен быть в формате %Y-%m-%dT%H:%M:%S."
+                        "Верни json объекты { tasks: list[ { description: str, deadline_time: str } ] }"
+                        )
+                },
+                {
+                    "role": "user",
+                    "content": f'Предпочтения пользователя: {settings.text_settings}, запрос пользователя: {response.text}'
+                },
+            ],
+        }
+
+        async with aiohttp.ClientSession() as client:
+            async with client.post(url, json=payload, headers=headers) as resp:
+                if resp.status == 200:
+                    data = await resp.json()
+
+                    ai_response_text = data["choices"][0]["message"]["content"]
+                    if ai_response_text.startswith("```json"):
+                        ai_response_text = ai_response_text[7:-3].strip()
+                    ai_response = json.loads(ai_response_text)
+
+                    ans = []
+                    for task in ai_response["tasks"]:
+                        date = datetime.datetime.strptime(task["deadline_time"], f"%Y-%m-%dT%H:%M:%S")
+                        db_task = DeadlineTaskCreateForm(
+                            description=task["description"],
+                            deadline_time=date
+                        )
+                        ans.append(db_task)
+                    return ans
+                else:
+                    return []
     
-    ai_response = completion.choices[0].message.parsed
-
-    ans = []
-    for task in ai_response.tasks:
-      date = datetime.datetime.strptime(task.deadline_time, "%Y-%m-%dT%H:%M:%S")
-
-      db_task = DeadlineTaskCreateForm(description=task.description, deadline_time=date)
-
-      ans.append(db_task)
-    
+    ans = await send_request()
     return ans
+    
 
 
-async def schedule_generation(response: ScheduleGenerate, \
-                              current_user: User) -> list[Schedule]:
-   client = OpenAI(api_key=api_key)
+async def schedule_generation(response: ScheduleGenerate, 
+                              current_user: User, 
+                              session: AsyncSession,
+                              api_key: str) -> list[Schedule]:
+    async def send_request() -> list[Schedule]:
+        url = "https://api.deepseek.com/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
 
-   completion = client.beta.chat.completions.parse(model="gpt-4o", messages=[
-      {"role": "system", "content": f"Ты генерируешь расписание (список задач с началом и концом выполнения) для пользователя по текстовому запросу. \
-       Расписание должно быть составлено на целый день, составь его так, чтобы человек был максимально продуктивен и вовремя отдыхал, \
-       Если ты считаешь, что в какой-то промежуток пользователю надо отдохнуть, не генерируй задач, которые занимают это время, просто оставь пустое место. \
-       Если пользователь не вводит точное время, выбери подходящее сам (например: рано вечером - в 18:00). Сейчас {datetime.datetime.now()}. \
-        Не пиши никакое время в name или text или указание дня недели, части дня, только описание события. Сначала идут предпочтения пользователя, то есть его личные настройки, \
-        потом идет запрос - то, что пользователю. надо сделать в этот день. Учитывай предпочтения пользователя по дням недели, если пользователь пишет, \
-        что обычно просыпается в 10, а по четвергам в 7, учитывай это и можешь ставить задачи раньше 10. start_time и end_time должны быть в формате %Y-%m-%dT%H:%M:%S"},
-      {"role": "user", "content": f'Предпочтения пользователя: {current_user.text_settings}, запрос пользователя: {response.text}'}],
-      response_format=ScheduleList)
+        settings = await get_user_settings(current_user, session)
 
-   ai_response = completion.choices[0].message.parsed
+        payload = {
+            "model": "deepseek-chat",
+            "messages": [
+                {
+                    "role": "system",
+                    "content": (
+                        "Ты генерируешь расписание (список задач с началом и концом выполнения) для пользователя по текстовому запросу. "
+                        "Расписание должно быть составлено на целый день, составь его так, чтобы человек был максимально продуктивен и вовремя отдыхал, "
+                        "Если ты считаешь, что в какой-то промежуток пользователю надо отдохнуть, не генерируй задач, которые занимают это время, просто оставь пустое место. "
+                        f"Если пользователь не вводит точное время, выбери подходящее сам (например: рано вечером - в 18:00). Сейчас {datetime.datetime.now()}. "
+                        "Не пиши никакое время в name или text или указание дня недели, части дня, только описание события. Сначала идут предпочтения пользователя, то есть его личные настройки, "
+                        "потом идет запрос - то, что пользователю надо сделать в этот день. Учитывай предпочтения пользователя по дням недели, если пользователь пишет, "
+                        f"что обычно просыпается в 10, а по четвергам в 7, учитывай это и можешь ставить задачи раньше 10. start_time и end_time должны быть в формате %Y-%m-%dT%H:%M:%S."
+                        "Верни json объекты { tasks: list[ { name: str, text: str, start_time: str, end_time: str, recurring: bool } ] }"
+                        )
+                },
+                {
+                    "role": "user",
+                    "content": f'Предпочтения пользователя: {settings.text_settings}, рабочее время пользователя: {settings.start_working} - {settings.end_working}, запрос пользователя: {response.text}'
+                },
+            ],
+        }
 
-   ans = []
-   for task in ai_response.tasks:
-     start_time = datetime.datetime.strptime(task.start_time, "%Y-%m-%dT%H:%M:%S")
-     end_time = datetime.datetime.strptime(task.end_time, "%Y-%m-%dT%H:%M:%S")
+        async with aiohttp.ClientSession() as client:
+            async with client.post(url, json=payload, headers=headers) as resp:
+                if resp.status == 200:
+                    data = await resp.json()
 
-     db_task = ScheduleUpdateForm(name=task.name, text=task.text, start_time=start_time, \
-                                  end_time=end_time, recurring=task.recurring)
+                    ai_response_text = data["choices"][0]["message"]["content"]
+                    if ai_response_text.startswith("```json"):
+                        ai_response_text = ai_response_text[7:-3].strip()
+                    ai_response = json.loads(ai_response_text)
 
-     ans.append(db_task)
-  
-   return ans
+                    ans = []
+                    for task in ai_response["tasks"]:
+                        start_time = datetime.datetime.strptime(task["start_time"], f"%Y-%m-%dT%H:%M:%S")
+                        end_time = datetime.datetime.strptime(task["end_time"], f"%Y-%m-%dT%H:%M:%S")
+                        db_task = ScheduleUpdateForm(
+                            name=task["name"],
+                            text=task["text"],
+                            start_time=start_time,
+                            end_time=end_time,
+                            recurring=task["recurring"]
+                        )
+                        ans.append(db_task)
+                    return ans
+                else:
+                    return []
+    
+    ans = await send_request()
+    return ans

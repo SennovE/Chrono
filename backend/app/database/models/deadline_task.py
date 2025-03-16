@@ -22,4 +22,4 @@ class DeadlineTask(DeclarativeBase):
     deadline_time = Column(DateTime(timezone=True))
     
     description = Column(String)
-    status = Column(Integer)     #0 - активно, 1 - завершено, 2 - просрочено
+    status = Column(Integer)     #0 - активно, 1 - завершено

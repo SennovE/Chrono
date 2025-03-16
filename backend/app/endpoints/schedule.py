@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Security, status, Body, HTTPException
 from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
+from app.config import get_settings, DefaultSettings
 
 from app.database.connection import get_session
 from app.schemas import ScheduleForm, ScheduleResponse, ScheduleUpdateForm, ScheduleGenerate
@@ -110,8 +111,10 @@ async def update_user_task(
                      }
                  })
 async def ai_generation(response: ScheduleGenerate, \
-                        current_user: Annotated[User, Depends(get_current_user)]):
-    return await schedule_generation(response, current_user)
+                        current_user: Annotated[User, Depends(get_current_user)],
+                        session: Annotated[AsyncSession, Depends(get_session)],
+                        settings: Annotated[DefaultSettings, Depends(get_settings)]):
+    return await schedule_generation(response, current_user, session, settings.API_KEY)
     
 
 @api_router.post('/send_ai_schedule',

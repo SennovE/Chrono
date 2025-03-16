@@ -136,8 +136,10 @@ export default {
 
 /* Анимация для иконок */
 .nav-icon {
-  margin-left: 0.5rem; /* Иконки отступают слева */
-  margin-right: 0.625rem;
+  display: inline-block; /* Позволяет задать фиксированную ширину */
+  width: 1.5rem;         /* Фиксированная ширина для всех иконок */
+  text-align: center;    /* Выравнивание содержимого по центру */
+  margin-right: 0.5rem;/* Отступ справа между иконкой и текстом */
   font-size: 1rem;
   background: none;
   transition: transform 0.3s;
