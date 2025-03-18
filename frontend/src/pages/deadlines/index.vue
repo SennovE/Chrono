@@ -564,9 +564,14 @@ export default {
     /**
      * Группировка задач по дате.
      */
-    const groupedDeadlines = computed(() => {
+     const groupedDeadlines = computed(() => {
       return deadlines.value.reduce((groups, task) => {
-        const dateKey = task.deadline_time.split("T")[0];
+        const localDate = new Date(task.deadline_time);
+        const year = localDate.getFullYear();
+        const month = String(localDate.getMonth() + 1).padStart(2, "0");
+        const day = String(localDate.getDate()).padStart(2, "0");
+        const dateKey = `${year}-${month}-${day}`; // Формируем ключ в локальном времени
+
         if (!groups[dateKey]) {
           groups[dateKey] = [];
         }
@@ -582,7 +587,7 @@ export default {
       const days = Array.from({ length: 30 }, (_, i) => {
         const date = new Date();
         date.setDate(date.getDate() + i);
-        return date.toISOString().split("T")[0];
+        return date.toLocaleDateString("en-CA");
       });
 
       return days.reduce((result, day) => {
