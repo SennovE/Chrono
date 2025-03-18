@@ -4,6 +4,7 @@
   <div class="page-container">
     <NavBar :username="user.username" />
     <div class="content-container">
+      <invalidUserPanel v-show="user == -1"/>
       <!-- Header Section with Title and Add Task Easier & Add Task Buttons -->
       <div class="header">
         <h1 class="title">My tasks</h1>
@@ -316,10 +317,11 @@
 import axios from "axios";
 import { ref, computed, onMounted } from "vue";
 import NavBar from "../../components/light_style/NavBar.vue";
+import invalidUserPanel from "../../components/NotRegisteredLight.vue"
 
 export default {
   name: "DeadlinePage",
-  components: { NavBar },
+  components: { NavBar, invalidUserPanel },
   setup() {
     const user = ref({ username: "Loading..." });
     const deadlines = ref([]);
@@ -379,19 +381,26 @@ export default {
     /**
      * Запрос данных пользователя.
      */
-    const fetchUser = async () => {
+    const getUser = async () => {
       try {
         const token = getToken();
+        if (token == null) {
+          return -1
+        }
         const response = await axios.get(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/user/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        user.value = response.data;
+        return response.data;
       } catch (error) {
-        console.error("Error fetching user:", error);
+          return -1
       }
     };
+
+    const fetchUser = async () => {
+      user.value = await getUser()
+    }
 
     /**
      * Запрос всех задач (дедлайнов).
@@ -928,6 +937,7 @@ export default {
       closeAIEditModal,
       submitAIEdit,
       taskInputMode,
+      invalidUserPanel,
     };
   },
 };

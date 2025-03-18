@@ -2,6 +2,7 @@
 import axios from "axios";
 import { ref, onMounted, watch } from "vue";
 import NavBar from "../../components/light_style/NavBar.vue";
+import invalidUserPanel from "../../components/NotRegisteredLight.vue"
 
 document.body.style.overflowY = 'hidden';
 
@@ -24,18 +25,25 @@ function getToken() {
 }
 
 // Получение данных пользователя
-async function fetchUser() {
+async function getUser() {
   try {
     const token = getToken();
+        if (token == null) {
+          return -1
+        }
     const response = await axios.get(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/user/me`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-    user.value = response.data;
+    return response.data;
   } catch (error) {
-    console.error("Error fetching user:", error);
+      return -1
   }
+}
+
+async function fetchUser() {
+  user.value = await getUser()
 }
 
 // Получение настроек
@@ -122,6 +130,8 @@ onMounted(async () => {
 
 <template>
   <div class="page-container">
+    <invalidUserPanel v-show="user == -1"/>
+    
     <!-- Навигационная панель слева -->
     <div class="nav-container">
       <NavBar :username="user.username" />
