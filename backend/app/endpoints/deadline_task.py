@@ -2,6 +2,8 @@ from app.database.models import DeadlineTask
 from app.database.connection import get_session
 from app.schemas import DeadlineTaskDebugResponse, DeadlineTaskCreateForm, \
 DeadlineTaskResponse, DeadlineTaksUpdateForm, DeadlineTaskID, DeadlineGenerate
+from app.config import get_settings, DefaultSettings
+from app.utils.ai_generation import generate_deadline
 
 
 from fastapi import APIRouter, Depends, status, HTTPException, Security
@@ -19,9 +21,6 @@ from app.utils.deadline_task import (
     return_deadline_task,
     submit_ai_gen
     )
-from app.utils.ai_generation import generate_deadline
-from uuid import UUID
-from typing import List
 
 
 api_router = APIRouter(
@@ -183,8 +182,10 @@ async def return_to_active(task: Annotated[DeadlineTaskID, Body()],\
                      }
                  })
 async def ai_generation(response: DeadlineGenerate, \
-                        current_user: Annotated[User, Depends(get_current_user)]):
-    return await generate_deadline(response, current_user)
+                        current_user: Annotated[User, Depends(get_current_user)],
+                        session: Annotated[AsyncSession, Depends(get_session)], 
+                        settings: Annotated[DefaultSettings, Depends(get_settings)]):
+    return await generate_deadline(response, current_user, session, settings.API_KEY)
     
 
 @api_router.post('/submit_ai_generation',

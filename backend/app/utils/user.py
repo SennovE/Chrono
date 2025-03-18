@@ -95,3 +95,9 @@ async def register_user_via_google(session: AsyncSession, user_info: str):
         )
         user_data.password = ""
         await register_user(session, user_data)
+
+
+async def get_user_settings(current_user: User, session: AsyncSession) -> Settings:
+    query = select(Settings).where(Settings.user_id == current_user.id)
+    settings = await session.scalar(query)
+    return settings
