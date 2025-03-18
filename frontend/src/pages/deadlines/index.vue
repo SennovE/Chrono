@@ -158,24 +158,25 @@
       </div>
     </div>
 
-    <!-- Existing Edit Modal -->
+    
+    <!-- Редактирование существующей задачи -->
     <div v-if="isModalOpen" class="modal-overlay" @click.self="closeEditModal">
-      <div class="modal-content">
-        <h2>Редактировать задачу</h2>
-        <form @submit.prevent="submitEdit">
-          <label>
-            Описание:
-            <input type="text" v-model="editTask.description" required />
-          </label>
-          <label>
-            Время дедлайна:
-            <input type="time" v-model="editTask.time" required />
-          </label>
-          <div class="modal-buttons">
-            <button type="button" @click="closeEditModal">Отмена</button>
-            <button type="submit">Сохранить</button>
-          </div>
-        </form>
+      <div class="modal-content fixed-form-size">
+        <h2>Edit Task</h2>
+        <div class="form-container">
+          <form class="manual-add-task-form" @submit.prevent="submitEdit">
+            <h3>Description</h3>
+            <input style="border-radius: 0.5rem; margin-bottom: 0.5rem;" type="text" v-model="editTask.description" required class="description-input"/>
+            <h3>Date</h3>
+            <input style="border-radius: 0.5rem; margin-bottom: 0.5rem;" type="date" v-model="editTask.date" required />
+            <h3>Time</h3>
+            <input style="border-radius: 0.5rem; margin-bottom: 0.5rem;" type="time" v-model="editTask.time" required />
+            <div class="modal-buttons">
+              <button type="button" @click="closeEditModal">Cancel</button>
+              <button type="submit">Submit</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
 
@@ -564,9 +565,14 @@ export default {
     /**
      * Группировка задач по дате.
      */
-    const groupedDeadlines = computed(() => {
+     const groupedDeadlines = computed(() => {
       return deadlines.value.reduce((groups, task) => {
-        const dateKey = task.deadline_time.split("T")[0];
+        const localDate = new Date(task.deadline_time);
+        const year = localDate.getFullYear();
+        const month = String(localDate.getMonth() + 1).padStart(2, "0");
+        const day = String(localDate.getDate()).padStart(2, "0");
+        const dateKey = `${year}-${month}-${day}`; // Формируем ключ в локальном времени
+
         if (!groups[dateKey]) {
           groups[dateKey] = [];
         }
@@ -582,7 +588,7 @@ export default {
       const days = Array.from({ length: 30 }, (_, i) => {
         const date = new Date();
         date.setDate(date.getDate() + i);
-        return date.toISOString().split("T")[0];
+        return date.toLocaleDateString("en-CA");
       });
 
       return days.reduce((result, day) => {
