@@ -20,24 +20,10 @@ export default defineComponent({
   components: {
     Bar
   },
-  props: {
-    chartData: {
-      type: Object,
-      required: true
-    },
-    chartOptions: {
-      type: Object,
-      default: () => ({})
-    }
-  }
 });
   
 ChartJS.register(Title, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 </script>
   
 <style scoped>
-/* Фон графика в стиле Macchiato */
-canvas {
-  background-color: #24273A;
-}
 </style>

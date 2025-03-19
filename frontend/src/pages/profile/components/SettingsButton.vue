@@ -16,7 +16,7 @@ const router = useRouter();
 <style scoped>
 .get-started-container_kera {
   position: relative;
-  margin-left: 160px ;
+  margin-left: 140px ;
   margin-top:  1px;
 }
 
@@ -37,17 +37,11 @@ const router = useRouter();
 }
 
 .get-started:hover {
-  background: linear-gradient(135deg, #89b4fa, #5a9bd4);
-  color: #1e1e2e;
-  transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.7);
+  color: #ffffff;
+  box-shadow: 0 6px 12px rgba(44, 42, 42, 0.7);
 }
 
-.get-started:active {
-  background: #302d41;
-  transform: translateY(0);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-}
+
 
 /* Для маленьких экранов */
 @media (max-width: 600px) {
