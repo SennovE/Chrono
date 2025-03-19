@@ -2,29 +2,29 @@
   <div class="get-task-statistics">
     <h2>Статистика задач</h2>
     
-    <div class="choose-period">
+    <div class="task-stats-period-selector">
       <button 
-        :class="{ active1: selectedPeriod === 'day' }" 
-        @click="selectedPeriod = 'day'"
+        :class="{ active1: taskStatsSelectedPeriod === 'day' }" 
+        @click="taskStatsSelectedPeriod = 'day'"
       >
         День
       </button>
       <button 
-        :class="{ active1: selectedPeriod === 'week' }" 
-        @click="selectedPeriod = 'week'"
+        :class="{ active1: taskStatsSelectedPeriod === 'week' }" 
+        @click="taskStatsSelectedPeriod = 'week'"
       >
         Неделя
       </button>
       <button 
-        :class="{ active1: selectedPeriod === 'calendar' }" 
-        @click="selectedPeriod = 'calendar'"
+        :class="{ active1: taskStatsSelectedPeriod === 'calendar' }" 
+        @click="taskStatsSelectedPeriod = 'calendar'"
       >
         Календарь
       </button>
     </div>
 
     <!-- Селектор года появляется только во вкладке "Календарь" -->
-    <div v-if="selectedPeriod === 'calendar'" class="year-select">
+    <div v-if="taskStatsSelectedPeriod === 'calendar'" class="year-select">
       <label>
         Выберите год:
         <select v-model="selectedYear">
@@ -41,9 +41,9 @@
     
     <div v-else>
       <!-- Для "День" и "Неделя" отображается график -->
-      <div v-if="selectedPeriod === 'day' || selectedPeriod === 'week'" class="chart-container">
-        <BarChart :chartData="chartData" :options="chartOptions" :chartType="chartType" />
-      </div>
+      <div v-if="taskStatsSelectedPeriod === 'day' || taskStatsSelectedPeriod === 'week'" class="chart-container">
+  <BarChart :key="taskStatsSelectedPeriod" :chartData="chartData" :options="chartOptions" :chartType="chartType" />
+</div>
       
       <!-- Вкладка "Календарь" – календарь по месяцам выбранного года -->
       <div v-else class="calendar-all-months">
@@ -109,14 +109,14 @@ export default {
     const loading = ref(true);
     const error = ref(null);
     // Возможные значения: 'day', 'week', 'calendar'
-    const selectedPeriod = ref('day');
+    const taskStatsSelectedPeriod = ref('day');
 
     // Для выбора года в календаре
     const selectedYear = ref(new Date().getFullYear());
     const availableYears = computed(() => {
       const current = new Date().getFullYear();
       const years = [];
-      for (let i = current - 5; i <= current + 1; i++) {
+      for (let i = current - 2; i <= current + 3; i++) {
         years.push(i);
       }
       return years;
@@ -164,7 +164,7 @@ export default {
 
     const chartData = computed(() => {
       const now = new Date();
-      if (selectedPeriod.value === 'day') {
+      if (taskStatsSelectedPeriod.value === 'day') {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const tomorrow = new Date(today);
@@ -182,7 +182,7 @@ export default {
             { label: 'Пропущено', backgroundColor: '#fab387', data: [overdueCount] }
           ]
         };
-      } else if (selectedPeriod.value === 'week') {
+      } else if (taskStatsSelectedPeriod.value === 'week') {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const labels = [];
@@ -223,7 +223,7 @@ export default {
     });
 
     const chartOptions = computed(() => {
-      const titleText = selectedPeriod.value === 'day' ? 'Статистика за День' : 'Статистика за Неделю';
+      const titleText = taskStatsSelectedPeriod.value === 'day' ? 'Статистика за День' : 'Статистика за Неделю';
       return {
         responsive: true,
         maintainAspectRatio: false,
@@ -241,8 +241,8 @@ export default {
           y: { 
             stacked: true, 
             beginAtZero: true, 
-            ticks: { stepSize: 1, callback: value => Number.isInteger(value) ? value : '', color: "#cdd6f4" },
-            grid: { color: "#302d41" } 
+            ticks: { stepSize: 23, callback: value => Number.isInteger(value) ? value : '', color: "#cdd6f4" },
+            grid: { display: false } 
           }
         }
       };
@@ -388,7 +388,7 @@ export default {
       tasks,
       loading,
       error,
-      selectedPeriod,
+      taskStatsSelectedPeriod,
       selectedYear,
       availableYears,
       chartType,
@@ -414,19 +414,19 @@ export default {
 <style scoped>
 .get-task-statistics {
   background-color: #1e1e2e;
-  border: 1px solid #302d41;
   padding: 20px;
   border-radius: 10px;
   width: 90%;
-  max-width: 600px;
-  height: 1000px;
+  max-width: 700px;
+  height: 770px;
   color: #cdd6f4;
+  position: absolute;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  margin-top: -400px;
-  margin-left: 1000px;
+  top: 100px;
+  left: 1000px;
 }
 
-.choose-period {
+.task-stats-period-selector {
   text-align: center;
   margin-bottom: 20px;
 }
@@ -446,7 +446,7 @@ export default {
   font-size: 14px;
 }
 
-.choose-period button {
+.task-stats-period-selector button {
   background-color: #2e2e42;
   border: 1px solid #302d41;
   color: #cdd6f4;
@@ -458,11 +458,11 @@ export default {
   transition: background-color 0.3s, transform 0.2s;
 }
 
-.choose-period button:hover {
+.task-stats-period-selector button:hover {
   background-color: #3a3a55;
 }
 
-.choose-period button.active1 {
+.task-stats-period-selector button.active1 {
   background-color: #89b4fa;
   color: #1e1e2e;
   border-color: #89b4fa;
@@ -485,8 +485,8 @@ export default {
 /* Для графиков (День/Неделя) – уменьшаем высоту */
 .chart-container {
   position: relative;
-  height: 200px;
-  width: 100%;
+  height: 10px;
+  width: 80%;
   margin: 20px 0;
 }
 
