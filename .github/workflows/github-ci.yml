@@ -35,5 +35,11 @@ jobs:
 
       - name: Restart docker on VM and clean up
         run: |
-          ssh -o StrictHostKeyChecking=no sennov@158.160.57.223 "cd app && sudo docker-compose pull && sudo docker-compose up -d --remove-orphans && sleep 10 && sudo docker logs backend && sudo docker system prune -f --volumes"
-
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_NAME }}@${{ secrets.VM_IP }} "
+            cd app &&
+            docker-compose pull &&
+            docker-compose up -d --remove-orphans &&
+            sleep 10 &&
+            docker logs backend &&
+            docker system prune -f --volumes
+          "
