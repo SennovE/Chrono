@@ -37,9 +37,9 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no sennov@158.160.57.223 "
             cd app &&
-            docker-compose pull &&
-            docker-compose up -d --remove-orphans &&
+            sudo docker-compose pull &&
+            sudo docker-compose up -d --remove-orphans &&
             sleep 10 &&
-            docker logs backend &&
-            docker system prune -f --volumes
+            sudo docker logs backend &&
+            sudo docker system prune -f --volumes
           "
