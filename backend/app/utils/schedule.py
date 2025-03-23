@@ -2,12 +2,12 @@ import asyncio
 
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, or_, and_
 from sqlalchemy.orm import joinedload
 from uuid import UUID
 
 from app.schemas import ScheduleForm, ScheduleUpdateForm
-from app.database.models import User, Schedule, TaskGroup
+from app.database.models import User, Schedule, TaskGroup, UserToGroup
 
 
 async def check_if_group_exists(group_id: UUID, session: AsyncSession) -> bool:
@@ -58,10 +58,31 @@ async def add_schedule_task(
 
 
 async def get_schedule_tasks(session: AsyncSession, current_user: User) -> list[Schedule]:
-    query = select(Schedule) \
-        .where(Schedule.owner_id == current_user.id) \
-        .options(joinedload(Schedule.task_group))\
-        .order_by(-((Schedule.end_hours - Schedule.start_hours) * 60 + (Schedule.end_minutes - Schedule.start_minutes)))
+    subq = (
+        select(UserToGroup.group_id)
+        .where(UserToGroup.user_id == current_user.id)
+    )
+
+    query = (
+        select(Schedule)
+        .where(
+            or_(
+                Schedule.group_id.in_(subq),
+                and_(
+                    Schedule.group_id.is_(None),
+                    Schedule.owner_id == current_user.id
+                )
+            )
+        )
+        .options(joinedload(Schedule.task_group))
+        .order_by(
+            -(
+                (Schedule.end_hours - Schedule.start_hours) * 60 
+                + (Schedule.end_minutes - Schedule.start_minutes)
+            )
+        )
+    )
+    
     result = await session.scalars(query)
     return result.all()
 
