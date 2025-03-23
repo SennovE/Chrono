@@ -5,6 +5,7 @@ from .deadline_task import api_router as deadline_task_router
 from .schedule import api_router as schedule_route
 from .settings import api_router as settings_router
 from .google_auth import api_router as google_router
+from .task_groups import api_router as groups_router
 
 list_of_routes = [
     auth_router,
@@ -14,6 +15,7 @@ list_of_routes = [
     schedule_route,
     settings_router,
     google_router,
+    groups_router,
 ]
 
 __all__ = [

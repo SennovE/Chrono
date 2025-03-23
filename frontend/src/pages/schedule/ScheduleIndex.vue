@@ -2,7 +2,7 @@
 import { authUser } from "./components/ScheduleFunctions";
 import { onMounted, ref } from "vue";
 import navPanel from "../../components/LoginNavPanel.vue";
-import schedulePage from "./components/SchedulePage.vue";
+import schedulePage from "./components/Page.vue";
 import invalidUserPanel from "../../components/NotRegistered.vue"
 
 document.title = "Schedule"

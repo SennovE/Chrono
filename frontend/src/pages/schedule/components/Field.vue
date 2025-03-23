@@ -6,9 +6,10 @@ import {
     makeWeekDates,
     getScheduleTasks,
     currentTimeFilter,
+    getTasksGroups,
 } from "./ScheduleFunctions"
-import scheduleUpdateForm from "./ScheduleUpdateForm.vue"
-import scheduleGeneration from "./ScheduleGeneration.vue"
+import scheduleUpdateForm from "./UpdateForm.vue"
+import scheduleGeneration from "./Generation.vue"
 import { useRouter } from "vue-router"
 
 const emit = defineEmits(['openNav'])
@@ -152,9 +153,16 @@ const tasks = ref({
     "5": [],
     "6": []
 })
+const taskGroups = ref([])
+
+
+async function fetchGroups() {
+    taskGroups.value = [{}, ...await getTasksGroups(useRouter)]
+}
 
 async function fetchTasks() {
     tasks.value = await getScheduleTasks(useRouter)
+    await fetchGroups();
 }
 
 const currentRow = ref(null)
@@ -188,7 +196,9 @@ watch(daysOnField, makeDayIndexes)
             :weekdays="weekdays"
             :isModalOpen="isModalOpen"
             :selectedParams="selectedParams"
+            :taskGroups="taskGroups"
             @closeModal="closeModal"
+            @fetchGroups="fetchGroups"
         />
         <div class="head-line">
             <svg
@@ -318,7 +328,10 @@ watch(daysOnField, makeDayIndexes)
                         :key="task.id"
                         :style="{
                             top: `${task.start_minutes / 60 * 100}%`,
-                            bottom: `${(task.end_hours - task.start_hours - 1 + task.end_minutes / 60) * -100}%`
+                            bottom: `${(task.end_hours - task.start_hours - 1 + task.end_minutes / 60) * -100}%`,
+                            'box-shadow':
+                                'inset 0 0 0 1px var(--color-background),' +
+                                `inset 0 0 1vw ${task.group_color ? task.group_color : 'var(--color-container)'}`
                         }"
                         @mousedown.stop
                         @click="showTask(index, task.id)"
@@ -497,9 +510,9 @@ watch(daysOnField, makeDayIndexes)
     text-align: center;
     z-index: 10;
     transition: background-color 0.5s ease, color 0.5s ease;
-    box-shadow:
+    /* box-shadow:
         inset 0 0 0 1px var(--color-background),
-        inset 0 0 1vw var(--color-container);
+        inset 0 0 1vw var(--color-container); */
 }
 .task:hover {
     background-color: var(--color-container);

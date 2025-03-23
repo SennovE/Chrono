@@ -29,7 +29,10 @@ api_router = APIRouter(prefix="/schedule", tags=["Schedule"])
         },
         status.HTTP_401_UNAUTHORIZED: {
             "description": "Could not validate credentials",
-        }
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "No group with this ID",
+        },
     },
 )
 async def new_schedule_task(
@@ -57,6 +60,10 @@ async def get_users_tasks(
     tasks_by_weekday = {i: [] for i in range(0, 7)}
     for task in result:
         tasks_by_weekday[task.week_day].append(task)
+        if task.task_group is not None:
+            tasks_by_weekday[task.week_day][-1].group_name = task.task_group.name
+            tasks_by_weekday[task.week_day][-1].group_color = task.task_group.color
+            tasks_by_weekday[task.week_day][-1].group_code = task.task_group.code
     return tasks_by_weekday
 
 
@@ -117,18 +124,21 @@ async def ai_generation(response: ScheduleGenerate, \
     return await schedule_generation(response, current_user, session, settings.API_KEY)
     
 
-@api_router.post('/send_ai_schedule',
-            status_code=status.HTTP_200_OK,
-            responses={
-                     status.HTTP_401_UNAUTHORIZED: {
-                         "descriprion": "Non authorized"
-                     }
-                 })
-async def send_ai_schedule(tasks: Annotated[list[ScheduleForm], Body()], \
-                               current_user: Annotated[User, Depends(get_current_user)],
-                               session: Annotated[AsyncSession, Depends(get_session)]):
+@api_router.post(
+    '/send_ai_schedule',
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "descriprion": "Non authorized"
+        }
+    }
+)
+async def send_ai_schedule(
+    tasks: Annotated[list[ScheduleForm], Body()],
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_session)]
+) -> None:
     is_success = await send_schedule(tasks, current_user, session)
-
     if (is_success):
         return {"message" : "Submit ai gen tasks"}
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, \

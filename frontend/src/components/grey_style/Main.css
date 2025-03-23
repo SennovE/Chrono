@@ -66,8 +66,9 @@ button:active {
 }
 
 .input-wrapper {
+    display: flex;
+    align-items: center;
     position: relative;
-    width: 100%;
 }
 
 .input-wrapper::before {
@@ -126,7 +127,7 @@ textarea, .task-text {
     border: 1px solid var(--color-container);
 }
 ::-webkit-scrollbar-corner {
-  background: transparent;
+    background: transparent;
 }
 
 .bottom-text {

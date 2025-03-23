@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, UUID, DateTime, String, Boolean, Integer
+from sqlalchemy import Column, ForeignKey, UUID, String, Boolean, Integer
 from sqlalchemy.orm import relationship
 
 from app.database import DeclarativeBase
@@ -28,3 +28,5 @@ class Schedule(DeclarativeBase):
     
     owner_id = Column(UUID, ForeignKey("Users.id"), index=True)
     author = relationship("User")
+    group_id = Column(UUID, ForeignKey("TaskGroup.id"), index=True, nullable=True)
+    task_group = relationship("TaskGroup")
