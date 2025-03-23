@@ -1,5 +1,4 @@
 <script setup>
-/* eslint-disable */
 import { ref, computed, onMounted, onUnmounted, watch, defineEmits } from "vue"
 import {
     getMonthName,
@@ -155,6 +154,7 @@ const tasks = ref({
     "6": []
 })
 const taskGroups = ref([])
+
 
 async function fetchGroups() {
     taskGroups.value = [{}, ...await getTasksGroups(useRouter)]
