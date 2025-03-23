@@ -28,7 +28,10 @@ api_router = APIRouter(prefix="/schedule", tags=["Schedule"])
         },
         status.HTTP_401_UNAUTHORIZED: {
             "description": "Could not validate credentials",
-        }
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "No group with this ID",
+        },
     },
 )
 async def new_schedule_task(
@@ -56,6 +59,10 @@ async def get_users_tasks(
     tasks_by_weekday = {i: [] for i in range(0, 7)}
     for task in result:
         tasks_by_weekday[task.week_day].append(task)
+        if task.task_group is not None:
+            tasks_by_weekday[task.week_day][-1].group_name = task.task_group.name
+            tasks_by_weekday[task.week_day][-1].group_color = task.task_group.color
+            tasks_by_weekday[task.week_day][-1].group_code = task.task_group.code
     return tasks_by_weekday
 
 

@@ -2,8 +2,9 @@
 import { ref, defineProps, defineEmits, watch } from "vue"
 import { useRouter } from "vue-router"
 import { deleteTask, updateTask, addScheduleTask } from "./ScheduleFunctions"
+import taskGroupForm from "./TaskGroupForm.vue"
 
-const emit = defineEmits(["closeModal"])
+const emit = defineEmits(["closeModal", "fetchGroups"])
 const router = useRouter()
 
 const shortText = ref("")
@@ -14,12 +15,12 @@ const startTime = ref("")
 const endTime = ref("")
 const recurring = ref(false)
 const selectedOptionWeekDay = ref("Понедельник")
-const selectedTaskGroup = ref("-")
-const taskColor = ref("")
+const selectedTaskGroup = ref({})
 
 const response = ref("")
 
 const isModalUpdateOpen = ref(0)
+const isMakingTaskGroup = ref(0)
 
 const props = defineProps({
     tasks: Object,
@@ -37,6 +38,7 @@ async function deleteTaskWrap() {
 }
 
 async function addScheduleTaskWrap() {
+    console.log(selectedTaskGroup.value.id)
     response.value = await addScheduleTask(
         router,
         shortText.value,
@@ -45,7 +47,7 @@ async function addScheduleTaskWrap() {
         startTime.value,
         endTime.value,
         recurring.value,
-        taskColor.value,
+        selectedTaskGroup.value.id,
     )
     if (response.value == "") {
         modalClose()
@@ -62,7 +64,7 @@ async function updateTaskWrap() {
         startTime.value,
         endTime.value,
         recurring.value,
-        taskColor.value,
+        selectedTaskGroup.value.id,
     )
     if (response.value == "") {
         modalClose()
@@ -77,8 +79,8 @@ function modalClose() {
     endTime.value = ""
     recurring.value = false
     response.value = ""
-    taskColor.value = ""
     isModalUpdateOpen.value = 0
+    selectedTaskGroup.value = {}
     emit("closeModal")
 }
 
@@ -121,33 +123,58 @@ function showTaskById() {
     endTime.value = String(selectedTask.end_hours).padStart(2, '0') + ':' +
                     String(selectedTask.end_minutes).padStart(2, '0')
     recurring.value = selectedTask.recurring
-    taskColor.value = selectedTask.taskColor
     isModalUpdateOpen.value = 1
     const tmp = new Date(startDate.value)
     selectedOptionWeekDay.value = props.weekdays[(tmp.getDay() + 6) % 7]
+    selectedTaskGroup.value = {
+        id: selectedTask.group_id,
+        name: selectedTask.group_name,
+        color: selectedTask.group_color,
+        code: selectedTask.group_code,
+    }
+}
+
+function getDateFromSelectedDay() {
+    const currDay = props.weekdays.indexOf(selectedOptionWeekDay.value)
+    const tmp = new Date()
+    tmp.setDate(tmp.getDate() - (tmp.getDay() + 6) % 7 + currDay)
+    const year = tmp.getFullYear()
+    const month = String(tmp.getMonth() + 1).padStart(2, '0')
+    const day = String(tmp.getDate()).padStart(2, '0')
+    startDate.value = `${year}-${month}-${day}`
 }
 
 function changeRecurring() {
     if (!recurring.value) {
-        const currDay = props.weekdays.indexOf(selectedOptionWeekDay.value)
-        const tmp = new Date()
-        tmp.setDate(tmp.getDate() - (tmp.getDay() + 6) % 7 + currDay)
-        const year = tmp.getFullYear()
-        const month = String(tmp.getMonth() + 1).padStart(2, '0')
-        const day = String(tmp.getDate()).padStart(2, '0')
-        startDate.value = `${year}-${month}-${day}`
+        getDateFromSelectedDay()
     } else {
         const tmp = new Date(startDate.value)
         selectedOptionWeekDay.value = props.weekdays[(tmp.getDay() + 6) % 7]
     }
 }
 
+async function fetchGroupsWrap() {
+    emit("fetchGroups")
+}
+
 watch(() => props.isModalOpen, modalOpen)
 watch(() => recurring.value, changeRecurring)
+watch(() => selectedOptionWeekDay.value, getDateFromSelectedDay)
 </script>
 
 <template>
     <div>
+        <transition name="overlay-fade">
+            <taskGroupForm
+                :isMakingTaskGroup="isMakingTaskGroup"
+                :taskGroups="taskGroups"
+                :selectedTaskGroup="selectedTaskGroup"
+                @closeGroupForm="isMakingTaskGroup = 0"
+                @modalUpdateClose="modalClose"
+                @setNewGroup="isMakingTaskGroup = 1"
+                @fetchGroups="fetchGroupsWrap"
+            />
+        </transition>
         <transition name="overlay-fade">
             <div 
                 v-if="isModalUpdateOpen" 
@@ -159,8 +186,8 @@ watch(() => recurring.value, changeRecurring)
                         <h2 v-if="isModalUpdateOpen == 2">Изменить событие</h2>
                         <h2 v-else-if="isModalUpdateOpen == 3">Добавить событие</h2>
                         <h2 v-else>{{ shortText }}</h2>
-                        <div class="edit-button" @click="isModalUpdateOpen = 2">
-                            <svg v-if="isModalUpdateOpen == 1" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <div v-if="isModalUpdateOpen == 1" class="edit-button" @click="isModalUpdateOpen = 2">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 20h9"></path>
                                 <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
                             </svg>
@@ -193,7 +220,7 @@ watch(() => recurring.value, changeRecurring)
                                 v-else-if="isModalUpdateOpen == 2  || isModalUpdateOpen == 3"
                                 class="custom-select"
                             >
-                                <select v-model="selectedTaskGroup">
+                                <select v-model="selectedOptionWeekDay">
                                     <option v-for="option in props.weekdays" :key="option">
                                         {{ option }}
                                     </option>
@@ -232,15 +259,41 @@ watch(() => recurring.value, changeRecurring)
                         <p>Группа:</p>
                         <div class="input-wrapper">
                             <div
+                                v-if="isModalUpdateOpen == 2 || isModalUpdateOpen == 3"
                                 class="custom-select"
                             >
-                                <select v-model="selectedOptionWeekDay">
-                                    <option v-for="option in props.weekdays" :key="option">
-                                        {{ option }}
+                                <select v-model="selectedTaskGroup">
+                                    <option 
+                                        v-for="option in props.taskGroups" 
+                                        :key="option.id" 
+                                        :value="option">
+                                        {{ option.name }}
                                     </option>
                                 </select>
                             </div>
+                            <pre v-else>{{ selectedTaskGroup == {} ? "" : selectedTaskGroup.name }}</pre>
                         </div>
+                        <div
+                            v-if="isModalUpdateOpen == 2 || isModalUpdateOpen == 3"
+                            class="group-edit-button"
+                            @click="isMakingTaskGroup = 2"
+                        >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 20h9"></path>
+                                <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                            </svg>
+                        </div>
+                        <svg
+                            v-if="isModalUpdateOpen == 2 || isModalUpdateOpen == 3"
+                            @click="isMakingTaskGroup = 1"
+                            class="svg-buttons svg-right"
+                            viewBox="0 0 40 40"
+                            xmlns="http://www.w3.org/2000/svg"
+                            :style="{ 'margin-left': 'auto', 'width': '3vh'}"
+                        >
+                            <line x1="20" y1="8" x2="20" y2="32" stroke="var(--color-bright-text)" stroke-width="2"/>
+                            <line x1="8" y1="20" x2="32" y2="20" stroke="var(--color-bright-text)" stroke-width="2"/>
+                        </svg>
                     </div>
                     <div v-if="isModalUpdateOpen == 2 || isModalUpdateOpen == 3" class="field-group">
                         <p>Повторяющееся:</p>
@@ -284,9 +337,19 @@ watch(() => recurring.value, changeRecurring)
 </template>
 
 <style>
+.group-edit-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 1%;
+    margin-right: 1%;
+    cursor: pointer;
+}
+
 .creation-button {
     margin-top: 5%;
     margin-bottom: 0;
+    align-items: center;
 }
 
 .modal-header {
@@ -310,7 +373,7 @@ watch(() => recurring.value, changeRecurring)
 }
 
 .field-group p {
-    width: 50%;
+    width: 30%;
     min-width: 150px;
     margin: 0;
     margin-top: 1%;
@@ -325,5 +388,9 @@ watch(() => recurring.value, changeRecurring)
 .overlay-fade-enter-active,
 .overlay-fade-leave-active {
   transition: opacity 0.3s ease;
+}
+
+.field-group .input-wrapper {
+    flex: 1;
 }
 </style>

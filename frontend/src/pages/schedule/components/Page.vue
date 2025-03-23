@@ -1,6 +1,6 @@
 <script setup>
 import { defineEmits } from "vue"
-import calendar from "./ScheduleField.vue"
+import calendar from "./Field.vue"
 
 const emit = defineEmits("openNav")
 

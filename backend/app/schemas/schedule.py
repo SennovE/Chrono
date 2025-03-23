@@ -6,14 +6,15 @@ from uuid import UUID
 
 class ScheduleForm(BaseModel):
     name: str = Field(example="Name for your event")
-    text: str | None = Field(example="Meeting or task that you need to put to your schedule")
+    text: str | None = Field(default=None, example="Meeting or task that you need to put to your schedule")
     start_time: datetime = Field(example=datetime.today())
     end_time: datetime = Field(example=datetime.today() + timedelta(hours=1))
     recurring: bool = Field(default=False, description="Should your task be repeated every week?")
+    group_id: UUID | None = Field(default=None)
 
     @model_validator(mode="after")
     def validate_date(self):
-        if self.start_time >= self.end_time:
+        if self.start_time is not None and self.end_time is not None and self.start_time >= self.end_time:
             raise PydanticCustomError(
                 "time_error",
                 "start_time should be less than end_time",
@@ -28,7 +29,7 @@ class ScheduleForm(BaseModel):
 class ScheduleResponse(BaseModel):
     id: UUID
     name: str
-    text: str | None
+    text: str | None = Field(default=None)
     year: int
     month: int
     day: int
@@ -37,11 +38,14 @@ class ScheduleResponse(BaseModel):
     end_hours: int
     end_minutes: int
     recurring: bool
+    group_id: UUID | None = Field(default=None)
+    group_name: str | None = Field(default=None)
+    group_color: str | None = Field(default=None)
+    group_code: UUID | None = Field(default=None)
 
 
-class ScheduleUpdateForm(BaseModel):
+class ScheduleUpdateForm(ScheduleForm):
     name: str | None = Field(default=None)
-    text: str | None = Field(default=None)
     start_time: datetime | None = Field(default=None)
     end_time: datetime | None = Field(default=None)
     recurring: bool | None = Field(default=None)

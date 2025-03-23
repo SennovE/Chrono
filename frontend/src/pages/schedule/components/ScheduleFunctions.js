@@ -38,7 +38,8 @@ export async function deleteTask(router, taskId) {
     }
 }
 
-export async function updateTask(router, taskId, name, descriptionText, startDate, startTime, endTime, recurring) {
+export async function updateTask(router, taskId, name, descriptionText, startDate,
+                                 startTime, endTime, recurring, group_id) {
     try {
         const token = getToken();
         if (token == null) {
@@ -52,7 +53,8 @@ export async function updateTask(router, taskId, name, descriptionText, startDat
                 text: descriptionText,
                 start_time: `${startDate}T${startTime}`,
                 end_time: `${startDate}T${endTime}`,
-                recurring: recurring
+                recurring: recurring,
+                group_id: group_id ? group_id : "00000000-0000-0000-0000-000000000000",
             }
         }, {
             headers: {
@@ -72,12 +74,9 @@ export async function updateTask(router, taskId, name, descriptionText, startDat
     }
 }
 
-export async function addScheduleTask(router, name, descriptionText, startDate, startTime, endTime, recurring) {
-    if (name === "" ||
-        startTime === "" ||
-        endTime === "" ||
-        recurring === ""
-    ) {
+export async function addScheduleTask(router, name, descriptionText, startDate,
+                                      startTime, endTime, recurring, group_id) {
+    if (name === "" || startTime === "" || endTime === "" || recurring === "") {
         return "Не все обязательные поля заполнены"
     } else if (startTime > endTime) {
         return "Время начала должно быть меньше конца"
@@ -88,12 +87,14 @@ export async function addScheduleTask(router, name, descriptionText, startDate, 
             redirectToLogin(router)
             return -1
         }
+        console.log(group_id)
         await axios.post(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/schedule/`, {
             name: name,
             text: descriptionText,
             start_time: `${startDate}T${startTime}`,
             end_time: `${startDate}T${endTime}`,
-            recurring: recurring
+            recurring: recurring,
+            group_id: group_id ? group_id : null,
         }, {
             headers: {
                 "Accept": "application/json",
@@ -136,6 +137,134 @@ export async function getScheduleTasks(router) {
             "5": [],
             "6": [],
         }
+    }
+}
+
+export async function getTasksGroups(router) {
+    try {
+        const token = getToken();
+        if (token == null) {
+            redirectToLogin(router)
+            return -1
+        }
+        const response = await axios.get(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/task_groups/all/`, {
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${token}`,
+            },
+        })
+        return response.data
+    } catch (error) {
+        return []
+    }
+}
+
+export async function deleteTasksGroup(router, groupId) {
+    try {
+        const token = getToken();
+        if (token == null) {
+            redirectToLogin(router)
+            return
+        }
+        await axios.delete(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/task_groups/`, {
+            data: groupId,
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        })
+        return
+    } catch (error) {
+        return
+    }
+}
+
+export async function addTasksGroup(router, name, color) {
+    if (name === "" || color === "") {
+        return "Не все обязательные поля заполнены"
+    }
+    const regex = /^#[0-9A-Fa-f]{6}$/;
+    if (!regex.test(color)) {
+        return "Цвет должен быть в формате '0f0f0f'"
+    }
+    try {
+        const token = getToken();
+        if (token == null) {
+            redirectToLogin(router)
+            return -1
+        }
+        await axios.post(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/task_groups/`, {
+            name: name,
+            color: color,
+        }, {
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        })
+        return ""
+    } catch (error) {
+        return error.response.data.detail[0].msg
+    }
+}
+
+export async function updateTasksGroup(router, groupId, name, color) {
+    if (name === "" || color === "") {
+        return "Не все обязательные поля заполнены"
+    }
+    const regex = /^#[0-9A-Fa-f]{6}$/;
+    if (!regex.test(color)) {
+        return "Цвет должен быть в формате '0f0f0f'"
+    }
+    try {
+        const token = getToken();
+        if (token == null) {
+            redirectToLogin(router)
+            return -1
+        }
+        await axios.put(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/task_groups/`, {
+            id: groupId,
+            name: name,
+            color: color,
+        }, {
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        })
+        return ""
+    } catch (error) {
+        return error.response.data.detail[0].msg
+    }
+}
+
+export async function addTasksGroupByCode(router, code) {
+    if (code === "") {
+        return "Не все обязательные поля заполнены"
+    }
+    try {
+        const token = getToken();
+        if (token == null) {
+            redirectToLogin(router)
+            return -1
+        }
+        await axios.post(
+            `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/task_groups/add_by_code`,
+            code,
+            {
+                headers: {
+                    "Accept": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                }
+            }
+        )
+        return ""
+    } catch (error) {
+        return error.response.data.detail[0].msg
     }
 }
 
