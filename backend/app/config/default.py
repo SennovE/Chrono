@@ -18,6 +18,8 @@ class DefaultSettings(BaseSettings):
 
     VUE_APP_DNS_URL: str
 
+    API_KEY: str
+
     SECRET_KEY: str
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int

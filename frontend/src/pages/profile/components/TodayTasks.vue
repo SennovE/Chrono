@@ -21,16 +21,14 @@
       </button>
       
       <div class="tasks-wrapper">
-        <div
-          class="tasks"
-          
-        >
+        <div class="tasks">
           <div
             class="task-card"
             v-for="task in visibleTasksList"
-            :key="task.id">
+            :key="task.id"
+          >
             <div class="task-content">
-              <h3>{{ task.description}}</h3>
+              <h3>{{ task.description }}</h3>
               <p class="task-time">{{ formatTime(task.deadline_time) }}</p>
             </div>
             <button
@@ -65,7 +63,6 @@
     <p v-if="error" class="error">{{ error }}</p>
   </div>
 
-
   <div v-if="isModalOpen" class="modal-overlay" @click.self="closeEditModal">
     <div class="modal-content">
       <h2>Редактировать задачу</h2>
@@ -97,7 +94,7 @@ import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
 
 export default {
   name: 'TaskCarousel',
-  setup() { 
+  setup() {
     const user = ref({ 
       username: "Loading...", 
       avatarUrl: "https://via.placeholder.com/190" 
@@ -116,6 +113,7 @@ export default {
       time: ''
     });
     const carouselContainer = ref(null);
+
     const getToken = () => {
       const token = localStorage.getItem("chronoJWTToken");
       if (!token) {
@@ -123,6 +121,7 @@ export default {
       }
       return token;
     };
+
     const fetchUser = async () => {
       try {
         const token = getToken();
@@ -135,6 +134,7 @@ export default {
         error.value = "Не удалось загрузить данные пользователя.";
       }
     };
+
     const fetchDeadlines = async () => {
       try {
         loading.value = true;
@@ -160,7 +160,6 @@ export default {
           ...task,
           deadline_time: task.deadline_time.toISOString(),
         }));
-        
         currentIndex.value = 0;
       } catch (err) {
         console.error("Error fetching deadlines:", err);
@@ -169,6 +168,7 @@ export default {
         loading.value = false;
       }
     };
+
     const markTaskAsComplete = async (taskId) => {
       const confirmDelete = confirm("Вы уверены, что хотите отметить эту задачу как выполненную?");
       if (!confirmDelete) return;
@@ -188,12 +188,10 @@ export default {
 
     const prev = () => { if (currentIndex.value > 0) currentIndex.value--; };
     const next = () => {
-    if (((currentIndex.value + 1) * visibleTasksCount.value) < tasks.value.length) {
-    currentIndex.value++;
-   }
-  };
-
-    // Обработчик события колесика мыши
+      if (((currentIndex.value + 1) * visibleTasksCount.value) < tasks.value.length) {
+        currentIndex.value++;
+      }
+    };
     const handleWheel = (event) => {
       event.preventDefault();
       if (event.deltaY > 0) {
@@ -236,21 +234,13 @@ export default {
       }
     };
 
-    // Функция форматирования времени из ISO-строки (HH:MM)
     const formatTime = (isoString) => isoString.slice(11, 16);
-
-    const formattedToday = computed(() => {
-      const today = new Date();
-      return `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-    });
 
     const isLastPage = computed(() => ((currentIndex.value + 1) * visibleTasksCount.value) >= tasks.value.length);
 
     const visibleTasksList = computed(() => 
-  tasks.value.slice(currentIndex.value, currentIndex.value + visibleTasksCount.value)
-);
-
-  
+      tasks.value.slice(currentIndex.value, currentIndex.value + visibleTasksCount.value)
+    );
 
     const updateVisibleTasksCount = () => {
       visibleTasksCount.value = 3;
@@ -278,7 +268,6 @@ export default {
       tasks,
       currentIndex,
       visibleTasksCount,
-      formattedToday,
       isLastPage,
       visibleTasksList,
       prev,
@@ -300,23 +289,27 @@ export default {
 
 <style scoped>
 .task-carousel {
-  border: 1px solid var(--color-dark-grey);
-  padding: 2px;
-  border-radius: 4px;
-  width: 50%;
-  background-color: var(--color-brighter-black);
-  color: var(--color-black);
+  background-color: #1e1e2e; /* Тёмный фон Mocha */
+  border: 1px solid #302d41;
+  padding: 20px;
+  border-radius: 8px;
+  width: 45%;
+  margin-top: 0px;
+  /* Позиция не изменяется – панель остаётся там, где была */
+  color: #cdd6f4;
 }
 
 .task-carousel h2 {
   text-align: center;
   margin-bottom: 16px;
-  color: var(--color-black);
+  color: #89b4fa;
+  font-size: 24px;
 }
+
 .loading-indicator {
   text-align: center;
   font-size: 18px;
-  color: var(--color-grey);
+  color: #a6adc8;
 }
 
 .carousel-container {
@@ -327,16 +320,13 @@ export default {
 }
 
 .nav-button {
-  background-color: var(--color-deep-purple);
+  background-color: #2e2e42;
   border: none;
-  color: #ffffff;
+  color: #cdd6f4;
   padding: 8px;
   cursor: pointer;
   border-radius: 50%;
   font-size: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   width: 35px;
   height: 35px;
   margin: 0 5px;
@@ -344,7 +334,7 @@ export default {
 }
 
 .nav-button:disabled {
-  background-color: var(--color-dark-grey);
+  background-color: #494d64;
   cursor: not-allowed;
   opacity: 0.6;
 }
@@ -352,7 +342,7 @@ export default {
 .nav-button:hover:not(:disabled) {
   background-color: #311d58;
   transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(94, 12, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(137, 180, 250, 0.3);
 }
 
 .tasks-wrapper {
@@ -363,14 +353,12 @@ export default {
 }
 
 .tasks {
-  display: flex;
   flex-direction: column;
   transition: transform 0.5s ease-in-out;
 }
 
 .task-card {
-  position: relative;
-  background: var(--color-dark-grey);
+  background: #24273A;
   margin: 8px 0;
   padding: 16px;
   border-radius: 8px;
@@ -380,7 +368,7 @@ export default {
 }
 
 .task-card:hover {
-  background-color: #f5f5f5;
+  background-color: #343a52;
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
@@ -390,25 +378,24 @@ export default {
 
 .task-content h3 {
   margin: 0 0 8px 0;
-  color: var(--color-black);
+  color: #cdd6f4;
 }
 
 .task-content p {
   margin: 0;
-  color: var(--color-grey);
+  color: #a6adc8;
 }
 
 .task-time {
   font-size: 0.9em;
   margin-top: 4px;
-  color: var(--color-grey);
+  color: #a6adc8;
 }
 
 .delete-button {
-  
   background: transparent;
   border: none;
-  color: var(--color-red);
+  color: #fab387;
   font-size: 20px;
   cursor: pointer;
   opacity: 0;
@@ -420,25 +407,26 @@ export default {
 }
 
 .delete-button:hover {
-  color: #cc0000;
+  color: #f7c59f;
 }
 
 .edit-button {
   background: transparent;
   border: none;
-  color: var(--color-blue, #007bff);
+  color: #89b4fa;
   font-size: 20px;
   cursor: pointer;
 }
 
 .edit-button:hover {
-  color: darkblue;
+  color: #a6e3a1;
 }
 
 .error {
-  color: var(--color-red);
+  color: #fab387;
   text-align: center;
   margin-top: 16px;
+  font-size: 16px;
 }
 
 .modal-overlay {
@@ -455,18 +443,20 @@ export default {
 }
 
 .modal-content {
-  background-color: #fff;
-  padding: 1.875rem; /* 30px */
-  border-radius: 0.625rem; /* 10px */
-  width: 25rem; /* 400px */
+  background-color: #1e1e2e;
+  padding: 30px;
+  border-radius: 10px;
+  width: 400px;
   max-width: 90%;
-  box-shadow: 0 0.3125rem 0.9375rem rgba(0, 0, 0, 0.3);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  color: #cdd6f4;
   position: relative;
 }
 
 .modal-content h2 {
   margin-top: 0;
   text-align: center;
+  color: #89b4fa;
 }
 
 .modal-content form {
@@ -475,45 +465,47 @@ export default {
 }
 
 .modal-content label {
-  margin-bottom: 0.9375rem; /* 15px */
+  margin-bottom: 15px;
   font-size: 0.9em;
-  color: #333;
+  color: #cdd6f4;
 }
 
 .modal-content input[type="text"],
 .modal-content input[type="time"],
 .modal-content input[type="date"] {
   width: 100%;
-  padding: 0.5rem; /* 8px */
-  margin-top: 0.3125rem; /* 5px */
+  padding: 8px;
+  margin-top: 5px;
   box-sizing: border-box;
-  border: 1px solid #ccc;
-  border-radius: 0.3125rem; /* 5px */
+  border: 1px solid #494d64;
+  border-radius: 5px;
+  background-color: #24273A;
+  color: #cdd6f4;
 }
 
 .modal-buttons {
   display: flex;
   justify-content: flex-end;
-  gap: 0.625rem; /* 10px */
+  gap: 10px;
   margin-top: 1rem;
 }
 
 .modal-buttons button {
-  padding: 0.5rem 1rem; /* 8px 16px */
+  padding: 8px 16px;
   border: none;
-  border-radius: 0.3125rem; /* 5px */
+  border-radius: 5px;
   cursor: pointer;
   transition: opacity 0.3s ease;
 }
 
 .modal-buttons button[type="button"] {
-  background-color: #e74c3c;
-  color: white;
+  background-color: #fab387;
+  color: #1e1e2e;
 }
 
 .modal-buttons button[type="submit"] {
-  background-color: #3498db;
-  color: white;
+  background-color: #89b4fa;
+  color: #1e1e2e;
 }
 
 .modal-buttons button:hover {
@@ -523,19 +515,16 @@ export default {
 @media (max-width: 768px) {
   .task-carousel {
     width: 85%;
-    padding: 1px;
-    margin: 23px auto;
+    padding: 10px;
   }
   .task-card {
     padding: 8px;
   }
-  
   .nav-button {
     padding: 4px;
     font-size: 16px;
     width: 35px;
     height: 35px;
   }
-
 }
 </style>

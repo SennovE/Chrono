@@ -1,14 +1,14 @@
 <template>
   <div class="navigation-container">
     <!-- Блок профиля: аватар и имя пользователя -->
-    <div class="user-profile">
+    <router-link to="/profile" class="user-profile">
       <div class="avatar">
         <img src="../../../public/default_profile.jpg" />
       </div>
       <div class="user-info">
         <p class="username">{{ username }}</p>
       </div>
-    </div>
+    </router-link>
 
     <!-- Тонкая серая линия -->
     <!-- <div class="divider"></div> -->
@@ -46,7 +46,7 @@ export default {
   },
   setup() {
     const navLinks = [
-      { path: "/profile", label: "Профиль", icon: "fa fa-user" },
+      { path: "/profile", label: "Стать Premium", icon: "fa fa-crown" },
       { path: "/settings", label: "Настройки ИИ", icon: "fa fa-cog" },
       { path: "/schedule", label: "Расписание", icon: "fa fa-calendar" },
       { path: "/deadlines", label: "Дедлайны", icon: "fa fa-clock" },
@@ -76,6 +76,8 @@ export default {
   display: flex;
   align-items: center;
   margin-bottom: 1rem;
+  color: #000;
+  text-decoration: none;
 }
 
 .avatar {
@@ -134,8 +136,10 @@ export default {
 
 /* Анимация для иконок */
 .nav-icon {
-  margin-left: 0.5rem; /* Иконки отступают слева */
-  margin-right: 0.625rem;
+  display: inline-block; /* Позволяет задать фиксированную ширину */
+  width: 1.5rem;         /* Фиксированная ширина для всех иконок */
+  text-align: center;    /* Выравнивание содержимого по центру */
+  margin-right: 0.5rem;/* Отступ справа между иконкой и текстом */
   font-size: 1rem;
   background: none;
   transition: transform 0.3s;

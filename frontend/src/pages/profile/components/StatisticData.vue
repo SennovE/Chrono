@@ -2,51 +2,125 @@
   <div class="get-task-statistics">
     <h2>Статистика задач</h2>
     
-    <div class="choose-day-weak">
+    <div class="task-stats-period-selector">
       <button 
-        :class="{ active1: selectedPeriod === 'day' }" 
-        @click="selectedPeriod = 'day'"
+        :class="{ active1: taskStatsSelectedPeriod === 'day' }" 
+        @click="taskStatsSelectedPeriod = 'day'"
       >
         День
       </button>
       <button 
-        :class="{ active1: selectedPeriod === 'week' }" 
-        @click="selectedPeriod = 'week'"
+        :class="{ active1: taskStatsSelectedPeriod === 'week' }" 
+        @click="taskStatsSelectedPeriod = 'week'"
       >
         Неделя
       </button>
+      <button 
+        :class="{ active1: taskStatsSelectedPeriod === 'calendar' }" 
+        @click="taskStatsSelectedPeriod = 'calendar'"
+      >
+        Календарь
+      </button>
+    </div>
+
+    <!-- Селектор года появляется только во вкладке "Календарь" -->
+    <div v-if="taskStatsSelectedPeriod === 'calendar'" class="year-select">
+      <label>
+        Выберите год:
+        <select v-model="selectedYear">
+          <option v-for="year in availableYears" :key="year" :value="year">
+            {{ year }}
+          </option>
+        </select>
+      </label>
     </div>
     
     <div v-if="loading" class="loading-indicator">
       Загрузка статистики...
     </div>
     
-    <div v-else class="chart-container">
-      <BarChart :chartData="chartData" :options="chartOptions" />
+    <div v-else>
+      <!-- Для "День" и "Неделя" отображается график -->
+      <div v-if="taskStatsSelectedPeriod === 'day' || taskStatsSelectedPeriod === 'week'" class="chart-container">
+  <BarChart :key="taskStatsSelectedPeriod" :chartData="chartData" :options="chartOptions" :chartType="chartType" />
+</div>
+      
+      <!-- Вкладка "Календарь" – календарь по месяцам выбранного года -->
+      <div v-else class="calendar-all-months">
+        <div v-for="month in calendarByMonth" :key="month.month" class="month-container">
+          <h3>{{ month.monthName }}</h3>
+          <div class="calendar-grid">
+            <div class="week" v-for="(week, weekIndex) in month.weeks" :key="weekIndex">
+              <div 
+                v-for="(day, dayIndex) in week" 
+                :key="dayIndex"
+                class="day"
+                @click="day && openDayModal(day)"
+                :style="day ? { backgroundColor: getDayColor(day.total, maxCalendarCount) } : {}"
+              >
+                <span v-if="day">{{ day.date.getDate() }}</span>
+                <!-- Tooltip в стиле Mocha -->
+                <div v-if="day" class="tooltip">
+                  {{ formatDate(day.date) }}<br>
+                  Запланировано: {{ day.planned }}<br>
+                  Сделано: {{ day.done }}<br>
+                  Пропущено: {{ day.missed }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
     </div>
     
     <p v-if="error" class="error">{{ error }}</p>
+
+    <!-- Модальное окно для отображения истории задач выбранного дня -->
+    <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
+      <div class="modal-content">
+        <h3>Задачи на {{ formatDate(selectedDay.date) }}</h3>
+        <ul>
+          <li v-for="task in dayTasks" :key="task.id" :style="getTaskColor(task)">
+            <strong>{{ task.title || 'Задача' }}</strong><br>
+            Время: {{ formatTime(task.deadline_time) }}<br>
+            Описание: {{ task.description || 'Нет описания' }}
+          </li>
+        </ul>
+        <button @click="closeModal">Закрыть</button>
+      </div>
+    </div>
+    
   </div>
 </template>
 
 <script>
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
-import BarChart from './BarChart.vue'; // Убедитесь, что путь правильный
+import BarChart from './BarChart.vue';
 import { useRouter } from "vue-router";
 
 export default {
   name: 'TaskStatistics',
-  components: {
-    BarChart
-  },
+  components: { BarChart },
   setup() {
-
     const router = useRouter();
     const tasks = ref([]);
     const loading = ref(true);
     const error = ref(null);
-    const selectedPeriod = ref('day'); // 'day' или 'week'
+    // Возможные значения: 'day', 'week', 'calendar'
+    const taskStatsSelectedPeriod = ref('day');
+
+    // Для выбора года в календаре
+    const selectedYear = ref(new Date().getFullYear());
+    const availableYears = computed(() => {
+      const current = new Date().getFullYear();
+      const years = [];
+      for (let i = current - 2; i <= current + 3; i++) {
+        years.push(i);
+      }
+      return years;
+    });
 
     const getToken = () => {
       const token = localStorage.getItem("chronoJWTToken");
@@ -61,20 +135,14 @@ export default {
         loading.value = true;
         error.value = null;
         const token = getToken();
-        if (token == null) {
-            redirectToLogin()
-            return -1
+        if (!token) {
+          redirectToLogin();
+          return;
         }
         const response = await axios.get(
-          "http://localhost:8080/api/v1/deadline_task/get_tasks/",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/get_tasks/`,
+          { headers: { Authorization: `Bearer ${token}` } }
         );
-        
-        // Предполагаем, что API возвращает поле status и deadline_time
         tasks.value = response.data.map(task => ({
           ...task,
           deadline_time: new Date(task.deadline_time),
@@ -87,136 +155,230 @@ export default {
       }
     };
 
-    // Функция для агрегации данных
-    const aggregateData = () => {
-      const counts = {
-        active1: 0,
-        completed: 0,
-        overdue: 0,
-      };
+    function redirectToLogin() {
+      router.push({ name: "Login Page" });
+    }
 
-      tasks.value.forEach(task => {
-        if (task.status === 1) {
-          counts.completed += 1;
-        } else if (task.status === 2) {
-          counts.overdue += 1;
-        } else if (task.status === 0) {
-          counts.active1 += 1;
-        }
-      });
-
-      return counts;
-    };
-
-    // Функция для получения данных для графика в зависимости от выбранного периода
-    const getChartData = () => {
-      if (selectedPeriod.value === 'day') {
-        // Для дня отображаем общее количество задач по статусам
-        const counts = aggregateData();
-        return {
-          labels: ['Активные', 'Завершенные', 'Просроченные'],
-          datasets: [
-            {
-              label: 'Количество задач',
-              backgroundColor: ['#3498db', '#2ecc71', '#e74c3c'],
-              data: [counts.active1, counts.completed, counts.overdue]
-            }
-          ]
-        };
-      } else  {
-        // Для недели отображаем динамику по дням
-        const daysOfWeek = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-        const counts = {
-          active1: Array(7).fill(0),
-          completed: Array(7).fill(0),
-          overdue: Array(7).fill(0)
-        };
-
-        tasks.value.forEach(task => {
-          const taskDate = task.deadline_time;
-          const dayIndex = taskDate.getDay(); // 0 (Воскресенье) - 6 (Суббота)
-          // Преобразуем Sunday to 6, Monday to 0, etc.
-          const adjustedDayIndex = (dayIndex + 6) % 7; // 0 - Пн, 6 - Вс
-
-          if (task.status === 1) {
-            counts.completed[adjustedDayIndex] += 1;
-          } else if (task.status === 2) {
-            counts.overdue[adjustedDayIndex] += 1;
-          } else if (task.status === 0) {
-            counts.active1[adjustedDayIndex] += 1;
-          }
-        });
-
-        return {
-          labels: daysOfWeek,
-          datasets: [
-            {
-              label: 'Активные',
-              backgroundColor: '#3498db',
-              data: counts.active1
-            },
-            {
-              label: 'Завершенные',
-              backgroundColor: '#2ecc71',
-              data: counts.completed
-            },
-            {
-              label: 'Просроченные',
-              backgroundColor: '#e74c3c',
-              data: counts.overdue
-            }
-          ]
-        };
-      }
-    };
-
-    const chartOptions = computed(() => ({
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'top',
-        },
-        title: {
-          display: true,
-          text: selectedPeriod.value === 'day' ? 'Статистика за День' : 'Статистика за Неделю'
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            stepSize: 1,       // Интервал между отметками
-            precision: 0,      // Убирает десятичные знаки
-            // Можно добавить callback для дополнительной настройки
-            // callback: function(value) {
-            //   if (Number.isInteger(value)) {
-            //     return value;
-            //   }
-            // }
-          },
-          grid: {
-            display: false      // Скрыть сетку по оси Y
-          }
-        },
-        x: {
-          grid: {
-            display: false      // Скрыть сетку по оси X (если нужно)
-          }
-        }
-      }
-    }));
+    // График для вкладок "День" и "Неделя"
+    const chartType = computed(() => 'bar');
 
     const chartData = computed(() => {
-      const data = getChartData();
-      console.log('Chart Data:', data); // Для отладки
-      return data;
+      const now = new Date();
+      if (taskStatsSelectedPeriod.value === 'day') {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+        const todaysTasks = tasks.value.filter(task => task.deadline_time >= today && task.deadline_time < tomorrow);
+        const activeCount = todaysTasks.filter(task => task.status === 0 && task.deadline_time >= now).length;
+        const completedCount = todaysTasks.filter(task => task.status === 1).length;
+        const overdueCount = todaysTasks.filter(task => (task.status === 0 && task.deadline_time < now) || task.status === 2).length;
+        
+        return {
+          labels: [today.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })],
+          datasets: [
+            { label: 'Надо сделать', backgroundColor: '#89b4fa', data: [activeCount] },
+            { label: 'Сделано', backgroundColor: '#a6e3a1', data: [completedCount] },
+            { label: 'Пропущено', backgroundColor: '#fab387', data: [overdueCount] }
+          ]
+        };
+      } else if (taskStatsSelectedPeriod.value === 'week') {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const labels = [];
+        const activeCounts = [];
+        const completedCounts = [];
+        const overdueCounts = [];
+        // 7 дней: от -3 до +3
+        for (let offset = -3; offset <= 3; offset++) {
+          const day = new Date(today);
+          day.setDate(today.getDate() + offset);
+          const dayStart = new Date(day);
+          dayStart.setHours(0, 0, 0, 0);
+          const dayEnd = new Date(dayStart);
+          dayEnd.setDate(dayStart.getDate() + 1);
+          const label = day.toLocaleDateString('ru-RU', { weekday: 'short', day: '2-digit', month: '2-digit' });
+          labels.push(label);
+          
+          const dayTasks = tasks.value.filter(task => task.deadline_time >= dayStart && task.deadline_time < dayEnd);
+          const active = dayTasks.filter(task => task.status === 0 && task.deadline_time >= now).length;
+          const completed = dayTasks.filter(task => task.status === 1).length;
+          const overdue = dayTasks.filter(task => (task.status === 0 && task.deadline_time < now) || task.status === 2).length;
+          
+          activeCounts.push(active);
+          completedCounts.push(completed);
+          overdueCounts.push(overdue);
+        }
+        return {
+          labels,
+          datasets: [
+            { label: 'Надо сделать', backgroundColor: '#89b4fa', data: activeCounts },
+            { label: 'Сделано', backgroundColor: '#a6e3a1', data: completedCounts },
+            { label: 'Пропущено', backgroundColor: '#fab387', data: overdueCounts }
+          ]
+        };
+      } else {
+        return {};
+      }
     });
-    function redirectToLogin() {
-    router.push({
-        name: "Login Page",
-    })
-  }
+
+    const chartOptions = computed(() => {
+      const titleText = taskStatsSelectedPeriod.value === 'day' ? 'Статистика за День' : 'Статистика за Неделю';
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { color: "#cdd6f4" } },
+          title: { display: true, text: titleText, color: "#89b4fa" },
+          tooltip: { 
+            mode: 'index', 
+            intersect: false, 
+            callbacks: { label: context => context.dataset.label + ': ' + context.parsed.y.toFixed(0) } 
+          }
+        },
+        scales: {
+          x: { stacked: true, ticks: { color: "#cdd6f4" }, grid: { display: false } },
+          y: { 
+            stacked: true, 
+            beginAtZero: true, 
+            ticks: { stepSize: 23, callback: value => Number.isInteger(value) ? value : '', color: "#cdd6f4" },
+            grid: { display: false } 
+          }
+        }
+      };
+    });
+
+    // -------------------------
+    // Календарь по месяцам для выбранного года
+    // -------------------------
+    const tasksByDate = computed(() => {
+      const map = {};
+      const now = new Date();
+      tasks.value.forEach(task => {
+        const dateObj = task.deadline_time;
+        if (dateObj.getFullYear() === selectedYear.value) {
+          const dateStr = dateObj.toISOString().slice(0,10);
+          if (!map[dateStr]) {
+            map[dateStr] = { planned: 0, done: 0, missed: 0 };
+          }
+          if (task.status === 1) {
+            map[dateStr].done += 1;
+          } else if (task.status === 0) {
+            if (dateObj >= now) {
+              map[dateStr].planned += 1;
+            } else {
+              map[dateStr].missed += 1;
+            }
+          } else if (task.status === 2) {
+            map[dateStr].missed += 1;
+          }
+        }
+      });
+      return map;
+    });
+
+    const maxCalendarCount = computed(() => {
+      let max = 0;
+      for (const key in tasksByDate.value) {
+        const total = tasksByDate.value[key].planned + tasksByDate.value[key].done + tasksByDate.value[key].missed;
+        if (total > max) max = total;
+      }
+      return max;
+    });
+
+    const calendarByMonth = computed(() => {
+      const months = [];
+      for (let month = 0; month < 12; month++) {
+        const firstDay = new Date(selectedYear.value, month, 1);
+        const lastDay = new Date(selectedYear.value, month + 1, 0);
+        const daysInMonth = lastDay.getDate();
+        const weeks = [];
+        let week = [];
+        const startDayIndex = firstDay.getDay();
+        for (let i = 0; i < startDayIndex; i++) {
+          week.push(null);
+        }
+        for (let day = 1; day <= daysInMonth; day++) {
+          const dateObj = new Date(selectedYear.value, month, day);
+          const dateStr = dateObj.toISOString().slice(0,10);
+          const counts = tasksByDate.value[dateStr] || { planned: 0, done: 0, missed: 0 };
+          week.push({
+            date: dateObj,
+            planned: counts.planned,
+            done: counts.done,
+            missed: counts.missed,
+            total: (counts.planned || 0) + (counts.done || 0) + (counts.missed || 0)
+          });
+          if (week.length === 7) {
+            weeks.push(week);
+            week = [];
+          }
+        }
+        if (week.length > 0) {
+          while (week.length < 7) week.push(null);
+          weeks.push(week);
+        }
+        months.push({
+          month,
+          monthName: new Date(selectedYear.value, month, 1).toLocaleString('ru-RU', { month: 'long' }),
+          weeks
+        });
+      }
+      return months;
+    });
+
+    // -------------------------
+    // Модальное окно для истории задач выбранного дня
+    // -------------------------
+    const showModal = ref(false);
+    const selectedDay = ref(null);
+    const openDayModal = (day) => {
+      selectedDay.value = day;
+      showModal.value = true;
+    };
+    const closeModal = () => {
+      showModal.value = false;
+    };
+    const dayTasks = computed(() => {
+      if (!selectedDay.value) return [];
+      const dayStr = selectedDay.value.date.toISOString().slice(0,10);
+      return tasks.value.filter(task => task.deadline_time.toISOString().slice(0,10) === dayStr);
+    });
+
+    // -------------------------
+    // Вспомогательные функции
+    // -------------------------
+    const formatDate = date => date.toISOString().slice(0,10);
+
+    // Форматирование времени в формате HH:MM
+    const formatTime = date => {
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      return `${hours}:${minutes}`;
+    };
+
+    // Функция для определения цвета текста задачи
+    const getTaskColor = (task) => {
+      if (task.status === 1) {
+        return { color: 'green' }; // Сделано: зеленый
+      } else if (task.status === 0) {
+        if (task.deadline_time >= new Date()) {
+          return { color: 'green' }; // Запланировано: синий
+        } else {
+          return { color: 'orange' }; // Просрочено: оранжевый
+        }
+      } else if (task.status === 2) {
+        return { color: 'orange' }; // Просрочено: оранжевый
+      }
+      return {};
+    };
+
+    const getDayColor = (count, maxCountValue) => {
+      if (count === 0) return "#ebedf0";
+      const ratio = count / maxCountValue;
+      const lightness = 90 - ratio * 60;
+      return `hsl(120, 50%, ${lightness}%)`;
+    };
 
     onMounted(() => {
       fetchTasks();
@@ -226,9 +388,24 @@ export default {
       tasks,
       loading,
       error,
-      selectedPeriod,
+      taskStatsSelectedPeriod,
+      selectedYear,
+      availableYears,
+      chartType,
       chartData,
-      chartOptions
+      chartOptions,
+      calendarByMonth,
+      maxCalendarCount,
+      formatDate,
+      getDayColor,
+      // Для модального окна
+      showModal,
+      selectedDay,
+      openDayModal,
+      closeModal,
+      dayTasks,
+      formatTime,
+      getTaskColor
     };
   },
 };
@@ -236,64 +413,172 @@ export default {
 
 <style scoped>
 .get-task-statistics {
+  background-color: #1e1e2e;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 700px;
+  height: 770px;
+  color: #cdd6f4;
   position: absolute;
-    top: 100px; /* Указание позиции отдельно */
-    left:1320px;
-  border: 1px solid #dddddd; /* Светло-серая граница */
-  padding: 16px; /* Увеличен паддинг для внутреннего отступа */
-  border-radius: 8px;
-  width: 20%; /* Уменьшена ширина */
-  max-width: 600px; /* Уменьшен максимальный размер */
-  margin: 40px auto; /* Центрирование компонента */
-  background-color: #ffffff; /* Светлый фон */
-  color: #333333; /* Темно-серый текст */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Легкая тень для глубины */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  top: 100px;
+  left: 1000px;
 }
 
-.get-task-statistics h2 {
+.task-stats-period-selector {
   text-align: center;
   margin-bottom: 20px;
-  color: #333333; /* Темно-серый цвет заголовка */
 }
 
-.choose-day-weak {
+.year-select {
   text-align: center;
-  margin-bottom: 20px; /* Увеличен отступ */
+  margin-bottom: 10px;
+  color: #cdd6f4;
 }
 
-.choose-day-weak button {
-  background-color: #f0f0f0; /* Светло-серый фон кнопок */
-  border: 1px solid #cccccc; /* Светло-серая граница */
-  color: #333333; /* Темно-серый текст */
-  padding: 8px 16px; /* Уменьшен паддинг */
-  margin: 0 50px;
+.year-select select {
+  padding: 5px 10px;
+  border-radius: 4px;
+  border: 1px solid #302d41;
+  background-color: #2e2e42;
+  color: #cdd6f4;
+  font-size: 14px;
+}
+
+.task-stats-period-selector button {
+  background-color: #2e2e42;
+  border: 1px solid #302d41;
+  color: #cdd6f4;
+  padding: 10px 20px;
+  margin: 0 5px;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
-  font-size: 14px; /* Уменьшен размер шрифта */
+  font-size: 16px;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
-.choose-day-weak button.active1, .controls button:hover {
-  background-color: #e0e0e0; /* Светло-серый фон при наведении и активном состоянии */
+.task-stats-period-selector button:hover {
+  background-color: #3a3a55;
+}
+
+.task-stats-period-selector button.active1 {
+  background-color: #89b4fa;
+  color: #1e1e2e;
+  border-color: #89b4fa;
 }
 
 .loading-indicator {
   text-align: center;
-  font-size: 14px; /* Увеличен размер шрифта для лучшей читаемости */
-  color: #666666; /* Светло-серый цвет */
+  font-size: 16px;
+  color: #a6adc8;
+  margin-top: 20px;
 }
 
 .error {
-  color: #ff4d4d;
+  color: #fab387;
   text-align: center;
-  margin-top: 16px;
+  margin-top: 20px;
+  font-size: 16px;
 }
 
+/* Для графиков (День/Неделя) – уменьшаем высоту */
 .chart-container {
   position: relative;
-  height: 400px; /* Установлена подходящая высота для графика */
-  width: 100%; /* Ширина 100% контейнера */
+  height: 10px;
+  width: 80%;
+  margin: 20px 0;
 }
 
+/* Стили для календаря (вкладка "Календарь") */
+.calendar-all-months {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 10px;
+}
 
+.month-container {
+  border: 1px solid #302d41;
+  padding: 5px;
+  border-radius: 5px;
+  min-width: 140px;
+}
+
+.calendar-grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.week {
+  display: flex;
+}
+
+.day {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  margin: 1px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+/* Tooltip в стиле Mocha */
+.day .tooltip {
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #3e2723;
+  color: #f5f5f5;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s;
+  z-index: 10;
+}
+
+.day:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Модальное окно */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right:0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.modal-content {
+  background: #1e1e2e;
+  padding: 20px;
+  border-radius: 10px;
+  color: #cdd6f4;
+  max-width: 400px;
+  width: 90%;
+}
+.modal-content button {
+  margin-top: 10px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  background-color: #89b4fa;
+  color: #1e1e2e;
+  cursor: pointer;
+}
 </style>

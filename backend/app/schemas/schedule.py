@@ -63,8 +63,5 @@ class ScheduleAICreate(BaseModel):
     end_time: str
     recurring: bool
 
-class ScheduleList(BaseModel):
-  tasks: list[ScheduleAICreate]
-
-  class Config:
-        arbitrary_types_allowed = True
+class AddScheduleTasksAI(BaseModel):
+    text: str

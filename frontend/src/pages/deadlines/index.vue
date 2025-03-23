@@ -4,6 +4,7 @@
   <div class="page-container">
     <NavBar :username="user.username" />
     <div class="content-container">
+      <invalidUserPanel v-show="user == -1"/>
       <!-- Header Section with Title and Add Task Easier & Add Task Buttons -->
       <div class="header">
         <h1 class="title">My tasks</h1>
@@ -158,24 +159,25 @@
       </div>
     </div>
 
-    <!-- Existing Edit Modal -->
+    
+    <!-- Редактирование существующей задачи -->
     <div v-if="isModalOpen" class="modal-overlay" @click.self="closeEditModal">
-      <div class="modal-content">
-        <h2>Редактировать задачу</h2>
-        <form @submit.prevent="submitEdit">
-          <label>
-            Описание:
-            <input type="text" v-model="editTask.description" required />
-          </label>
-          <label>
-            Время дедлайна:
-            <input type="time" v-model="editTask.time" required />
-          </label>
-          <div class="modal-buttons">
-            <button type="button" @click="closeEditModal">Отмена</button>
-            <button type="submit">Сохранить</button>
-          </div>
-        </form>
+      <div class="modal-content fixed-form-size">
+        <h2>Edit Task</h2>
+        <div class="form-container">
+          <form class="manual-add-task-form" @submit.prevent="submitEdit">
+            <h3>Description</h3>
+            <input style="border-radius: 0.5rem; margin-bottom: 0.5rem;" type="text" v-model="editTask.description" required class="description-input"/>
+            <h3>Date</h3>
+            <input style="border-radius: 0.5rem; margin-bottom: 0.5rem;" type="date" v-model="editTask.date" required />
+            <h3>Time</h3>
+            <input style="border-radius: 0.5rem; margin-bottom: 0.5rem;" type="time" v-model="editTask.time" required />
+            <div class="modal-buttons">
+              <button type="button" @click="closeEditModal">Cancel</button>
+              <button type="submit">Submit</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
 
@@ -207,28 +209,51 @@
 
     <!-- New Add Task Modal -->
     <div v-if="isAddTaskModalOpen" class="modal-overlay" @click.self="closeAddTaskModal">
-      <div class="modal-content">
-        <h2>Add New Task</h2>
-        <form @submit.prevent="submitAddTask">
-          <label>
-            Description:
-            <input type="text" v-model="newTaskData.description" required placeholder="Task description" />
-          </label>
-          <label>
-            Date:
-            <input type="date" v-model="newTaskData.date" required />
-          </label>
-          <label>
-            Time:
-            <input type="time" v-model="newTaskData.time" required />
-          </label>
-          <div class="modal-buttons">
-            <button type="button" @click="closeAddTaskModal">Cancel</button>
-            <button type="submit">Add Task</button>
-          </div>
-        </form>
+      <div class="modal-content fixed-form-size">
+        <!-- Переключатель режимов ввода -->
+        <div class="toggle-switch">
+          <div class="toggle-slider" :class="{ manual: taskInputMode === 'manual' }"></div>
+          <div class="toggle-option" @click="taskInputMode = 'text'">Текстом</div>
+          <div class="toggle-option" @click="taskInputMode = 'manual'">Вручную</div>
+        </div>
+
+        <!-- Обёртка для форм с фиксированными размерами -->
+        <div class="form-container">
+          <!-- Форма для ввода задач текстом -->
+          <template v-if="taskInputMode === 'text'">
+            <h3>Description</h3>
+            <form @submit.prevent="submitAI">
+              <textarea
+                v-model="aiInput"
+                class="text-box description-input"
+                placeholder="Enter description"
+              ></textarea>
+              <div class="modal-buttons">
+                <button type="button" @click="closeAddTaskModal">Cancel</button>
+                <button type="submit">Submit</button>
+              </div>
+            </form>
+          </template>
+          <!-- Форма для ручного ввода задач -->
+          <template v-else>
+            <form class="manual-add-task-form" @submit.prevent="submitAddTask">
+              <h3>Description</h3>
+              <input style="border-radius: 0.5rem; margin-bottom: 0.5rem;" type="text" v-model="newTaskData.description" required placeholder="Enter description" class="description-input"/>
+              <h3>Date</h3>
+              <input style="border-radius: 0.5rem; margin-bottom: 0.5rem;" type="date" v-model="newTaskData.date" required />
+              <h3>Time</h3>
+              <input style="border-radius: 0.5rem; margin-bottom: 0.5rem;" type="time" v-model="newTaskData.time" required />
+              <div class="modal-buttons">
+                <button type="button" @click="closeAddTaskModal">Cancel</button>
+                <button type="submit">Submit</button>
+              </div>
+            </form>
+          </template>
+        </div>
       </div>
     </div>
+
+
 
     <!-- New AI Deadlines Result Modal -->
     <div v-if="isAIResultModalOpen" class="modal-overlay" @click.self="closeAIResultModal">
@@ -292,10 +317,11 @@
 import axios from "axios";
 import { ref, computed, onMounted } from "vue";
 import NavBar from "../../components/light_style/NavBar.vue";
+import invalidUserPanel from "../../components/NotRegisteredLight.vue"
 
 export default {
   name: "DeadlinePage",
-  components: { NavBar },
+  components: { NavBar, invalidUserPanel },
   setup() {
     const user = ref({ username: "Loading..." });
     const deadlines = ref([]);
@@ -338,6 +364,7 @@ export default {
     const editAITaskDate = ref("");
     const editAITaskTime = ref("");
 
+    const taskInputMode = ref("text");
     document.body.style.overflowY = 'hidden';
 
     /**
@@ -354,19 +381,26 @@ export default {
     /**
      * Запрос данных пользователя.
      */
-    const fetchUser = async () => {
+    const getUser = async () => {
       try {
         const token = getToken();
+        if (token == null) {
+          return -1
+        }
         const response = await axios.get(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/user/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        user.value = response.data;
+        return response.data;
       } catch (error) {
-        console.error("Error fetching user:", error);
+          return -1
       }
     };
+
+    const fetchUser = async () => {
+      user.value = await getUser()
+    }
 
     /**
      * Запрос всех задач (дедлайнов).
@@ -540,9 +574,14 @@ export default {
     /**
      * Группировка задач по дате.
      */
-    const groupedDeadlines = computed(() => {
+     const groupedDeadlines = computed(() => {
       return deadlines.value.reduce((groups, task) => {
-        const dateKey = task.deadline_time.split("T")[0];
+        const localDate = new Date(task.deadline_time);
+        const year = localDate.getFullYear();
+        const month = String(localDate.getMonth() + 1).padStart(2, "0");
+        const day = String(localDate.getDate()).padStart(2, "0");
+        const dateKey = `${year}-${month}-${day}`; // Формируем ключ в локальном времени
+
         if (!groups[dateKey]) {
           groups[dateKey] = [];
         }
@@ -558,7 +597,7 @@ export default {
       const days = Array.from({ length: 30 }, (_, i) => {
         const date = new Date();
         date.setDate(date.getDate() + i);
-        return date.toISOString().split("T")[0];
+        return date.toLocaleDateString("en-CA");
       });
 
       return days.reduce((result, day) => {
@@ -897,6 +936,8 @@ export default {
       openAIEditModal,
       closeAIEditModal,
       submitAIEdit,
+      taskInputMode,
+      invalidUserPanel,
     };
   },
 };
@@ -929,10 +970,10 @@ export default {
   position: fixed;
   top: 0;
   left: 0;
-  width: 140vw;
-  height: 140vh;
+  width: 120vw;
+  height: 100vh;
   /* Пример фона – можно заменить на нужное изображение или другой стиль */
-  background: url('../../../public/background_dl.jpg') no-repeat center center;
+  background: url('../../../public/dl2.jpg') no-repeat center center;
   background-size: cover;
   z-index: -1;
   opacity: 0.8;
@@ -1477,5 +1518,170 @@ export default {
 
 .arrow-button:hover {
   transform: scale(1.1);
+}
+
+textarea.text-box {
+  width: 100%;
+  height: 200px; /* фиксированная высота */
+  margin: 0; /* убраны внешние отступы */
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  font-size: 0.95rem;
+  font-family: 'Inter', sans-serif;
+  text-align: left;
+  vertical-align: top;
+  line-height: 1.5;
+  margin-bottom: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+/* Дополнительное правило для textarea */
+textarea.text-box {
+  resize: none;
+}
+
+.text-box::-webkit-scrollbar {
+  width: 8px;
+}
+
+.text-box::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.text-box::-webkit-scrollbar-thumb {
+  background: #cacaca;
+  border-radius: 4px;
+}
+
+.text-box::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Фиксированный размер модального окна */
+.fixed-form-size {
+  width: 25rem;
+  max-width: 90%;
+  min-height: 25rem; /* Фиксированная минимальная высота */
+  padding: 1.875rem; /* 30px */
+  border-radius: 0.625rem; /* 10px */
+  box-shadow: 0 0.3125rem 0.9375rem rgba(0, 0, 0, 0.3);
+  background-color: #fff;
+  position: relative;
+}
+
+/* Обёртка для форм, чтобы их высота не менялась */
+.form-container {
+  min-height: 10rem;
+}
+
+/* Переключатель режимов ввода */
+.toggle-button {
+  display: inline-flex;
+  align-items: center;
+}
+
+.toggle-button button {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+  background-color: #e0e0e0; /* цвет неактивной кнопки */
+  border: none;
+  cursor: pointer;
+  border-radius: 1.5rem;
+  margin-right: 0.5rem;
+  transition: background-color 0.3s;
+}
+
+.toggle-button button.active {
+  background-color: #f0f0f0; /* активное состояние – светлее */
+}
+
+h3 {
+  margin-top: 1rem;
+  color: #717781;
+  margin-bottom: 0rem;
+  font-size: 0.95rem;
+
+}
+
+.modal-buttons {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  display: flex;
+  gap: 0.625rem;
+}
+
+.modal-buttons button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.3125rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+/* Стиль для кнопки отправки */
+.modal-buttons button[type="submit"] {
+  background-color: #4285F4;
+  color: #fff;
+}
+
+/* Стиль для кнопки отмены */
+.modal-buttons button[type="button"] {
+  background-color: #d86154;
+  color: #fff;
+}
+
+.toggle-switch {
+  position: relative;
+  display: flex;
+  width: 10rem;         /* можно скорректировать по необходимости */
+  height: 1.5rem;
+  background-color: #cfcece;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.toggle-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 52%;
+  height: 100%;
+  background-color: #f3f1f1;
+  border-radius: 20px;
+  transition: left 0.3s;
+}
+
+.toggle-slider.manual {
+  left: 50%;
+}
+
+.toggle-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  font-size: 0.8rem;
+  color: #000000;
+  user-select: none;
+}
+
+.toggle-option:hover {
+  color: #000;
+}
+
+.manual-add-task-form {
+  margin-top: -1rem;
+}
+
+.description-input {
+  font-size: 0.95rem;
 }
 </style>

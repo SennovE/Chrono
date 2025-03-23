@@ -2,19 +2,20 @@ from fastapi import APIRouter, Depends, Security, status, Body, HTTPException
 from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
+from app.config import get_settings, DefaultSettings
 
 from app.database.connection import get_session
-from app.schemas import ScheduleForm, ScheduleResponse, ScheduleUpdateForm, ScheduleGenerate
-from app.database.models import User, Schedule
+from app.schemas import ScheduleForm, ScheduleResponse, ScheduleUpdateForm, ScheduleGenerate, AddScheduleTasksAI
+from app.database.models import User
 from app.utils.user import get_current_user
 from app.utils.schedule import (
     add_schedule_task,
     get_schedule_tasks,
     delete_schedule_task,
     change_schedule_task,
-    send_schedule
+    send_schedule,
 )
-from app.utils.ai_generation import schedule_generation
+from app.utils.ai_generation import schedule_generation, add_schedule_tasks
 
 api_router = APIRouter(prefix="/schedule", tags=["Schedule"])
 
@@ -109,20 +110,18 @@ async def update_user_task(
         )
 
 
-@api_router.post(
-    '/schedule_generation',
-    status_code=status.HTTP_200_OK,
-    responses={
-        status.HTTP_401_UNAUTHORIZED: {
-            "descriprion": "Non authorized"
-        }
-    }
-)
-async def ai_generation(
-    response: ScheduleGenerate,
-    current_user: Annotated[User, Depends(get_current_user)]
-) -> list[ScheduleForm]:
-    return await schedule_generation(response, current_user)
+@api_router.post('/schedule_generation',
+                 status_code=status.HTTP_200_OK,
+                 responses={
+                     status.HTTP_401_UNAUTHORIZED: {
+                         "descriprion": "Non authorized"
+                     }
+                 })
+async def ai_generation(response: ScheduleGenerate, \
+                        current_user: Annotated[User, Depends(get_current_user)],
+                        session: Annotated[AsyncSession, Depends(get_session)],
+                        settings: Annotated[DefaultSettings, Depends(get_settings)]):
+    return await schedule_generation(response, current_user, session, settings.API_KEY)
     
 
 @api_router.post(
@@ -140,8 +139,20 @@ async def send_ai_schedule(
     session: Annotated[AsyncSession, Depends(get_session)]
 ) -> None:
     is_success = await send_schedule(tasks, current_user, session)
-    if not is_success:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Error submit ai gen tasks"
-        )
+    if (is_success):
+        return {"message" : "Submit ai gen tasks"}
+    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, \
+                        detail="Error submit ai gen tasks")
+
+@api_router.post('/add_schedule_tasks_ai',
+                 status_code=status.HTTP_200_OK,
+                 responses={
+                     status.HTTP_401_UNAUTHORIZED: {
+                         "descriprion": "Non authorized"
+                     }
+                 })
+async def add_schedule_tasks_ai(response: AddScheduleTasksAI,
+                                current_user: Annotated[User, Depends(get_current_user)],
+                                session: Annotated[AsyncSession, Depends(get_session)], 
+                                settings: Annotated[DefaultSettings, Depends(get_settings)]):
+    return await add_schedule_tasks(response, current_user, session, settings.API_KEY)
