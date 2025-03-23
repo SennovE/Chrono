@@ -3,7 +3,6 @@ from uuid import UUID
 
 from pydantic import BaseModel, field_validator, Field
 
-
 class TaskGroupBase(BaseModel):
     name: str
     color: str

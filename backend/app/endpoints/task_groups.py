@@ -42,6 +42,7 @@ async def add_group(
     await session.commit()
 
 
+
 @api_router.delete(
     "/",
     status_code=status.HTTP_204_NO_CONTENT,

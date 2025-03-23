@@ -79,6 +79,7 @@ function modalClose() {
     endTime.value = ""
     recurring.value = false
     response.value = ""
+    taskColor.value = ""
     isModalUpdateOpen.value = 0
     selectedTaskGroup.value = {}
     emit("closeModal")
@@ -123,6 +124,7 @@ function showTaskById() {
     endTime.value = String(selectedTask.end_hours).padStart(2, '0') + ':' +
                     String(selectedTask.end_minutes).padStart(2, '0')
     recurring.value = selectedTask.recurring
+    taskColor.value = selectedTask.taskColor
     isModalUpdateOpen.value = 1
     const tmp = new Date(startDate.value)
     selectedOptionWeekDay.value = props.weekdays[(tmp.getDay() + 6) % 7]
@@ -220,7 +222,7 @@ watch(() => selectedOptionWeekDay.value, getDateFromSelectedDay)
                                 v-else-if="isModalUpdateOpen == 2  || isModalUpdateOpen == 3"
                                 class="custom-select"
                             >
-                                <select v-model="selectedOptionWeekDay">
+                                <select v-model="selectedTaskGroup">
                                     <option v-for="option in props.weekdays" :key="option">
                                         {{ option }}
                                     </option>
