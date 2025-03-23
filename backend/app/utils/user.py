@@ -78,7 +78,7 @@ async def get_current_user(
     if await check_token_from_black_list(session, token):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token has been revoked",
+            detail="Вы не авторизованы",
             headers={"WWW-Authenticate": "Bearer"},
         )
 

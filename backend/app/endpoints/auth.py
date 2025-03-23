@@ -19,11 +19,27 @@ from app.utils.user import (
     create_access_token,
     get_current_user,
     register_user,
+    add_token_to_blacklist,
 )
 
 api_router = APIRouter(prefix="/user", tags=["User"])
 
-
+@api_router.post(
+    "/logout",
+    summary="Logout user",
+    status_code=status.HTTP_200_OK,
+)
+async def logout(
+    token: Annotated[str, Depends(get_settings().OAUTH2_SCHEME)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> dict:
+    success = await add_token_to_blacklist(token, session)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Ошибка при выходе из системы",
+        )
+    return {"message": "Вы успешно вышли из учетной записи"}
 @api_router.post(
     "/register",
     status_code=status.HTTP_201_CREATED,

@@ -1,12 +1,24 @@
 <script setup>
 import { useRouter } from "vue-router";
+import axios from "axios";
+
 const router = useRouter();
+
+const handleLogout = async () => {
+  try {
+    const response = await axios.post(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/user/logout`);
+    console.log("Ответ сервера:", response.data);
+    router.push({ name: "Login Page" });
+  } catch (error) {
+    console.error("Ошибка при выходе:", error);
+  }
+};
 </script>
 
 <template>
   <div class="get-started-container_kera">
     <ul>
-      <li @click="router.push({ name: 'Login Page' })" class="get-started">
+      <li @click="handleLogout" class="get-started">
         <b>Сменить аккаунт</b>
       </li>
     </ul>
@@ -16,10 +28,9 @@ const router = useRouter();
 <style scoped>
 .get-started-container_kera {
   position: relative;
-  margin-left: 140px ;
-  margin-top:  1px;
+  margin-left: 140px;
+  margin-top: 1px;
 }
-
 
 .get-started {
   background: linear-gradient(135deg, #1e1e2e, #2e2e42);
@@ -41,13 +52,11 @@ const router = useRouter();
   box-shadow: 0 6px 12px rgba(44, 42, 42, 0.7);
 }
 
-
-
 /* Для маленьких экранов */
 @media (max-width: 600px) {
   .get-started-container_kera {
-    position: relative;       /* меняем на fixed */
-    margin: 10px;        /* размещаем у низа экрана */
+    position: relative;
+    margin: 10px;
     left: 45%;
     top: -5px;
     transform: translateX(-50%);
