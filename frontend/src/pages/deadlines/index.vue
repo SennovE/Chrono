@@ -170,7 +170,7 @@
       <!-- Upcoming Deadlines -->
       <div class="all-deadline-card">
         <div class="card-header">
-          <h2>Upcoming Deadlines</h2>
+          <h2>Upcoming</h2>
         </div>
         <div class="card-content">
           <div v-if="upcomingDeadlines.length === 0" class="empty-task-card">
@@ -248,7 +248,7 @@
       <!-- Indefinite Deadlines -->
       <div class="all-deadline-card">
         <div class="card-header">
-          <h2>Indefinite Deadlines</h2>
+          <h2>Indefinite</h2>
         </div>
         <div class="card-content">
           <div v-if="indefiniteDeadlines.length === 0" class="empty-task-card">
@@ -258,6 +258,7 @@
             v-for="task in indefiniteDeadlines"
             :key="task.id"
             class="task-card"
+            @click="openEditModal(task)"
           >
             <div class="task-status">
               <input
@@ -302,7 +303,7 @@
       <!-- Overdue Deadlines -->
       <div class="all-deadline-card">
         <div class="card-header">
-          <h2>Overdue Deadlines</h2>
+          <h2>Overdue</h2>
         </div>
         <div class="card-content">
           <div v-if="overdueDeadlines.length === 0" class="empty-task-card">
@@ -312,6 +313,7 @@
             v-for="task in overdueDeadlines"
             :key="task.id"
             class="task-card"
+            @click="openEditModal(task)"
           >
             <div class="task-status">
               <input
@@ -1441,11 +1443,11 @@ export default {
 }
 
 .tasks {
-  margin-top: 2.1875rem; /* 35px */
+  margin-top: 2.1875rem;
   display: flex;
   flex-direction: column;
-  gap: 0.625rem; /* 10px */
-  min-height: 3.125rem; /* 50px */
+  gap: 0.5rem;
+  min-height: 3.125rem;
   width: 100%;
 }
 
@@ -1461,16 +1463,18 @@ export default {
 .task-card {
   display: flex;
   align-items: center;
-  margin-bottom: 0.25rem; /* 4px */
   border: 1px solid #ccc;
   border-radius: 1.25rem; /* 20px */
   padding: 0.9375rem; /* 15px */
   background-color: #ffffff;
-  gap: 0.625rem; /* 10px */
   flex-direction: row;
   position: relative;
   box-shadow: 0 0.1875rem 0.3125rem rgba(0, 0, 0, 0.1);
   transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.task-card .task-details .task-name {
+  margin-left: 0.15rem; /* подберите значение по вкусу */
 }
 
 .task-card:hover {
@@ -2002,17 +2006,74 @@ h3 {
 }
 
 .all-deadlines-wrapper {
-  display: flex;   /* Размещаем три карточки в ряд */
-  gap: 1rem;       /* Зазор между колонками */
+  display: flex;
+  gap: 1rem;
   margin-top: 1rem;
+  max-width: 70vw; /* задаёт фиксированную максимальную ширину */
+  margin-left: 0;   /* начинаем с левого края */
 }
 
+/* Задаём фиксированную ширину для каждой карточки */
 .all-deadline-card {
-  background-color: #ffffff;
-  border-radius: 1.25rem; 
-  padding: 0.9375rem; 
+  width: 25vw;                /* зафиксированная ширина формы */
+  height: 60vh;               /* зафиксированная высота формы */
+  display: flex;               /* даём дочерним элементам выстраиваться колонкой */
+  flex-direction: column;
+  background-color: #fff;
+  border-radius: 1.25rem;
+  padding: 0.9375rem;
   box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.1);
-  overflow-y: auto;
+}
+
+.all-deadline-card .task-card {
+  margin-bottom: 0.5rem; /* увеличенный отступ только внутри карточек "All" */
+}
+
+/* Поднимаем заголовок карточки и уменьшаем размер шрифта */
+.all-deadline-card .card-header {
+  margin-top: 0;
+  padding-bottom: 0.5rem;
+  height: auto;       /* убираем фиксированную высоту заголовка */
+  overflow: visible;  /* при желании можно оставить auto/visible */
+}
+
+.all-deadline-card .card-content {
+  flex-grow: 1;       /* занимаем всё оставшееся место в карточке */
+  overflow-y: auto;   /* добавляем вертикальную прокрутку для дедлайнов */
+}
+
+.all-deadline-card .card-header h2 {
+  font-size: 0.9rem;  /* уменьшаем шрифт заголовка */
+  margin-bottom: 0.5rem;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.all-deadline-card .task-card .action-buttons {
+  display: none;
+}
+
+/* Показываем иконку при наведении на карточку */
+.all-deadline-card .task-card:hover .action-buttons {
+  display: block;
+}
+
+/* Выравнивание даты по правому краю и изменение цвета */
+.all-deadline-card .deadline-date {
+  display: inline-block;
+  width: 9rem; /* подберите нужную ширину */
+  margin-left: auto;
+  text-align: left;
+  color: grey;
+  font-size: 0.85rem;
+}
+
+.all-deadline-card .task-time-container {
+  white-space: nowrap;
 }
 
 .toggle-switch.deadline-view-switch {
@@ -2033,7 +2094,7 @@ h3 {
   position: absolute;
   top: 0;
   left: 0;
-  width: 50%;
+  width: 55%;
   height: 100%;
   background-color: #fff; /* цвет активной половинки */
   border-radius: 20px;
