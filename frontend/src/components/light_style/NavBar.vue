@@ -29,7 +29,8 @@
 
     <!-- Ссылка "О нас" -->
     <div class="about">
-      <router-link to="/about" class="about-link">О нас</router-link>
+      <!-- <router-link to="/about" class="about-link">О нас</router-link> -->
+      <a href="https://t.me/chrono_schedule" class="about-link" target="_blank">О нас</a>
     </div>
   </div>
 </template>
