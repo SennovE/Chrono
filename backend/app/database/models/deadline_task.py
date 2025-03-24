@@ -19,7 +19,7 @@ class DeadlineTask(DeclarativeBase):
 
     author = Column(String)
 
-    deadline_time = Column(DateTime(timezone=True))
+    deadline_time = Column(DateTime(timezone=True), nullable=True)
     
     description = Column(String)
     status = Column(Integer)     #0 - активно, 1 - завершено

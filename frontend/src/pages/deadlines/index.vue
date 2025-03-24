@@ -213,8 +213,8 @@
         <!-- Переключатель режимов ввода -->
         <div class="toggle-switch">
           <div class="toggle-slider" :class="{ manual: taskInputMode === 'manual' }"></div>
-          <div class="toggle-option" @click="taskInputMode = 'text'">Текстом</div>
-          <div class="toggle-option" @click="taskInputMode = 'manual'">Вручную</div>
+          <div class="toggle-option" @click="taskInputMode = 'text'">By text</div>
+          <div class="toggle-option" @click="taskInputMode = 'manual'">Manually</div>
         </div>
 
         <!-- Обёртка для форм с фиксированными размерами -->
@@ -226,7 +226,6 @@
               <textarea
                 v-model="aiInput"
                 class="text-box description-input"
-                placeholder="Enter description"
               ></textarea>
               <div class="modal-buttons">
                 <button type="button" @click="closeAddTaskModal">Cancel</button>
@@ -238,17 +237,33 @@
           <template v-else>
             <form class="manual-add-task-form" @submit.prevent="submitAddTask">
               <h3>Description</h3>
-              <input style="border-radius: 0.5rem; margin-bottom: 0.5rem;" type="text" v-model="newTaskData.description" required placeholder="Enter description" class="description-input"/>
-              <h3>Date</h3>
-              <input style="border-radius: 0.5rem; margin-bottom: 0.5rem;" type="date" v-model="newTaskData.date" required />
-              <h3>Time</h3>
-              <input style="border-radius: 0.5rem; margin-bottom: 0.5rem;" type="time" v-model="newTaskData.time" required />
+              <input style="border-radius: 0.5rem; margin-bottom: 0.5rem;" type="text" 
+                    v-model="newTaskData.description" required
+                    class="description-input"/>
+
+              <!-- Переключатель Бессрочный дедлайн -->
+              <div class="infinite-deadline-toggle" @click="isInfiniteDeadline = !isInfiniteDeadline">
+                <div class="custom-toggle" :class="{ active: isInfiniteDeadline }">
+                  <div class="toggle-circle"></div>
+                </div>
+                <span class="toggle-label">Indefinite deadline</span>
+              </div>
+
+              <!-- Если переключатель выключен, отображаются поля даты и времени -->
+              <template v-if="!isInfiniteDeadline">
+                <h3>Date</h3>
+                <input style="border-radius: 0.5rem; margin-bottom: 0.5rem;" type="date" v-model="newTaskData.date" required />
+                <h3>Time</h3>
+                <input style="border-radius: 0.5rem; margin-bottom: 0.5rem;" type="time" v-model="newTaskData.time" required />
+              </template>
+
               <div class="modal-buttons">
                 <button type="button" @click="closeAddTaskModal">Cancel</button>
                 <button type="submit">Submit</button>
               </div>
             </form>
           </template>
+
         </div>
       </div>
     </div>
@@ -325,6 +340,15 @@ export default {
   setup() {
     const user = ref({ username: "Loading..." });
     const deadlines = ref([]);
+
+    const usual_deadlines = computed(() => {
+      return deadlines.value.filter(task => task.deadline_time);
+    });
+
+   // const indefinite_deadlines = computed(() => {
+   //   return deadlines.value.filter(task => !task.deadline_time);
+   // });
+
     const deadlineListRef = ref(null);
 
     const newTask = ref({});
@@ -350,7 +374,6 @@ export default {
       time: "",
     });
 
-    // New AI Deadlines Result Modal State
     const isAIResultModalOpen = ref(false);
     const aiDeadlines = ref([]);
 
@@ -366,6 +389,8 @@ export default {
 
     const taskInputMode = ref("text");
     document.body.style.overflowY = 'hidden';
+
+    const isInfiniteDeadline = ref(false);
 
     /**
      * Получение токена (JWT) из localStorage.
@@ -418,7 +443,7 @@ export default {
         );
         deadlines.value = response.data.map(task => ({
           ...task,
-          deadline_time: new Date(task.deadline_time).toISOString(),
+          deadline_time: task.deadline_time ? new Date(task.deadline_time).toISOString() : null,
         }));
       } catch (error) {
         console.error("Error fetching deadlines:", error);
@@ -575,7 +600,7 @@ export default {
      * Группировка задач по дате.
      */
      const groupedDeadlines = computed(() => {
-      return deadlines.value.reduce((groups, task) => {
+      return usual_deadlines.value.reduce((groups, task) => {
         const localDate = new Date(task.deadline_time);
         const year = localDate.getFullYear();
         const month = String(localDate.getMonth() + 1).padStart(2, "0");
@@ -782,15 +807,23 @@ export default {
      */
     const submitAddTask = async () => {
       const { description, date, time } = newTaskData.value;
-      if (!description.trim() || !date || !time) {
+      if (!description.trim()) {
         alert("Please fill in all fields.");
         return;
       }
+
+      let deadline_time = null;
+      if (!isInfiniteDeadline.value) {
+        if (!date || !time) {
+          alert("Please fill in all fields.");
+          return;
+        }
+        const deadlineDate = new Date(`${date}T${time}`);
+        deadline_time = deadlineDate.toISOString();
+      }
+
       try {
         const token = getToken();
-        const deadlineDate = new Date(`${date}T${time}`);
-        const deadline_time = deadlineDate.toISOString();
-
         await axios.post(
           `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/create_deadline_task`,
           { description: description.trim(), deadline_time },
@@ -802,6 +835,7 @@ export default {
         );
 
         newTaskData.value = { description: "", date: "", time: "" };
+        isInfiniteDeadline.value = false;
         await fetchDeadlines();
         closeAddTaskModal();
       } catch (error) {
@@ -938,6 +972,8 @@ export default {
       submitAIEdit,
       taskInputMode,
       invalidUserPanel,
+      isInfiniteDeadline,
+      usual_deadlines,
     };
   },
 };
@@ -1529,7 +1565,7 @@ textarea.text-box {
   border-radius: 12px;
   box-sizing: border-box;
   overflow-y: auto;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-family: 'Inter', sans-serif;
   text-align: left;
   vertical-align: top;
@@ -1604,7 +1640,6 @@ h3 {
   color: #717781;
   margin-bottom: 0rem;
   font-size: 0.95rem;
-
 }
 
 .modal-buttons {
@@ -1640,7 +1675,7 @@ h3 {
   display: flex;
   width: 10rem;         /* можно скорректировать по необходимости */
   height: 1.5rem;
-  background-color: #cfcece;
+  background-color: #ccc;
   border-radius: 20px;
   overflow: hidden;
   cursor: pointer;
@@ -1682,6 +1717,53 @@ h3 {
 }
 
 .description-input {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  color: #717781;
 }
+
+.infinite-deadline-toggle {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  margin-top: 1rem;
+  margin-bottom: -0.5rem;
+}
+
+.custom-toggle {
+  width: 40px;
+  height: 20px;
+  background-color: #ccc;
+  border-radius: 10px;
+  position: relative;
+  transition: background-color 0.3s;
+  margin-right: 0.5rem;
+}
+
+.custom-toggle.active {
+  background-color: #4285F4;
+}
+
+.toggle-circle {
+  width: 16px;
+  height: 16px;
+  background-color: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s;
+}
+
+.custom-toggle.active .toggle-circle {
+  transform: translateX(20px);
+}
+
+.toggle-label {
+  color: #717781;
+  font-size: 0.9rem;
+  margin-top: -2px;
+}
+
+
 </style>
