@@ -241,7 +241,7 @@ export default {
           y: { 
             stacked: true, 
             beginAtZero: true, 
-            ticks: { stepSize: 23, callback: value => Number.isInteger(value) ? value : '', color: "#cdd6f4" },
+            ticks: { stepSize: -0.1111, callback: value => Number.isInteger(value) ? value : '', color: "#cdd6f4" },
             grid: { display: false } 
           }
         }
@@ -398,7 +398,6 @@ export default {
       maxCalendarCount,
       formatDate,
       getDayColor,
-      // Для модального окна
       showModal,
       selectedDay,
       openDayModal,
@@ -482,7 +481,7 @@ export default {
   font-size: 16px;
 }
 
-/* Для графиков (День/Неделя) – уменьшаем высоту */
+
 .chart-container {
   position: relative;
   height: 10px;
@@ -490,7 +489,7 @@ export default {
   margin: 20px 0;
 }
 
-/* Стили для календаря (вкладка "Календарь") */
+
 .calendar-all-months {
   display: flex;
   flex-wrap: wrap;
@@ -528,7 +527,7 @@ export default {
   cursor: pointer;
 }
 
-/* Tooltip в стиле Mocha */
+
 .day .tooltip {
   position: absolute;
   bottom: 120%;
@@ -551,7 +550,7 @@ export default {
   visibility: visible;
 }
 
-/* Модальное окно */
+
 .modal-overlay {
   position: fixed;
   top: 0;

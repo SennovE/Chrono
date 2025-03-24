@@ -15,14 +15,24 @@ import {
   BarElement
 } from 'chart.js';
   
+ChartJS.register(Title, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
+
 export default defineComponent({
   name: 'BarChart',
   components: {
     Bar
   },
+  props: {
+    chartData: {
+      type: Object,
+      required: true
+    },
+    chartOptions: {
+      type: Object,
+      required: true
+    }
+  },
 });
-  
-ChartJS.register(Title, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 </script>
   
 <style scoped>
