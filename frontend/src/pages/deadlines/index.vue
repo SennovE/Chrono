@@ -7,7 +7,14 @@
       <invalidUserPanel v-show="user == -1"/>
       <!-- Header Section with Title and Add Task Easier & Add Task Buttons -->
       <div class="header">
-        <h1 class="title">My tasks</h1>
+        <div class="title-container">
+          <h1 class="title">My tasks</h1>
+          <div class="toggle-switch deadline-view-switch">
+            <div class="toggle-slider" :class="{ all: deadlineViewMode === 'all' }"></div>
+            <div class="toggle-option" @click="deadlineViewMode = 'byDays'">By days</div>
+            <div class="toggle-option" @click="deadlineViewMode = 'all'">All</div>
+          </div>
+        </div>
         <div class="header-buttons">
           <button
             class="add-easier-button"
@@ -26,7 +33,7 @@
         </div>
       </div>
 
-      <div class="deadline-wrapper">
+      <div v-if="deadlineViewMode === 'byDays'" class="deadline-wrapper">
         <button class="scroll-button scroll-left" @click="scrollLeft" aria-label="Scroll Left">
           <!-- SVG Icon -->
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -157,7 +164,219 @@
           </svg>
         </button>
       </div>
+
+    <!-- Режим "All": теперь три карточки будут располагаться в ряд -->
+    <div v-else class="all-deadlines-wrapper">
+      <!-- Upcoming Deadlines -->
+      <div class="all-deadline-card">
+        <div class="card-header">
+          <h2>Upcoming Deadlines</h2>
+        </div>
+        <div class="card-content">
+          <div v-if="upcomingDeadlines.length === 0" class="empty-task-card">
+            <p>No upcoming deadlines</p>
+          </div>
+          <div
+            v-for="task in upcomingDeadlines"
+            :key="task.id"
+            class="task-card"
+            @click="openEditModal(task)"
+          >
+            <div class="task-status">
+              <input
+                type="radio"
+                @change="markTaskAsComplete(task.id)"
+                @click.stop
+                :checked="task.status === 1"
+              />
+            </div>
+            <div class="task-details">
+              <p class="task-name" :class="{ completed: task.status === 1 }">
+                {{ task.description }}
+              </p>
+              <div class="task-time-container">
+                <svg
+                  class="time-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                <p class="task-time" :class="getDeadlineTimeClass(task)">
+                  {{ formatTime(task.deadline_time) }}
+                </p>
+                <span class="deadline-date">
+                  {{ formatDate(task.deadline_time.split('T')[0]) }}
+                </span>
+              </div>
+            </div>
+            <div class="action-buttons">
+              <button
+                class="edit-button"
+                @click.stop="openEditModal(task)"
+                aria-label="Edit Task"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#3498db"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M12 20h9"></path>
+                  <path
+                    d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Indefinite Deadlines -->
+      <div class="all-deadline-card">
+        <div class="card-header">
+          <h2>Indefinite Deadlines</h2>
+        </div>
+        <div class="card-content">
+          <div v-if="indefiniteDeadlines.length === 0" class="empty-task-card">
+            <p>No indefinite deadlines</p>
+          </div>
+          <div
+            v-for="task in indefiniteDeadlines"
+            :key="task.id"
+            class="task-card"
+          >
+            <div class="task-status">
+              <input
+                type="radio"
+                @change="markTaskAsComplete(task.id)"
+                @click.stop
+                :checked="task.status === 1"
+              />
+            </div>
+            <div class="task-details">
+              <p class="task-name" :class="{ completed: task.status === 1 }">
+                {{ task.description }}
+              </p>
+            </div>
+            <div class="action-buttons">
+              <button
+                class="edit-button"
+                @click.stop="openEditModal(task)"
+                aria-label="Edit Task"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#3498db"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M12 20h9"></path>
+                  <path
+                    d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overdue Deadlines -->
+      <div class="all-deadline-card">
+        <div class="card-header">
+          <h2>Overdue Deadlines</h2>
+        </div>
+        <div class="card-content">
+          <div v-if="overdueDeadlines.length === 0" class="empty-task-card">
+            <p>No overdue deadlines</p>
+          </div>
+          <div
+            v-for="task in overdueDeadlines"
+            :key="task.id"
+            class="task-card"
+          >
+            <div class="task-status">
+              <input
+                type="radio"
+                @change="markTaskAsComplete(task.id)"
+                @click.stop
+                :checked="task.status === 1"
+              />
+            </div>
+            <div class="task-details">
+              <p class="task-name" :class="{ completed: task.status === 1 }">
+                {{ task.description }}
+              </p>
+              <div class="task-time-container">
+                <svg
+                  class="time-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                <p class="task-time" :class="getDeadlineTimeClass(task)">
+                  {{ formatTime(task.deadline_time) }}
+                </p>
+                <span class="deadline-date">
+                  {{ formatDate(task.deadline_time.split('T')[0]) }}
+                </span>
+              </div>
+            </div>
+            <div class="action-buttons">
+              <button
+                class="edit-button"
+                @click.stop="openEditModal(task)"
+                aria-label="Edit Task"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#3498db"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M12 20h9"></path>
+                  <path
+                    d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 
     
     <!-- Редактирование существующей задачи -->
@@ -345,9 +564,9 @@ export default {
       return deadlines.value.filter(task => task.deadline_time);
     });
 
-   // const indefinite_deadlines = computed(() => {
-   //   return deadlines.value.filter(task => !task.deadline_time);
-   // });
+    const indefiniteDeadlines = computed(() => {
+      return deadlines.value.filter(task => !task.deadline_time && task.status == 0);
+    });
 
     const deadlineListRef = ref(null);
 
@@ -391,6 +610,17 @@ export default {
     document.body.style.overflowY = 'hidden';
 
     const isInfiniteDeadline = ref(false);
+    const deadlineViewMode = ref("byDays");
+    const upcomingDeadlines = computed(() => {
+      return deadlines.value.filter(
+        task => task.deadline_time && new Date(task.deadline_time) > new Date() && task.status == 0
+      );
+    });
+    const overdueDeadlines = computed(() => {
+      return deadlines.value.filter(
+        task => task.deadline_time && new Date(task.deadline_time) < new Date() && task.status == 0
+      );
+    });
 
     /**
      * Получение токена (JWT) из localStorage.
@@ -974,6 +1204,10 @@ export default {
       invalidUserPanel,
       isInfiniteDeadline,
       usual_deadlines,
+      deadlineViewMode,
+      upcomingDeadlines,
+      overdueDeadlines,
+      indefiniteDeadlines,
     };
   },
 };
@@ -1423,10 +1657,6 @@ export default {
   background-color: rgba(231, 76, 60, 0.1);
 }
 
-.edit-button:hover {
-  background-color: rgba(52, 152, 219, 0.1);
-}
-
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -1763,6 +1993,87 @@ h3 {
   color: #717781;
   font-size: 0.9rem;
   margin-top: -2px;
+}
+
+.title-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 2rem;
+}
+
+.all-deadlines-wrapper {
+  display: flex;   /* Размещаем три карточки в ряд */
+  gap: 1rem;       /* Зазор между колонками */
+  margin-top: 1rem;
+}
+
+.all-deadline-card {
+  background-color: #ffffff;
+  border-radius: 1.25rem; 
+  padding: 0.9375rem; 
+  box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+
+.toggle-switch.deadline-view-switch {
+  width: 350px;       /* фиксированная ширина */
+  height: 550px;
+  position: relative;
+  display: flex;
+  width: 10rem;  /* например, 160px */
+  height: 1.5rem;
+  background-color: #ccc; /* "пассивный" фон переключателя */
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+/* Сам "ползунок" */
+.toggle-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background-color: #fff; /* цвет активной половинки */
+  border-radius: 20px;
+  transition: left 0.3s;
+}
+.toggle-slider.all {
+  left: 50%; /* Если .all, двигаем ползунок вправо */
+}
+
+/* Текст внутри переключателя */
+.toggle-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  color: #000; /* текст по умолчанию */
+  font-size: 0.9rem;
+  user-select: none;
+  transition: color 0.3s;
+}
+
+/* Когда опция активна, делаем текст белым */
+.toggle-option.active {
+  color: #fff;
+}
+
+/* Три колонки во вкладке "All" */
+.all-deadlines-wrapper {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.all-deadline-card {
+  flex: 1;
+  background-color: #fff;
+  border-radius: 1.25rem;
+  padding: 0.9375rem;
+  box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.1);
 }
 
 
