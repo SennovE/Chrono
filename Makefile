@@ -55,10 +55,6 @@ migration_auto:
 	$(MAKE) reset-host
 	$(MAKE) run 
 migration:
-	@if [ -z "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
-		echo "Usage: make mg <migration_message>"; \
-		exit 1; \
-	fi; \
 	cd $(TARGET_DIR) && $(ALEMBIC_CMD) revision --autogenerate -m "$(filter-out $@,$(MAKECMDGOALS))"
 upgrade:
 	cd $(TARGET_DIR) && $(ALEMBIC_CMD) upgrade head
