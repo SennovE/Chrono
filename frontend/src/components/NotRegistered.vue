@@ -17,6 +17,6 @@ const router = useRouter()
 </template>
 
 
-<style>
+<style scoped>
 @import "./grey_style/Main.css";
 </style>

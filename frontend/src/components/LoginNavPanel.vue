@@ -15,6 +15,6 @@ const router = useRouter();
     </div>
 </template>
 
-<style>
+<style scoped>
 @import "./grey_style/NavBar.css";
 </style>

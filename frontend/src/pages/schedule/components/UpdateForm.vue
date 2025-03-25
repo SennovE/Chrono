@@ -38,7 +38,6 @@ async function deleteTaskWrap() {
 }
 
 async function addScheduleTaskWrap() {
-    console.log(selectedTaskGroup.value.id)
     response.value = await addScheduleTask(
         router,
         shortText.value,
@@ -337,61 +336,6 @@ watch(() => selectedOptionWeekDay.value, getDateFromSelectedDay)
     </div>
 </template>
 
-<style>
-.group-edit-button {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-left: 1%;
-    margin-right: 1%;
-    cursor: pointer;
-}
-
-.creation-button {
-    margin-top: 5%;
-    margin-bottom: 0;
-    align-items: center;
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1%;
-}
-.modal-header h2 {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 70%;
-}
-
-.field-group {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1%;
-    margin-top: 1%;
-}
-
-.field-group p {
-    width: 30%;
-    min-width: 150px;
-    margin: 0;
-    margin-top: 1%;
-    padding-right: 2%;
-    text-align: left;
-}
-
-.overlay-fade-enter-from,
-.overlay-fade-leave-to {
-  opacity: 0;
-}
-.overlay-fade-enter-active,
-.overlay-fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.field-group .input-wrapper {
-    flex: 1;
-}
+<style scoped>
+@import "./ScheduleMain.css";
 </style>

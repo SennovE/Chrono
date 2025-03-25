@@ -5,7 +5,7 @@
     color: var(--color-grey-text);
 }
 
-.close-button {
+.grey-style .close-button {
     font-size: 24px;
     cursor: pointer;
     margin: 0;
@@ -75,4 +75,87 @@
 
 input::-webkit-calendar-picker-indicator {
     filter: invert(50%) sepia(100%) saturate(500%) hue-rotate(180deg);
+}
+
+.svg-buttons {
+    width: 4vh;
+    height: auto;
+    transform: scale(1);
+    display: inline-block;
+    transform-origin: center;
+    transition: transform 0.2s ease;
+    user-select: none;
+    cursor: pointer;
+    padding-right: 1%;
+    padding-left: 1%;
+}
+.svg-buttons:hover path {
+  fill: var(--color-bright-text);
+}
+.svg-buttons:hover {
+    transform: scale(0.875);
+}
+.svg-right {
+    transform-origin: 50% 50%;
+    transition: transform 0.3s ease;
+}
+.svg-right:hover {
+    transform: rotate(90deg);
+}
+
+.group-edit-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 1%;
+    margin-right: 1%;
+    cursor: pointer;
+}
+
+.grey-style .creation-button {
+    margin-top: 5%;
+    margin-bottom: 0;
+    align-items: center;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1%;
+}
+.modal-header h2 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 70%;
+}
+
+.field-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1%;
+    margin-top: 1%;
+}
+
+.field-group p {
+    width: 30%;
+    min-width: 150px;
+    margin: 0;
+    margin-top: 1%;
+    padding-right: 2%;
+    text-align: left;
+}
+
+.overlay-fade-enter-from,
+.overlay-fade-leave-to {
+  opacity: 0;
+}
+.overlay-fade-enter-active,
+.overlay-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.field-group .input-wrapper {
+    flex: 1;
 }

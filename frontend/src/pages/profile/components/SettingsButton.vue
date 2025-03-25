@@ -1,28 +1,11 @@
 <script setup>
 import { useRouter } from "vue-router";
-import axios from "axios";
 
 const router = useRouter();
-
-const getToken = () => {
-      const token = localStorage.getItem("chronoJWTToken");
-      if (!token) {
-        throw new Error("Token is missing. Please log in.");
-      }
-      return token;
-    };
 const handleLogout = async () => {
-  try {
-    const token = getToken();
-    await axios.post(
-        `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/user/logout`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-    router.push('/login');
-  } catch (error) {
-    console.error("Ошибка при выходе:", error);
-  }
+
+  localStorage.removeItem("chronoJWTToken")
+  router.push('/login');
 };
 </script>
 
