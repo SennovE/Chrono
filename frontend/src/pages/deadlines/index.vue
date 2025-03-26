@@ -835,7 +835,8 @@ export default {
         const token = getToken();
         const tasksPayload = aiDeadlines.value.map(task => ({
           description: task.description,
-          deadline_time: new Date(task.deadline_time).toISOString()
+          deadline_time: new Date(task.deadline_time).toISOString(),
+          priority: task.priority
         }));
 
         await axios.post(
@@ -851,6 +852,7 @@ export default {
 
         await fetchDeadlines();
         closeAIResultModal();
+        closeAddTaskModal();
       } catch (error) {
         console.error("Error submitting AI tasks:", error);
       }
