@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, UUID
+from sqlalchemy import Column, String, Boolean, UUID, func, DateTime
 
 from app.database import DeclarativeBase
 import uuid
@@ -17,3 +17,10 @@ class User(DeclarativeBase):
     email = Column(String, unique=True)
     premium = Column(Boolean, default=False)
     password = Column(String)
+
+class BlackList(DeclarativeBase):
+    __tablename__ = "BlackList"
+     
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
+    token = Column(String, unique=True, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
