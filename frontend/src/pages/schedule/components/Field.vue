@@ -243,7 +243,7 @@ watch(daysOnField, makeDayIndexes)
                 <line x1="20" y1="8" x2="20" y2="32" stroke="var(--color-bright-text)" stroke-width="2"/>
                 <line x1="8" y1="20" x2="32" y2="20" stroke="var(--color-bright-text)" stroke-width="2"/>
             </svg>
-            <scheduleGeneration />
+            <scheduleGeneration @closeModal="closeModal"/>
             <svg
                 @click="emit('openNav')"
                 class="svg-buttons"

@@ -1,6 +1,8 @@
 <script setup>
-import { ref } from "vue"
+import { ref, defineEmits } from "vue"
 import { AIGeneration, SendAISchedule, AIGenerationFullDay } from "./ScheduleFunctions"
+
+const emit = defineEmits(["closeModal"])
 
 const aiInput = ref("")
 const aiSchedule = ref("")
@@ -18,11 +20,12 @@ function openModal() {
     startDate.value = `${year}-${month}-${day}`;
 }
 
-function closeModal() {
+function closeGenModal() {
     isModalOpen.value = 0
     aiSchedule.value = ""
     aiInput.value = ""
     isGenerating.value = false
+    emit("closeModal")
 }
 
 async function submitAI() {
@@ -46,7 +49,7 @@ async function submitAI() {
 
 async function sendSchedule() {
     await SendAISchedule(aiSchedule.value);
-    closeModal();
+    closeGenModal();
 }
 
 function toggleTask(index) {
@@ -92,12 +95,12 @@ function toggleTask(index) {
             <div
                 v-if="isModalOpen == 1"
                 class="modal-overlay"
-                @click="closeModal"
+                @click="closeGenModal"
             >
                 <div class="modal-content" @click.stop>
                     <div class="modal-header">
                         <h3>Создать расписание при помощи ИИ</h3>
-                        <button class="close-button" @click="closeModal">&times;</button>
+                        <button class="close-button" @click="closeGenModal">&times;</button>
                     </div>
                     <textarea
                         placeholder="Введите запрос для генерации расписания"
@@ -148,11 +151,11 @@ function toggleTask(index) {
             </div>
         </transition>
         <transition name="overlay-fade">
-            <div v-if="isModalOpen == 2" class="modal-overlay" @click="closeModal">
+            <div v-if="isModalOpen == 2" class="modal-overlay" @click="closeGenModal">
                 <div class="modal-content" @click.stop>
                     <div class="modal-header">
                         <h3>Результат генерации</h3>
-                        <button class="close-button" @click="closeModal">&times;</button>
+                        <button class="close-button" @click="closeGenModal">&times;</button>
                     </div>
                     <div class="result-content">
                         <ul>
@@ -164,11 +167,25 @@ function toggleTask(index) {
                                                 type="text"
                                                 v-model="task.name"
                                                 placeholder="Название задачи"
-                                                @click="toggleTask(index)"
                                             />
                                         </div>
+                                        <svg
+                                            @click="toggleTask(index)"
+                                            width="24"
+                                            height="24"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="#3498db"
+                                            stroke-width="2"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            :style="{'padding-left': '1vw', 'cursor': 'pointer'}"
+                                        >
+                                            <path d="M12 20h9"></path>
+                                            <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                        </svg>
                                     </div>
-                                    <div v-if="task.expanded" :style="{'padding-left': '1vw'}">
+                                    <div v-if="task.expanded">
                                         <textarea
                                             placeholder="Добавьте описание"
                                             v-model="task.text"
@@ -191,7 +208,7 @@ function toggleTask(index) {
                         </ul>
                     </div>
                     <button class="creation-button" @click="sendSchedule">Отправить</button>
-                    <button class="creation-button" @click="closeModal">Закрыть</button>
+                    <button class="creation-button" @click="closeGenModal">Закрыть</button>
                 </div>
             </div>
         </transition>
@@ -204,5 +221,6 @@ function toggleTask(index) {
 .result-content {
     max-height: 50vh;
     overflow-y: auto;
+    padding-right: 1vw;
 }
 </style>
