@@ -81,12 +81,8 @@ async function addTasksGroupByCodeWrap() {
     }
 }
 
-function debug() {
-    console.log(colorText.value)
-}
 
 watch(() => props.isMakingTaskGroup, modalOpen)
-watch(() => colorText.value, debug)
 </script>
 
 <template>
@@ -167,7 +163,7 @@ watch(() => colorText.value, debug)
 </template>
 
 
-<style>
+<style scoped>
 @import "./ScheduleMain.css";
 
 .color-picker {

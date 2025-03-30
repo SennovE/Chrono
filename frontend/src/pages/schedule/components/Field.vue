@@ -214,10 +214,10 @@ watch(daysOnField, makeDayIndexes)
                     stroke-width="2"
                     stroke-linejoin="round" />
             </svg>
-            <h3 v-if="!isMobile">
+            <h3 v-if="!isMobile" class="head-line-h3">
                 {{ currentMonthName }} {{ currentYear }}
             </h3>
-            <h3 v-else :style="{ 'width': '40vw', 'font-size': '16px' }">
+            <h3 v-else class="head-line-h3" :style="{ 'width': '40vw', 'font-size': '16px' }">
                 {{ weekdates[dayIndexes[0]].getDate() }} | {{ shortWeekdays[dayIndexes[0]] }} {{ currentMonthName }} {{ currentYear }}
             </h3>
             <svg
@@ -331,7 +331,7 @@ watch(daysOnField, makeDayIndexes)
                             bottom: `${(task.end_hours - task.start_hours - 1 + task.end_minutes / 60) * -100}%`,
                             'box-shadow':
                                 'inset 0 0 0 1px var(--color-background),' +
-                                `inset 0 0 1vw ${task.group_color ? task.group_color : 'var(--color-container)'}`
+                                `inset 0 0 max(1vw, 15px) ${task.group_color ? task.group_color : 'var(--color-container)'}`
                         }"
                         @mousedown.stop
                         @click="showTask(index, task.id)"
@@ -341,7 +341,7 @@ watch(daysOnField, makeDayIndexes)
                             :style="{
                                 'padding-top' :
                                 (task.end_hours - task.start_hours) * 60  + task.end_minutes - task.start_minutes >= 40 ?
-                                '10%' : 'auto'
+                                '1vh' : 'auto'
                             }"
                         >
                             <span v-if="(task.end_hours - task.start_hours) * 60  + task.end_minutes - task.start_minutes >= 50">{{
@@ -360,34 +360,8 @@ watch(daysOnField, makeDayIndexes)
     </div>
 </template>
 
-<style>
+<style scoped>
 @import "./ScheduleMain.css";
-
-.svg-buttons {
-    width: 4vh;
-    height: auto;
-    transform: scale(1);
-    display: inline-block;
-    transform-origin: center;
-    transition: transform 0.2s ease;
-    user-select: none;
-    cursor: pointer;
-    padding-right: 1%;
-    padding-left: 1%;
-}
-.svg-buttons:hover path {
-  fill: var(--color-bright-text);
-}
-.svg-buttons:hover {
-    transform: scale(0.875);
-}
-.svg-right {
-    transform-origin: 50% 50%;
-    transition: transform 0.3s ease;
-}
-.svg-right:hover {
-    transform: rotate(90deg);
-}
 
 .selected-field {
     width: 96%;
@@ -412,7 +386,7 @@ watch(daysOnField, makeDayIndexes)
     align-items: center;
     padding-bottom: 1%;
 }
-.head-line h3 {
+.head-line-h3 {
     padding-right: 1%;
     padding-left: 1%;
     font-size: min(2vh, 2vw);
@@ -510,9 +484,6 @@ watch(daysOnField, makeDayIndexes)
     text-align: center;
     z-index: 10;
     transition: background-color 0.5s ease, color 0.5s ease;
-    /* box-shadow:
-        inset 0 0 0 1px var(--color-background),
-        inset 0 0 1vw var(--color-container); */
 }
 .task:hover {
     background-color: var(--color-container);
@@ -536,7 +507,7 @@ watch(daysOnField, makeDayIndexes)
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    padding: 0% 5% 0% 10%;
+    padding: 0 1vh 0 1vh;
     box-sizing: border-box;
     text-align: left;
 }

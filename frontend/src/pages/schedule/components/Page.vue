@@ -14,7 +14,7 @@ const emit = defineEmits("openNav")
     </div>
 </template>
 
-<style>
+<style scoped>
 .schedule-container {
     display: flex;
     flex-direction: row;

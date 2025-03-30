@@ -13,6 +13,6 @@ document.title = "Login"
     </div>
 </template>
 
-<style>
+<style scoped>
 @import "./components/LoginContainer.css";
 </style>

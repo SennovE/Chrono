@@ -87,7 +87,6 @@ export async function addScheduleTask(router, name, descriptionText, startDate,
             redirectToLogin(router)
             return -1
         }
-        console.log(group_id)
         await axios.post(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/schedule/`, {
             name: name,
             text: descriptionText,
@@ -338,24 +337,45 @@ export function currentTimeFilter(task, time, date) {
     return false
 }
 
-export async function AIGeneration(user_text) {
-    if (user_text == "") {
+export async function AIGenerationFullDay(userText, startDate) {
+    if (userText == "") {
         return "Введите запрос"
     }
     try {
-      const token = getToken();
-      const response = await axios.post(
-        `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/schedule/schedule_generation`,
-        { text: user_text },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      return response.data;
+        const token = getToken();
+        const response = await axios.post(
+            `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/schedule/schedule_generation`,
+            { text: userText + '\n Расписание должно быть на дату: ' + startDate },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+        return response.data;
     } catch (error) {
-      console.error("Error AI generation", error);
+        return "Error AI generation" + error;
+    }
+}
+
+export async function AIGeneration(userText) {
+    if (userText == "") {
+        return "Введите запрос"
+    }
+    try {
+        const token = getToken();
+        const response = await axios.post(
+            `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/schedule/add_schedule_tasks_ai`,
+            { text: userText + '\n Расписание должно быть на дату: ' + startDate },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+        return response.data;
+    } catch (error) {
+        return "Error AI generation" + error;
     }
 }
 
@@ -369,20 +389,19 @@ export async function SendAISchedule(aiSchedule) {
             start_time: new Date(task.start_time).toISOString(),
             end_time: new Date(task.end_time).toISOString(),
             recurring: task.recurring
-          }));
+        }));
 
         await axios.post(
-          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/schedule/send_ai_schedule`,
-          tasksPayload,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        
+            `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/schedule/send_ai_schedule`,
+            tasksPayload,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            }
+            );
       } catch (error) {
-        console.error("Error submitting AI tasks:", error);
+            console.error("Error submitting AI tasks:", error);
     }
 }

@@ -134,8 +134,7 @@ async def schedule_generation(response: ScheduleGenerate,
                 else:
                     return []
     
-    ans = await send_request()
-    return ans
+    return await send_request()
 
 
 async def add_schedule_tasks(response: AddScheduleTasksAI,
