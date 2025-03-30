@@ -2,6 +2,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from authlib.integrations.starlette_client import OAuth
+from app.utils.s3_manager import S3Client
 import os
 
 
@@ -26,6 +27,10 @@ class DefaultSettings(BaseSettings):
 
     GOOGLE_CLIENT_ID: str
     GOOGLE_CLIENT_SECRET: str
+
+    AWS_ACCESS_KEY_ID: str 
+    AWS_SECRET_ACCESS_KEY: str 
+    AWS_BUCKET_NAME: str
 
     PWD_CONTEXT: CryptContext = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -74,6 +79,14 @@ class DefaultSettings(BaseSettings):
             client_kwargs={'scope': 'openid email profile'},
         )
         return oauth
+    @property
+    def s3_client(self) -> S3Client:
+        return S3Client(
+            access_key=self.AWS_ACCESS_KEY_ID,
+            secret_key=self.AWS_SECRET_ACCESS_KEY,
+            endpoint_url='https://storage.yandexcloud.net',
+            bucket_name=self.AWS_BUCKET_NAME
+        )
 
 settings: DefaultSettings | None = None
 
