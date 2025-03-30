@@ -1,9 +1,11 @@
 <template>
-  <div class="user-avatar" @mouseenter="hover = true" @mouseleave="hover = false">
-    <img :src="avatarUrl" alt="Avatar" class="avatar-image" @click="triggerFileInput" />
-    <input type="file" ref="fileInput" style="display: none" @change="handleFileChange" />
-    <div v-if="hover" class="overlay" @click="triggerFileInput">
-      <span class="change-text">Изменить аватарку</span>
+  <div class="avatar-container">
+    <div class="user-avatar" @mouseenter="hover = true" @mouseleave="hover = false">
+      <img :src="avatarUrl" alt="Avatar" class="avatar-image" @click="triggerFileInput" />
+      <input type="file" ref="fileInput" style="display: none" @change="handleFileChange" />
+      <div v-if="hover" class="overlay" @click="triggerFileInput">
+        <span class="change-text">Изменить аватарку</span>
+      </div>
     </div>
     <p class="user-name">{{ user.username }}</p>
   </div>
@@ -13,15 +15,15 @@
     <div class="cropper-container">
       <img ref="cropperImage" :src="selectedImageUrl" alt="Selected Image" />
       <div class="cropper-controls">
-        <label>Width:
+        <label>Ширина:
           <input v-model.number="cropWidth" type="number" min="50" />
         </label>
-        <label>Height:
+        <label>Высота:
           <input v-model.number="cropHeight" type="number" min="50" />
         </label>
       </div>
-      <button @click="cropImage">Crop and Save</button>
-      <button @click="cancelCrop">Cancel</button>
+      <button @click="cropImage">Обрезать и сохранить</button>
+      <button @click="cancelCrop">Отмена</button>
     </div>
   </div>
 </template>
@@ -131,7 +133,6 @@ export default {
         } catch (error) {
           console.error("Error uploading avatar:", error);
         } finally {
-
           showCropper.value = false;
           cropperInstance.value.destroy();
           cropperInstance.value = null;
@@ -176,6 +177,8 @@ export default {
 </script>
 
 <style scoped>
+
+
 .user-avatar {
   position: relative;
   width: 190px;
@@ -210,22 +213,20 @@ export default {
   font-size: 1.2em;
 }
 
-/* Обновлённый стиль для отображения ника */
 .user-name {
-  margin-top: 10px;
+  margin-top: -50px;
+  margin-left: 230px;
   font-size: 1.3em;
-  color: #000000;
-  text-align: center;
+  color: #ffffff;
 }
 
-/* Стили для модального окна обрезки */
 .cropper-modal {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.7);
+  background: #000;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -233,10 +234,11 @@ export default {
 }
 
 .cropper-container {
-  background: #fff;
+  background: #6F4E37;
   padding: 20px;
   border-radius: 8px;
   text-align: center;
+  color: #fff;
 }
 
 .cropper-controls {
@@ -247,11 +249,34 @@ export default {
   margin: 0 10px;
 }
 
+.cropper-controls input {
+  background: #8D6E63;
+  border: 1px solid #fff;
+  color: #fff;
+  padding: 5px;
+  border-radius: 4px;
+  width: 70px;
+  margin-left: 5px;
+}
+
+.cropper-container button {
+  background: #5D4037;
+  border: none;
+  color: #fff;
+  padding: 10px 20px;
+  margin: 10px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.cropper-container button:hover {
+  background: #4E342E;
+}
+
 @media (max-width: 600px) {
   .user-avatar {
     width: 120px;
     height: 120px;
-    margin: 60px 0px;
   }
   
   .user-name {
