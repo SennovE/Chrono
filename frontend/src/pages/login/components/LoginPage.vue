@@ -112,9 +112,6 @@ onMounted(() => {
     </div>
 </template>
 
-<style>
+<style scoped>
 @import "./LoginContainer.css";
-.left-text {
-    text-align: left
-}
 </style>

@@ -135,7 +135,7 @@ onBeforeUnmount(() => {
     ></canvas>
 </template>
 
-<style>
+<style scoped>
 .canvas {
     position: fixed;
     top: 0;

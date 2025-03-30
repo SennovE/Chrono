@@ -22,7 +22,8 @@ async def check_if_group_exists(group_id: UUID, session: AsyncSession) -> bool:
 async def add_schedule_task(
     session: AsyncSession,
     schedule_task_form: ScheduleForm,
-    current_user: User
+    current_user: User,
+    add_many: bool = False
 ) -> None:
     if (
         schedule_task_form.start_time.year != schedule_task_form.end_time.year or
@@ -54,7 +55,8 @@ async def add_schedule_task(
         group_id = schedule_task_form.group_id
     )
     session.add(schedule_task)
-    await session.commit()
+    if not add_many:
+        await session.commit()
 
 
 async def get_schedule_tasks(session: AsyncSession, current_user: User) -> list[Schedule]:
@@ -142,6 +144,7 @@ async def send_schedule(
 ) -> bool:
     async_tasks = []
     for task in tasks:
-        async_tasks.append(add_schedule_task(task, session, current_user))
+        async_tasks.append(add_schedule_task(session, task, current_user, True))
     await asyncio.gather(*async_tasks)
+    await session.commit()
     return True

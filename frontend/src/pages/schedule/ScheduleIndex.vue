@@ -21,17 +21,19 @@ onMounted(async () => {
 
 
 <template>
-    <div class="grey-style">
-        <navPanel v-show="isNavOpen"/>
-        <schedulePage
-            :user="user"
-            :style="{ 'padding-top': !isNavOpen ? '1%' : '0%' }"
-            @openNav="() => { isNavOpen = !isNavOpen }"
-        />
-        <invalidUserPanel v-show="user == -1"/>
+    <div class="schedule-page">
+        <div class="grey-style">
+            <navPanel v-show="isNavOpen"/>
+            <schedulePage
+                :user="user"
+                :style="{ 'padding-top': !isNavOpen ? '1%' : '0%' }"
+                @openNav="() => { isNavOpen = !isNavOpen }"
+            />
+            <invalidUserPanel v-show="user == -1"/>
+        </div>
     </div>
 </template>
 
-<style>
+<style scoped>
 @import "./components/ScheduleMain.css";
 </style>
