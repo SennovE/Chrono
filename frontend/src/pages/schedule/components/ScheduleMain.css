@@ -5,7 +5,7 @@
     color: var(--color-grey-text);
 }
 
-.close-button {
+.grey-style .close-button {
     font-size: 24px;
     cursor: pointer;
     margin: 0;
@@ -112,7 +112,7 @@ input::-webkit-calendar-picker-indicator {
     cursor: pointer;
 }
 
-.creation-button {
+.grey-style .creation-button {
     margin-top: 5%;
     margin-bottom: 0;
     align-items: center;

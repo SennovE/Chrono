@@ -358,7 +358,7 @@ export async function AIGenerationFullDay(userText, startDate) {
     }
 }
 
-export async function AIGeneration(userText) {
+export async function AIGeneration(userText, startDate) {
     if (userText == "") {
         return "Введите запрос"
     }

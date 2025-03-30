@@ -31,7 +31,7 @@ function closeGenModal() {
 async function submitAI() {
     aiSchedule.value = ""
     isGenerating.value = true
-    if (fullDay) {
+    if (fullDay.value) {
         aiSchedule.value = await AIGenerationFullDay(aiInput.value, startDate.value)
     } else {
         aiSchedule.value = await AIGeneration(aiInput.value, startDate.value)

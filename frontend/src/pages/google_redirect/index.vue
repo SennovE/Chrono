@@ -24,6 +24,6 @@ onMounted(() => {
     </div>
 </template>
 
-<style>
+<style scoped>
 @import "../login/components/LoginContainer.css";
 </style>

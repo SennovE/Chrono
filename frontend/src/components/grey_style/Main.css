@@ -16,7 +16,7 @@
     color: var(--color-dark-text);
 }
 
-.error-msg {
+.grey-style .error-msg {
     text-align: center;
     font-size: medium;
     text-shadow:
@@ -26,7 +26,12 @@
     color: var(--color-white);
 }
 
-button, input, textarea, .task-text, .input-wrapper p, select {
+.grey-style button,
+.grey-style input,
+.grey-style textarea,
+.grey-style .task-text,
+.grey-style .input-wrapper p,
+.grey-style select {
     width: 100%;
     padding: 2%;
     font-size: 16px;
@@ -38,11 +43,11 @@ button, input, textarea, .task-text, .input-wrapper p, select {
     position: relative;
 }
 
-input::placeholder {
+.grey-style input::placeholder {
     color: var(--color-dark-text);
 }
 
-button {
+.grey-style button {
     font-size: 20px;
     cursor: pointer;
     border-radius: 5px;
@@ -52,26 +57,26 @@ button {
     transition: background-color 0.5s ease, color 0.5s ease;
 }
 
-.schedule-field button {
+.grey-style .schedule-field button {
     background: var(--color-grey-text);
 }
 
-button:hover {
+.grey-style button:hover {
     background-color: var(--color-background);
     color: var(--color-bright-text);
 }
 
-button:active {
+.grey-style button:active {
     background: rgb(0, 0, 0, 0.2);
 }
 
-.input-wrapper {
+.grey-style .input-wrapper {
     display: flex;
     align-items: center;
     position: relative;
 }
 
-.input-wrapper::before {
+.grey-style .input-wrapper::before {
     content: '';
     position: absolute;
     bottom: 0;
@@ -81,7 +86,7 @@ button:active {
     background-color: var(--color-dark-text);
 }
 
-.input-wrapper::after {
+.grey-style .input-wrapper::after {
     content: '';
     position: absolute;
     bottom: 0;
@@ -96,7 +101,7 @@ button:active {
     width: 100%;
 }
 
-textarea, .task-text {
+.grey-style textarea, .task-text {
     border-radius: 5px;
     border: 2px solid var(--color-dark-text);
 }
