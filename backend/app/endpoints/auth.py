@@ -1,7 +1,7 @@
 from datetime import timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException,Security
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
@@ -77,11 +77,11 @@ async def login_for_access_token(
      summary="Logout user",
      status_code=status.HTTP_200_OK,
  )
-async def logout(
-    token: Annotated[str, Depends(get_settings().OAUTH2_SCHEME)],
+async def ban_user(
+    current_user: Annotated[User, Security(get_current_user)],
     session: Annotated[AsyncSession, Depends(get_session)],
  ) -> dict:
-    success = await add_token_to_blacklist(token, session)
+    success = await add_token_to_blacklist(current_user.id, session)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

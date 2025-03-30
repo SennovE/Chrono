@@ -1,9 +1,11 @@
 <script setup>
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const handleLogout = async () => {
 
   localStorage.removeItem("chronoJWTToken")
-
+  router.push('/login');
 };
 </script>
 
