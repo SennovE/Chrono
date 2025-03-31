@@ -47,7 +47,7 @@ export default {
   },
   setup() {
     const navLinks = [
-      { path: "/profile", label: "Стать Premium", icon: "fa fa-crown" },
+      { path: "/payment", label: "Стать Premium", icon: "fa fa-crown" },
       { path: "/settings", label: "Настройки ИИ", icon: "fa fa-cog" },
       { path: "/schedule", label: "Расписание", icon: "fa fa-calendar" },
       { path: "/deadlines", label: "Дедлайны", icon: "fa fa-clock" },

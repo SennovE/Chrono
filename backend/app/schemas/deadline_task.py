@@ -24,6 +24,7 @@ class DeadlineTaskResponse(BaseModel):
     deadline_time: datetime | None = Field(default=datetime.today())
     description: str = Field(default="Описание дедлайна")
     status: int = Field(default=0)
+    priority: int = Field(default=0)
 
 
 class DeadlineTaskID(BaseModel):
@@ -34,6 +35,7 @@ class DeadlineTaksUpdateForm(BaseModel):
     id: UUID
     deadline_time: datetime = Field()
     description: str = Field()
+    priority: int = Field(default=0)
 
 
 class DeadlineTaskAICreare(BaseModel):

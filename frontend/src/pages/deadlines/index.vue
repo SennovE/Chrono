@@ -134,6 +134,17 @@
                       </svg>
                     </button>
                   </div>
+
+                  <div
+                    v-if="task.priority > 0"
+                    class="priority-stripe"
+                    :class="{
+                      'priority-3': task.priority === 3,
+                      'priority-2': task.priority === 2,
+                      'priority-1': task.priority === 1
+                    }"
+                  ></div>
+
                 </div>
               </div>
               <div class="new-task-form">
@@ -238,6 +249,17 @@
                 </svg>
               </button>
             </div>
+
+            <div
+              v-if="task.priority > 0"
+              class="priority-stripe"
+              :class="{
+                'priority-3': task.priority === 3,
+                'priority-2': task.priority === 2,
+                'priority-1': task.priority === 1
+              }"
+            ></div>
+
           </div>
         </div>
       </div>
@@ -293,6 +315,16 @@
                 </svg>
               </button>
             </div>
+
+            <div
+              v-if="task.priority > 0"
+              class="priority-stripe"
+              :class="{
+                'priority-3': task.priority === 3,
+                'priority-2': task.priority === 2,
+                'priority-1': task.priority === 1
+              }"
+            ></div>
           </div>
         </div>
       </div>
@@ -371,6 +403,16 @@
                 </svg>
               </button>
             </div>
+
+            <div
+              v-if="task.priority > 0"
+              class="priority-stripe"
+              :class="{
+                'priority-3': task.priority === 3,
+                'priority-2': task.priority === 2,
+                'priority-1': task.priority === 1
+              }"
+            ></div>
           </div>
         </div>
       </div>
@@ -386,6 +428,25 @@
           <form class="manual-add-task-form" @submit.prevent="submitEdit">
             <h3>Description</h3>
             <input style="border-radius: 0.5rem; margin-bottom: 0.5rem;" type="text" v-model="editTask.description" required class="description-input"/>
+
+            <div class="priority-block" style="margin-bottom: 2rem;">
+              <h3>Priority</h3>
+              <div class="priority-slider-container">
+                <input
+                  type="range"
+                  min="0"
+                  max="3"
+                  step="1"
+                  class="priority-slider"
+                  v-model.number="editTask.priority"
+                />
+                <div class="priority-labels">
+                  <span class="tick-label">обычный</span>
+                  <span class="tick-label">очень важный</span>
+                </div>
+              </div>
+            </div>
+
             <h3>Date</h3>
             <input style="border-radius: 0.5rem; margin-bottom: 0.5rem;" type="date" v-model="editTask.date" required />
             <h3>Time</h3>
@@ -599,6 +660,7 @@ export default {
       description: "",
       date: "",
       time: "",
+      priority: 0,
     });
     const hoveredTask = ref(null);
     const dayFilters = ref({}); // 0 = актуальные, 1 = завершённые
@@ -944,6 +1006,7 @@ export default {
         description: task.description,
         date: `${year}-${month}-${day}`,
         time: `${hours}:${minutes}`,
+        priority: task.priority
       };
 
       isModalOpen.value = true;
@@ -952,14 +1015,14 @@ export default {
 
     const closeEditModal = () => {
       isModalOpen.value = false;
-      editTask.value = { id: null, description: "", date: "", time: "" };
+      editTask.value = { id: null, description: "", date: "", time: "", priority: 0 };
     };
 
 
     const submitEdit = async () => {
       try {
         const token = getToken();
-        const { id, description, date, time } = editTask.value;
+        const { id, description, date, time, priority } = editTask.value;
         const [year, month, day] = date.split("-");
         const [hours, minutes] = time.split(":");
         const deadlineDate = new Date(year, month - 1, day, hours, minutes);
@@ -967,7 +1030,7 @@ export default {
 
         await axios.put(
           `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/update_task`,
-          { id, description, deadline_time },
+          { id, description, deadline_time, priority },
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -1018,6 +1081,7 @@ export default {
      * Добавление дедлайна вручную.
      */
     const openAddTaskModal = () => {
+      newTaskData.value = { description: "", date: "", time: "", priority: 0 };
       isAddTaskModalOpen.value = true;
     };
 
@@ -1440,6 +1504,8 @@ export default {
   position: relative;
   box-shadow: 0 0.1875rem 0.3125rem rgba(0, 0, 0, 0.1);
   transition: background-color 0.3s, box-shadow 0.3s;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .task-card .task-details .task-name {
@@ -2198,5 +2264,25 @@ h3 {
 .priority-labels .tick-label {
   font-size: 0.8rem;
   color: #ccc;
+}
+
+.priority-stripe {
+  position: absolute;
+  right: 0.5rem; /* отступ от правого края */
+  top: 0rem;
+  bottom: 0rem;
+  width: 7px;
+}
+
+.priority-stripe.priority-3 {
+  background-color: #ee7777;
+}
+
+.priority-stripe.priority-2 {
+  background-color: #ffcc99;
+}
+
+.priority-stripe.priority-1 {
+  background-color: #e6ccff;
 }
 </style>
