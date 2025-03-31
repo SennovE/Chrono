@@ -43,7 +43,7 @@ onMounted(async () => {
   </div>
 </template>
 
-<style>
+<style scoped>
 .profile-page {
   background-color: #1e1e2e;
   color: #cdd6f4;         

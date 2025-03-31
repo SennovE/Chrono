@@ -7,6 +7,7 @@ from .settings import api_router as settings_router
 from .google_auth import api_router as google_router
 from .task_groups import api_router as groups_router
 from .upload import api_router as upload_router
+from .payment import api_router as payment_router
 
 list_of_routes = [
     auth_router,
@@ -18,6 +19,7 @@ list_of_routes = [
     google_router,
     groups_router,
     upload_router,
+    payment_router,
 ]
 
 __all__ = [
