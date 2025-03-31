@@ -23,3 +23,5 @@ class DeadlineTask(DeclarativeBase):
     
     description = Column(String)
     status = Column(Integer)     #0 - активно, 1 - завершено
+
+    priority = Column(Integer)   #0 - обычный, 1 - достаточно важный, 2 - важный, 3 - очень важный

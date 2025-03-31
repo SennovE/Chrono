@@ -461,7 +461,33 @@
               <input style="border-radius: 0.5rem; margin-bottom: 0.5rem;" type="text" 
                     v-model="newTaskData.description" required
                     class="description-input"/>
-
+              
+              <div class="priority-block">
+                <h3>Priority</h3>
+                <div class="priority-slider-container">
+                  <input
+                    type="range"
+                    min="0"
+                    max="3"
+                    step="1"
+                    v-model.number="newTaskData.priority"
+                    class="priority-slider"
+                  />
+                  <!-- Черточки расположены поверх ползунка -->
+                  <div class="slider-ticks">
+                    <div class="tick" style="left: 0%;"></div>
+                    <div class="tick" style="left: 33.33%;"></div>
+                    <div class="tick" style="left: 66.66%;"></div>
+                    <div class="tick" style="left: 100%;"></div>
+                  </div>
+                  <!-- Надписи под черточками -->
+                  <div class="priority-labels">
+                    <span class="tick-label">обычный</span>
+                    <span class="tick-label">очень важный</span>
+                  </div>
+                </div>
+              </div>
+              
               <!-- Переключатель Бессрочный дедлайн -->
               <div class="infinite-deadline-toggle" @click="isInfiniteDeadline = !isInfiniteDeadline">
                 <div class="custom-toggle" :class="{ active: isInfiniteDeadline }">
@@ -593,6 +619,7 @@ export default {
       description: "",
       date: "",
       time: "",
+      priority: 0,
     });
 
     const isAIResultModalOpen = ref(false);
@@ -696,10 +723,11 @@ export default {
         const deadlineDate = new Date(year, month - 1, date, hours, minutes);
         const deadline_time = deadlineDate.toISOString();
         const description = newTask.value[day].description;
+        const priority = 0;
 
         await axios.post(
           `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/create_deadline_task`,
-          { description, deadline_time },
+          { description, deadline_time, priority },
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -1037,8 +1065,8 @@ export default {
     /**
      * Отправить форму добавления новой задачи.
      */
-    const submitAddTask = async () => {
-      const { description, date, time } = newTaskData.value;
+     const submitAddTask = async () => {
+      const { description, date, time, priority } = newTaskData.value;
       if (!description.trim()) {
         alert("Please fill in all fields.");
         return;
@@ -1058,7 +1086,7 @@ export default {
         const token = getToken();
         await axios.post(
           `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/deadline_task/create_deadline_task`,
-          { description: description.trim(), deadline_time },
+          { description: description.trim(), deadline_time, priority },
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -1066,7 +1094,7 @@ export default {
           }
         );
 
-        newTaskData.value = { description: "", date: "", time: "" };
+        newTaskData.value = { description: "", date: "", time: "", priority: 0 };
         isInfiniteDeadline.value = false;
         await fetchDeadlines();
         closeAddTaskModal();
@@ -1835,7 +1863,7 @@ textarea.text-box {
 .fixed-form-size {
   width: 25rem;
   max-width: 90%;
-  min-height: 25rem; /* Фиксированная минимальная высота */
+  min-height: 30rem; /* Фиксированная минимальная высота */
   padding: 1.875rem; /* 30px */
   border-radius: 0.625rem; /* 10px */
   box-shadow: 0 0.3125rem 0.9375rem rgba(0, 0, 0, 0.3);
@@ -2137,5 +2165,78 @@ h3 {
   box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.1);
 }
 
+.priority-block {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
 
+.priority-slider-container {
+  width: 50%; /* полвина ширины формы */
+  position: relative;
+  z-index: 3;
+}
+
+.tick-label {
+  font-size: 0.8rem;
+  color: #ccc; /* светло-серый цвет */
+}
+
+.priority-slider {
+  width: 100%;
+  -webkit-appearance: none;
+  background: #ddd;
+  height: 4px;
+  border-radius: 2px;
+  outline: none;
+}
+
+/* Стили для Webkit */
+.priority-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff; /* белый шарик */
+  border: 1px solid #ccc;
+  cursor: pointer;
+  z-index: 2;
+}
+
+/* Стили для Firefox */
+.priority-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.slider-ticks {
+  position: absolute;
+  top: 36%; /* Центрируем по вертикали ползунка */
+  transform: translateY(-50%);
+  width: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.slider-ticks .tick {
+  position: absolute;
+  width: 2px;           /* увеличенная ширина */
+  height: 12px;         /* увеличенная высота */
+  background-color: #888;
+  transform: translateY(-50%);
+}
+
+/* Надписи под черточками */
+.priority-labels {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 4px; /* немного ближе к ползунку */
+}
 </style>
