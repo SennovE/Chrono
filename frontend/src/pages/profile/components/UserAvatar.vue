@@ -181,14 +181,13 @@ export default {
 
 .user-avatar {
   position: fixed;
-  top: 5%;
+  top: 10%;
+  left: 10%;
   width: 190px;
   height: 190px;
   border-radius: 50%;
   background-color: #f9f9f9;
-  margin: 70px 160px;
   overflow: hidden;
-  cursor: pointer;
 }
 
 .avatar-image {

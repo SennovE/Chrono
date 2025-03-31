@@ -26,18 +26,21 @@ async def check_token_from_black_list(session: AsyncSession, token: str)-> bool:
      return (await session.scalar(query) != None)
 
 async def register_user(session: AsyncSession, user_data: RegistrationForm) -> bool:
-    user = User(**user_data.model_dump(exclude_unset=True))
-    session.add(user)
-    await session.flush()
-    
-    settings = Settings(user_id=user.id)
-    session.add(settings)
-    
     try:
+        user = User(**user_data.model_dump(exclude_unset=True))
+        session.add(user)
+        await session.flush()
+
+        settings = Settings(user_id=user.id)
+        session.add(settings)
+
         await session.commit()
+
+        return True
     except exc.IntegrityError:
+        await session.rollback()
+
         return False
-    return True
 
 
 async def authenticate_user(session: AsyncSession, email: str, password: str) -> User | None:
