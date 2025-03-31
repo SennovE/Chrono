@@ -5,7 +5,8 @@
     <NavBar :username="user.username" />
     <div class="content-container">
       <invalidUserPanel v-show="user == -1"/>
-      <!-- Header Section with Title and Add Task Easier & Add Task Buttons -->
+
+      <!-- Header -->
       <div class="header">
         <div class="title-container">
           <h1 class="title">My tasks</h1>
@@ -35,13 +36,11 @@
 
       <div v-if="deadlineViewMode === 'byDays'" class="deadline-wrapper">
         <button class="scroll-button scroll-left" @click="scrollLeft" aria-label="Scroll Left">
-          <!-- SVG Icon -->
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M15 18L9 12L15 6" stroke="#7f8c8d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
         <div ref="deadlineListRef" class="deadline-list">
-          <!-- Deadline List -->
           <div v-for="(tasks, day) in allDaysWithTasks" :key="day" class="deadline-day-wrapper">
             <div class="day-header">
               <h2 class="day-title">{{ formatDate(day) }}</h2>
@@ -87,7 +86,6 @@
                         <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
                         <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                       </svg>
-                      <!-- Применяем класс в зависимости от оставшегося времени -->
                       <p class="task-time" :class="getDeadlineTimeClass(task)">
                         {{ formatTime(task.deadline_time) }}
                       </p>
@@ -158,14 +156,13 @@
           </div>
         </div>
         <button class="scroll-button scroll-right" @click="scrollRight" aria-label="Scroll Right">
-          <!-- SVG Icon -->
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M9 18L15 12L9 6" stroke="#7f8c8d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
       </div>
 
-    <!-- Режим "All": теперь три карточки будут располагаться в ряд -->
+    <!-- Режим ALL -->
     <div v-else class="all-deadlines-wrapper">
       <!-- Upcoming Deadlines -->
       <div class="all-deadline-card">
@@ -402,7 +399,7 @@
       </div>
     </div>
 
-    <!-- Existing AI Generation Modal with Loading Spinner -->
+    <!-- AI Generation -->
     <div v-if="isAIModalOpen" class="modal-overlay" @click.self="closeAIModal">
       <div class="modal-content">
         <template v-if="!aiLoading">
@@ -438,7 +435,6 @@
           <div class="toggle-option" @click="taskInputMode = 'manual'">Manually</div>
         </div>
 
-        <!-- Обёртка для форм с фиксированными размерами -->
         <div class="form-container">
           <!-- Форма для ввода задач текстом -->
           <template v-if="taskInputMode === 'text'">
@@ -465,22 +461,22 @@
               <div class="priority-block">
                 <h3>Priority</h3>
                 <div class="priority-slider-container">
+                  <!-- Линия и риски -->
+                  <!--<div class="slider-ticks">
+                    <div class="tick"></div>
+                    <div class="tick"></div>
+                    <div class="tick"></div>
+                    <div class="tick"></div>
+                  </div>-->
+                  <!-- Сам слайдер -->
                   <input
                     type="range"
                     min="0"
                     max="3"
                     step="1"
-                    v-model.number="newTaskData.priority"
                     class="priority-slider"
+                    v-model.number="newTaskData.priority"
                   />
-                  <!-- Черточки расположены поверх ползунка -->
-                  <div class="slider-ticks">
-                    <div class="tick" style="left: 0%;"></div>
-                    <div class="tick" style="left: 33.33%;"></div>
-                    <div class="tick" style="left: 66.66%;"></div>
-                    <div class="tick" style="left: 100%;"></div>
-                  </div>
-                  <!-- Надписи под черточками -->
                   <div class="priority-labels">
                     <span class="tick-label">обычный</span>
                     <span class="tick-label">очень важный</span>
@@ -496,7 +492,6 @@
                 <span class="toggle-label">Indefinite deadline</span>
               </div>
 
-              <!-- Если переключатель выключен, отображаются поля даты и времени -->
               <template v-if="!isInfiniteDeadline">
                 <h3>Date</h3>
                 <input style="border-radius: 0.5rem; margin-bottom: 0.5rem;" type="date" v-model="newTaskData.date" required />
@@ -517,7 +512,7 @@
 
 
 
-    <!-- New AI Deadlines Result Modal -->
+    <!-- AI Result Modal -->
     <div v-if="isAIResultModalOpen" class="modal-overlay" @click.self="closeAIResultModal">
       <div class="modal-content">
         <h2>AI Generated Deadlines</h2>
@@ -541,7 +536,6 @@
         </div>
         <div class="modal-buttons">
           <button type="button" @click="closeAIResultModal">Close</button>
-          <!-- Кнопка для отправки задач на /submit_ai_generation -->
           <button type="button" @click="submitAIGeneratedTasks">Отправить</button>
         </div>
       </div>
@@ -613,7 +607,7 @@ export default {
     const aiInput = ref("");
     const aiLoading = ref(false); // состояние загрузки в AI модалке
 
-    // New Add Task Modal State
+
     const isAddTaskModalOpen = ref(false);
     const newTaskData = ref({
       description: "",
@@ -625,7 +619,6 @@ export default {
     const isAIResultModalOpen = ref(false);
     const aiDeadlines = ref([]);
 
-    // New AI Task Edit Modal State
     const isAIEditModalOpen = ref(false);
     const editAITask = ref({
       id: null,
@@ -652,7 +645,7 @@ export default {
     });
 
     /**
-     * Получение токена (JWT) из localStorage.
+     * Получение JWT
      */
     const getToken = () => {
       const token = localStorage.getItem("chronoJWTToken");
@@ -663,7 +656,7 @@ export default {
     };
 
     /**
-     * Запрос данных пользователя.
+     * Запрос пользователя
      */
     const getUser = async () => {
       try {
@@ -687,7 +680,7 @@ export default {
     }
 
     /**
-     * Запрос всех задач (дедлайнов).
+     * Запрос всех дедлайнов
      */
     const fetchDeadlines = async () => {
       try {
@@ -710,7 +703,7 @@ export default {
     };
 
     /**
-     * Создание новой задачи в конкретный день.
+     * Создание новой задачи в форме дня
      */
     const createTask = async (day) => {
       if (!newTask.value[day]) {
@@ -742,9 +735,7 @@ export default {
       }
     };
 
-    /**
-     * Пометить задачу как завершённую.
-     */
+
     const markTaskAsComplete = async (taskId) => {
       try {
         const token = getToken();
@@ -763,9 +754,7 @@ export default {
       }
     };
 
-    /**
-     * Удаление задачи.
-     */
+
     const deleteTask = async (taskId) => {
       try {
         const token = getToken();
@@ -784,9 +773,7 @@ export default {
       }
     };
 
-    /**
-     * Возврат задачи в активные.
-     */
+
     const returnToActive = async (taskId) => {
       try {
         const token = getToken();
@@ -805,9 +792,7 @@ export default {
       }
     };
 
-    /**
-     * Отправить запрос на AI генерацию задач.
-     */
+    
     const AIGeneration = async (user_text) => {
       try {
         const token = getToken();
@@ -827,9 +812,7 @@ export default {
       }
     };
 
-    /**
-     * Метод для отправки списка сгенерированных задач на /submit_ai_generation
-     */
+
     const submitAIGeneratedTasks = async () => {
       try {
         const token = getToken();
@@ -901,9 +884,7 @@ export default {
       }, {});
     });
 
-    /**
-     * Форматирование даты.
-     */
+
     const formatDate = (dateString) => {
       const today = new Date();
       const tomorrow = new Date();
@@ -923,9 +904,7 @@ export default {
       });
     };
 
-    /**
-     * Форматирование времени.
-     */
+
     const formatTime = (datetime) => {
       const time = new Date(datetime);
       return time.toLocaleTimeString("ru-RU", {
@@ -935,9 +914,7 @@ export default {
       });
     };
 
-    /**
-     * Скролл влево.
-     */
+
     const scrollLeft = () => {
       const deadlineList = deadlineListRef.value;
       if (deadlineList) {
@@ -945,9 +922,7 @@ export default {
       }
     };
 
-    /**
-     * Скролл вправо.
-     */
+
     const scrollRight = () => {
       const deadlineList = deadlineListRef.value;
       if (deadlineList) {
@@ -955,9 +930,7 @@ export default {
       }
     };
 
-    /**
-     * Открыть модалку редактирования для обычных задач.
-     */
+
     const openEditModal = (task) => {
       const deadlineDate = new Date(task.deadline_time);
       const year = deadlineDate.getFullYear();
@@ -976,17 +949,13 @@ export default {
       isModalOpen.value = true;
     };
 
-    /**
-     * Закрыть модалку редактирования для обычных задач.
-     */
+
     const closeEditModal = () => {
       isModalOpen.value = false;
       editTask.value = { id: null, description: "", date: "", time: "" };
     };
 
-    /**
-     * Сохранить изменения задачи.
-     */
+
     const submitEdit = async () => {
       try {
         const token = getToken();
@@ -1013,16 +982,12 @@ export default {
       }
     };
 
-    /**
-     * Открыть модалку AI генерации задач.
-     */
+
     const openAIModal = () => {
       isAIModalOpen.value = true;
     };
 
-    /**
-     * Закрыть модалку AI генерации задач.
-     */
+
     const closeAIModal = () => {
       isAIModalOpen.value = false;
       aiInput.value = "";
@@ -1050,23 +1015,19 @@ export default {
     };
 
     /**
-     * Открыть модалку добавления новой задачи вручную.
+     * Добавление дедлайна вручную.
      */
     const openAddTaskModal = () => {
       isAddTaskModalOpen.value = true;
     };
 
-    /**
-     * Закрыть модалку добавления новой задачи.
-     */
+
     const closeAddTaskModal = () => {
       isAddTaskModalOpen.value = false;
       newTaskData.value = { description: "", date: "", time: "" };
     };
 
-    /**
-     * Отправить форму добавления новой задачи.
-     */
+
      const submitAddTask = async () => {
       const { description, date, time, priority } = newTaskData.value;
       if (!description.trim()) {
@@ -1105,29 +1066,20 @@ export default {
       }
     };
 
-    /**
-     * Установить фильтр (завершённые задачи).
-     */
     const setFilterCompleted = (day) => {
       dayFilters.value[day] = 1;
     };
 
-    /**
-     * Установить фильтр (актуальные задачи).
-     */
     const setFilterCurrent = (day) => {
       dayFilters.value[day] = 0;
     };
 
-    /**
-     * Закрыть модалку с результатами AI генерации.
-     */
     const closeAIResultModal = () => {
       isAIResultModalOpen.value = false;
     };
 
     /**
-     * Метод для динамического назначения CSS-класса для времени дедлайна.
+     * Цвет для времени дедлайна.
      */
     const getDeadlineTimeClass = (task) => {
       const deadlineTime = new Date(task.deadline_time);
@@ -1145,9 +1097,7 @@ export default {
       return '';
     };
 
-    /**
-     * Открыть модалку редактирования AI задачи.
-     */
+
     const openAIEditModal = (task) => {
       editAITask.value = { ...task };
       const deadline = new Date(task.deadline_time);
@@ -1158,16 +1108,12 @@ export default {
       isAIEditModalOpen.value = true;
     };
 
-    /**
-     * Закрыть модалку редактирования AI задачи.
-     */
+
     const closeAIEditModal = () => {
       isAIEditModalOpen.value = false;
     };
 
-    /**
-     * Сохранить изменения AI задачи и обновить список aiDeadlines.
-     */
+
     const submitAIEdit = () => {
       const newDeadline = new Date(`${editAITaskDate.value}T${editAITaskTime.value}`).toISOString();
       editAITask.value.deadline_time = newDeadline;
@@ -1211,20 +1157,16 @@ export default {
       openAIModal,
       closeAIModal,
       submitAI,
-      // New Add Task Modal
       isAddTaskModalOpen,
       openAddTaskModal,
       closeAddTaskModal,
       submitAddTask,
       newTaskData,
-      // AI Deadlines Result Modal
       isAIResultModalOpen,
       aiDeadlines,
       closeAIResultModal,
       submitAIGeneratedTasks,
-      // Метод для установки класса для дедлайна
       getDeadlineTimeClass,
-      // AI Task Edit Modal
       isAIEditModalOpen,
       editAITask,
       editAITaskDate,
@@ -1246,7 +1188,6 @@ export default {
 </script>
 
 <style scoped>
-/* Импортируем шрифт Inter из Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 
 .page-wrapper {
@@ -1274,7 +1215,6 @@ export default {
   left: 0;
   width: 120vw;
   height: 100vh;
-  /* Пример фона – можно заменить на нужное изображение или другой стиль */
   background: url('../../../public/dl2.jpg') no-repeat center center;
   background-size: cover;
   z-index: -1;
@@ -1372,8 +1312,7 @@ export default {
 }
 
 .scroll-button.scroll-left {
-  /* Если требуется позиционирование относительно контейнера, можно использовать проценты */
-  left: 14.7rem; /* 250px, можно заменить на процентное значение при необходимости */
+  left: 14.7rem;
   top: 27%;
   transform: translateY(-50%);
 }
@@ -1504,7 +1443,7 @@ export default {
 }
 
 .task-card .task-details .task-name {
-  margin-left: 0.15rem; /* подберите значение по вкусу */
+  margin-left: 0.15rem;
 }
 
 .task-card:hover {
@@ -1822,8 +1761,8 @@ export default {
 
 textarea.text-box {
   width: 100%;
-  height: 200px; /* фиксированная высота */
-  margin: 0; /* убраны внешние отступы */
+  height: 200px;
+  margin: 0;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 12px;
@@ -1838,7 +1777,6 @@ textarea.text-box {
   margin-top: 0.5rem;
 }
 
-/* Дополнительное правило для textarea */
 textarea.text-box {
   resize: none;
 }
@@ -1861,11 +1799,11 @@ textarea.text-box {
   background: #555;
 }
 
-/* Фиксированный размер модального окна */
+
 .fixed-form-size {
   width: 25rem;
   max-width: 90%;
-  min-height: 30rem; /* Фиксированная минимальная высота */
+  min-height: 30rem;
   padding: 1.875rem; /* 30px */
   border-radius: 0.625rem; /* 10px */
   box-shadow: 0 0.3125rem 0.9375rem rgba(0, 0, 0, 0.3);
@@ -1873,12 +1811,10 @@ textarea.text-box {
   position: relative;
 }
 
-/* Обёртка для форм, чтобы их высота не менялась */
 .form-container {
   min-height: 10rem;
 }
 
-/* Переключатель режимов ввода */
 .toggle-button {
   display: inline-flex;
   align-items: center;
@@ -1887,7 +1823,7 @@ textarea.text-box {
 .toggle-button button {
   font-size: 0.8rem;
   padding: 0.25rem 0.5rem;
-  background-color: #e0e0e0; /* цвет неактивной кнопки */
+  background-color: #e0e0e0;
   border: none;
   cursor: pointer;
   border-radius: 1.5rem;
@@ -1896,7 +1832,7 @@ textarea.text-box {
 }
 
 .toggle-button button.active {
-  background-color: #f0f0f0; /* активное состояние – светлее */
+  background-color: #f0f0f0;
 }
 
 h3 {
@@ -1922,13 +1858,11 @@ h3 {
   transition: background-color 0.3s;
 }
 
-/* Стиль для кнопки отправки */
 .modal-buttons button[type="submit"] {
   background-color: #4285F4;
   color: #fff;
 }
 
-/* Стиль для кнопки отмены */
 .modal-buttons button[type="button"] {
   background-color: #d86154;
   color: #fff;
@@ -1937,7 +1871,7 @@ h3 {
 .toggle-switch {
   position: relative;
   display: flex;
-  width: 10rem;         /* можно скорректировать по необходимости */
+  width: 10rem;
   height: 1.5rem;
   background-color: #ccc;
   border-radius: 20px;
@@ -1990,7 +1924,7 @@ h3 {
   align-items: center;
   cursor: pointer;
   user-select: none;
-  margin-top: 1rem;
+  margin-top: 2.2rem;
   margin-bottom: -0.5rem;
 }
 
@@ -2039,15 +1973,15 @@ h3 {
   display: flex;
   gap: 1rem;
   margin-top: 1rem;
-  max-width: 70vw; /* задаёт фиксированную максимальную ширину */
-  margin-left: 0;   /* начинаем с левого края */
+  max-width: 70vw;
+  margin-left: 0;
 }
 
-/* Задаём фиксированную ширину для каждой карточки */
+
 .all-deadline-card {
-  width: 25vw;                /* зафиксированная ширина формы */
-  height: 60vh;               /* зафиксированная высота формы */
-  display: flex;               /* даём дочерним элементам выстраиваться колонкой */
+  width: 25vw;
+  height: 60vh;
+  display: flex;
   flex-direction: column;
   background-color: #fff;
   border-radius: 1.25rem;
@@ -2056,24 +1990,24 @@ h3 {
 }
 
 .all-deadline-card .task-card {
-  margin-bottom: 0.5rem; /* увеличенный отступ только внутри карточек "All" */
+  margin-bottom: 0.5rem;
 }
 
-/* Поднимаем заголовок карточки и уменьшаем размер шрифта */
+
 .all-deadline-card .card-header {
   margin-top: 0;
   padding-bottom: 0.5rem;
-  height: auto;       /* убираем фиксированную высоту заголовка */
-  overflow: visible;  /* при желании можно оставить auto/visible */
+  height: auto;
+  overflow: visible;
 }
 
 .all-deadline-card .card-content {
-  flex-grow: 1;       /* занимаем всё оставшееся место в карточке */
-  overflow-y: auto;   /* добавляем вертикальную прокрутку для дедлайнов */
+  flex-grow: 1;
+  overflow-y: auto;
 }
 
 .all-deadline-card .card-header h2 {
-  font-size: 0.9rem;  /* уменьшаем шрифт заголовка */
+  font-size: 0.9rem;
   margin-bottom: 0.5rem;
 }
 
@@ -2087,15 +2021,14 @@ h3 {
   display: none;
 }
 
-/* Показываем иконку при наведении на карточку */
 .all-deadline-card .task-card:hover .action-buttons {
   display: block;
 }
 
-/* Выравнивание даты по правому краю и изменение цвета */
+
 .all-deadline-card .deadline-date {
   display: inline-block;
-  width: 9rem; /* подберите нужную ширину */
+  width: 9rem;
   margin-left: auto;
   text-align: left;
   color: grey;
@@ -2107,52 +2040,48 @@ h3 {
 }
 
 .toggle-switch.deadline-view-switch {
-  width: 350px;       /* фиксированная ширина */
+  width: 350px;
   height: 550px;
   position: relative;
   display: flex;
-  width: 10rem;  /* например, 160px */
+  width: 10rem;
   height: 1.5rem;
-  background-color: #ccc; /* "пассивный" фон переключателя */
+  background-color: #ccc;
   border-radius: 20px;
   overflow: hidden;
   cursor: pointer;
 }
 
-/* Сам "ползунок" */
 .toggle-slider {
   position: absolute;
   top: 0;
   left: 0;
   width: 55%;
   height: 100%;
-  background-color: #fff; /* цвет активной половинки */
+  background-color: #fff; 
   border-radius: 20px;
   transition: left 0.3s;
 }
 .toggle-slider.all {
-  left: 50%; /* Если .all, двигаем ползунок вправо */
+  left: 50%;
 }
 
-/* Текст внутри переключателя */
 .toggle-option {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1;
-  color: #000; /* текст по умолчанию */
+  color: #000;
   font-size: 0.9rem;
   user-select: none;
   transition: color 0.3s;
 }
 
-/* Когда опция активна, делаем текст белым */
 .toggle-option.active {
   color: #fff;
 }
 
-/* Три колонки во вкладке "All" */
 .all-deadlines-wrapper {
   display: flex;
   gap: 1rem;
@@ -2174,70 +2103,100 @@ h3 {
 }
 
 .priority-slider-container {
-  width: 50%; /* полвина ширины формы */
   position: relative;
-  z-index: 3;
+  width: 50%;
+  height: 35px;
+  margin: 0;
 }
 
-.tick-label {
-  font-size: 0.8rem;
-  color: #ccc; /* светло-серый цвет */
-}
 
 .priority-slider {
+  -webkit-appearance: none; 
+  -moz-appearance: none;
+  appearance: none;
+  background: transparent;
   width: 100%;
-  background: #ddd;
-  height: 4px;
-  border-radius: 2px;
-  outline: none;
+  height: 35px;
+  margin: 0;
+  padding: 0;
 }
 
-/* Стили для Webkit */
+
+.priority-slider::-webkit-slider-runnable-track {
+  height: 4px;        
+  background: #ddd;  
+  border-radius: 2px;
+  margin-top: 16px; 
+}
+
+
+.priority-slider::-moz-range-track {
+  height: 4px;
+  background: #ddd;
+  border-radius: 2px;
+  margin-top: 16px;
+}
+
 .priority-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  appearance: none;
-  width: 16px;
+  width: 16px; 
   height: 16px;
-  border-radius: 50%;
-  background: #fff; /* белый шарик */
   border: 1px solid #ccc;
-  cursor: pointer;
-  z-index: 2;
-}
-
-/* Стили для Firefox */
-.priority-slider::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
   border-radius: 50%;
   background: #fff;
-  border: 1px solid #ccc;
   cursor: pointer;
-  z-index: 2;
+  margin-top: -6px;
+}
+
+
+.priority-slider::-moz-range-thumb {
+  width: 16px; 
+  height: 16px;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+  margin-top: -6px;
 }
 
 .slider-ticks {
   position: absolute;
-  top: 36%; /* Центрируем по вертикали ползунка */
-  transform: translateY(-50%);
-  width: 100%;
-  pointer-events: none;
-  z-index: 1;
+  top: 18px;
+  left: 0;
+  right: 0;
+  height: 0;
+  pointer-events: none; 
+  z-index: 2;
 }
+
 
 .slider-ticks .tick {
   position: absolute;
-  width: 2px;           /* увеличенная ширина */
-  height: 12px;         /* увеличенная высота */
-  background-color: #888;
-  transform: translateY(-50%);
+  width: 2px;
+  height: 12px;
+  background-color: #ddd;
+  top: 2px;
 }
 
-/* Надписи под черточками */
+
+.slider-ticks .tick:nth-child(1) { left: 3%; }
+.slider-ticks .tick:nth-child(2) { left: 34%; }
+.slider-ticks .tick:nth-child(3) { left: 65%; }
+.slider-ticks .tick:nth-child(4) { left: 96%; }
+
+
 .priority-labels {
   display: flex;
-  justify-content: space-between;
+  margin-top: 0rem; 
   width: 100%;
-  margin-top: 4px; /* немного ближе к ползунку */
+}
+
+.priority-labels .tick-label:last-child {
+  margin-left: 7.7rem;
+}
+
+.priority-labels .tick-label {
+  font-size: 0.8rem;
+  color: #ccc;
 }
 </style>
