@@ -17,13 +17,14 @@
           </div>
         </div>
         <div class="header-buttons">
-          <button
+          <router-link 
+            to="/payment"
             class="add-easier-button"
-            @click="openAIModal"
-            aria-label="Add Task Easier"
+            aria-label="Share deadlines"
+
           >
-            Add task easier
-          </button>
+            Share deadlines
+          </router-link>
           <button
             class="add-task-button"
             @click="openAddTaskModal"
@@ -260,61 +261,61 @@
               }"
             ></div>
 
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <!-- Indefinite Deadlines -->
-      <div class="all-deadline-card">
-        <div class="card-header">
-          <h2>Indefinite</h2>
-        </div>
-        <div class="card-content">
-          <div v-if="indefiniteDeadlines.length === 0" class="empty-task-card">
-            <p>No indefinite deadlines</p>
-          </div>
-          <div
-            v-for="task in indefiniteDeadlines"
-            :key="task.id"
-            class="task-card"
-            @click="openEditModal(task)"
-          >
-            <div class="task-status">
-              <input
-                type="radio"
-                @change="markTaskAsComplete(task.id)"
-                @click.stop
-                :checked="task.status === 1"
-              />
+          <!-- Indefinite Deadlines -->
+          <div class="all-deadline-card">
+            <div class="card-header">
+              <h2>Indefinite</h2>
             </div>
-            <div class="task-details">
-              <p class="task-name" :class="{ completed: task.status === 1 }">
-                {{ task.description }}
-              </p>
-            </div>
-            <div class="action-buttons">
-              <button
-                class="edit-button"
-                @click.stop="openEditModal(task)"
-                aria-label="Edit Task"
+            <div class="card-content">
+              <div v-if="indefiniteDeadlines.length === 0" class="empty-task-card">
+                <p>No indefinite deadlines</p>
+              </div>
+              <div
+                v-for="task in indefiniteDeadlines"
+                :key="task.id"
+                class="task-card"
+                @click="openEditModal(task)"
               >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#3498db"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M12 20h9"></path>
-                  <path
-                    d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
-                  ></path>
-                </svg>
-              </button>
-            </div>
+                <div class="task-status">
+                  <input
+                    type="radio"
+                    @change="markTaskAsComplete(task.id)"
+                    @click.stop
+                    :checked="task.status === 1"
+                  />
+                </div>
+                <div class="task-details">
+                  <p class="task-name" :class="{ completed: task.status === 1 }">
+                    {{ task.description }}
+                  </p>
+                </div>
+                <div class="action-buttons">
+                  <button
+                    class="edit-button"
+                    @click.stop="openEditModal(task)"
+                    aria-label="Edit Task"
+                  >
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#3498db"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M12 20h9"></path>
+                      <path
+                        d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
+                      ></path>
+                    </svg>
+                  </button>
+                </div>
 
             <div
               v-if="task.priority > 0"
@@ -460,32 +461,6 @@
       </div>
     </div>
 
-    <!-- AI Generation -->
-    <div v-if="isAIModalOpen" class="modal-overlay" @click.self="closeAIModal">
-      <div class="modal-content">
-        <template v-if="!aiLoading">
-          <h2>Add Task Easier</h2>
-          <form @submit.prevent="submitAI">
-            <label>
-              Enter Task Description:
-              <input type="text" v-model="aiInput" required placeholder="Describe your task here" />
-            </label>
-            <div class="modal-buttons">
-              <button type="button" @click="closeAIModal">Cancel</button>
-              <button type="submit">Отправить</button>
-            </div>
-          </form>
-        </template>
-        <template v-else>
-          <div class="loading-spinner">
-            <svg class="spinner" viewBox="0 0 50 50">
-              <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
-            </svg>
-          </div>
-        </template>
-      </div>
-    </div>
-
     <!-- New Add Task Modal -->
     <div v-if="isAddTaskModalOpen" class="modal-overlay" @click.self="closeAddTaskModal">
       <div class="modal-content fixed-form-size">
@@ -515,21 +490,17 @@
           <template v-else>
             <form class="manual-add-task-form" @submit.prevent="submitAddTask">
               <h3>Description</h3>
-              <input style="border-radius: 0.5rem; margin-bottom: 0.5rem;" type="text" 
-                    v-model="newTaskData.description" required
-                    class="description-input"/>
-              
+              <input
+                style="border-radius: 0.5rem; margin-bottom: 0.5rem;"
+                type="text"
+                v-model="newTaskData.description"
+                required
+                class="description-input"
+              />
+
               <div class="priority-block">
                 <h3>Priority</h3>
                 <div class="priority-slider-container">
-                  <!-- Линия и риски -->
-                  <!--<div class="slider-ticks">
-                    <div class="tick"></div>
-                    <div class="tick"></div>
-                    <div class="tick"></div>
-                    <div class="tick"></div>
-                  </div>-->
-                  <!-- Сам слайдер -->
                   <input
                     type="range"
                     min="0"
@@ -544,7 +515,7 @@
                   </div>
                 </div>
               </div>
-              
+
               <!-- Переключатель Бессрочный дедлайн -->
               <div class="infinite-deadline-toggle" @click="isInfiniteDeadline = !isInfiniteDeadline">
                 <div class="custom-toggle" :class="{ active: isInfiniteDeadline }">
@@ -555,9 +526,19 @@
 
               <template v-if="!isInfiniteDeadline">
                 <h3>Date</h3>
-                <input style="border-radius: 0.5rem; margin-bottom: 0.5rem;" type="date" v-model="newTaskData.date" required />
+                <input
+                  style="border-radius: 0.5rem; margin-bottom: 0.5rem;"
+                  type="date"
+                  v-model="newTaskData.date"
+                  required
+                />
                 <h3>Time</h3>
-                <input style="border-radius: 0.5rem; margin-bottom: 0.5rem;" type="time" v-model="newTaskData.time" required />
+                <input
+                  style="border-radius: 0.5rem; margin-bottom: 0.5rem;"
+                  type="time"
+                  v-model="newTaskData.time"
+                  required
+                />
               </template>
 
               <div class="modal-buttons">
@@ -583,7 +564,9 @@
               <p><strong>Description:</strong> {{ task.description }}</p>
               <!-- Кнопка редактирования AI задания -->
               <button class="edit-button" @click.stop="openAIEditModal(task)" aria-label="Edit AI Task">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="#3498db" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round">
                   <path d="M12 20h9"></path>
                   <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
                 </svg>
@@ -591,7 +574,8 @@
             </div>
             <p>
               <strong>Deadline:</strong>
-              {{ formatDate(task.deadline_time.split('T')[0]) }}, {{ formatTime(task.deadline_time) }}
+              {{ formatDate(task.deadline_time.split('T')[0]) }},
+              {{ formatTime(task.deadline_time) }}
             </p>
           </div>
         </div>
@@ -604,29 +588,58 @@
 
     <!-- AI Task Edit Modal -->
     <div v-if="isAIEditModalOpen" class="modal-overlay" @click.self="closeAIEditModal">
-      <div class="modal-content">
-        <h2>Edit AI Deadline Task</h2>
-        <form @submit.prevent="submitAIEdit">
-          <label>
-            Description:
-            <input type="text" v-model="editAITask.description" required />
-          </label>
-          <label>
-            Deadline Date:
-            <input type="date" v-model="editAITaskDate" required />
-          </label>
-          <label>
-            Deadline Time:
-            <input type="time" v-model="editAITaskTime" required />
-          </label>
-          <div class="modal-buttons">
-            <button type="button" @click="closeAIEditModal">Cancel</button>
-            <button type="submit">Save</button>
-          </div>
-        </form>
+      <div class="modal-content fixed-form-size">
+        <h2>Edit Task</h2>
+        <div class="form-container">
+          <form class="manual-add-task-form" @submit.prevent="submitAIEdit">
+            <h3>Description</h3>
+            <input style="border-radius: 0.5rem; margin-bottom: 0.5rem;"
+                    type="text" v-model="editAITask.description"
+                    required class="description-input"/>
+
+            <div class="priority-block" style="margin-bottom: 2.5rem;">
+              <h3>Priority</h3>
+              <div class="priority-slider-container">
+                <input
+                  type="range"
+                  min="0"
+                  max="3"
+                  step="1"
+                  class="priority-slider"
+                  v-model.number="editAITask.priority"
+                />
+                <div class="priority-labels">
+                  <span class="tick-label">обычный</span>
+                  <span class="tick-label">очень важный</span>
+                </div>
+              </div>
+            </div>
+
+            <h3>Date</h3>
+            <input style="border-radius: 0.5rem; margin-bottom: 0.5rem;"
+                    type="date" v-model="editAITaskDate" required />
+            <h3>Time</h3>
+            <input style="border-radius: 0.5rem; margin-bottom: 0.5rem;"
+                    type="time" v-model="editAITaskTime" required />
+            <div class="modal-buttons">
+              <button type="button" @click="closeAIEditModal">Cancel</button>
+              <button type="submit">Submit</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>
+</div>
+
+  <!-- Всплывающее уведомление снизу справа -->
+  <div
+    v-if="showAiNotification"
+    class="ai-notification"
+    :class="{ completed: aiNotificationCompleted }"
+    @click="openAIResultModalIfReady"
+  >
+    {{ aiNotificationText }}
   </div>
 </template>
 
@@ -634,7 +647,7 @@
 import axios from "axios";
 import { ref, computed, onMounted } from "vue";
 import NavBar from "../../components/light_style/NavBar.vue";
-import invalidUserPanel from "../../components/NotRegisteredLight.vue"
+import invalidUserPanel from "../../components/NotRegisteredLight.vue";
 
 export default {
   name: "DeadlinePage",
@@ -665,10 +678,7 @@ export default {
     const hoveredTask = ref(null);
     const dayFilters = ref({}); // 0 = актуальные, 1 = завершённые
 
-    const isAIModalOpen = ref(false);
     const aiInput = ref("");
-    const aiLoading = ref(false); // состояние загрузки в AI модалке
-
 
     const isAddTaskModalOpen = ref(false);
     const newTaskData = ref({
@@ -686,7 +696,9 @@ export default {
       id: null,
       description: "",
       deadline_time: "",
+      priority: 0,
     });
+    
     const editAITaskDate = ref("");
     const editAITaskTime = ref("");
 
@@ -706,6 +718,10 @@ export default {
       );
     });
 
+    const showAiNotification = ref(false);
+    const aiNotificationText = ref("");
+    const aiNotificationCompleted = ref(false);
+
     /**
      * Получение JWT
      */
@@ -724,22 +740,25 @@ export default {
       try {
         const token = getToken();
         if (token == null) {
-          return -1
+          return -1;
         }
-        const response = await axios.get(`http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/user/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          `http://${process.env.VUE_APP_BACKEND_URL}:8080/api/v1/user/me`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         return response.data;
       } catch (error) {
-          return -1
+        return -1;
       }
     };
 
     const fetchUser = async () => {
-      user.value = await getUser()
-    }
+      user.value = await getUser();
+    };
 
     /**
      * Запрос всех дедлайнов
@@ -797,7 +816,6 @@ export default {
       }
     };
 
-
     const markTaskAsComplete = async (taskId) => {
       try {
         const token = getToken();
@@ -815,7 +833,6 @@ export default {
         console.error("Error completing task:", error);
       }
     };
-
 
     const deleteTask = async (taskId) => {
       try {
@@ -835,7 +852,6 @@ export default {
       }
     };
 
-
     const returnToActive = async (taskId) => {
       try {
         const token = getToken();
@@ -854,7 +870,6 @@ export default {
       }
     };
 
-    
     const AIGeneration = async (user_text) => {
       try {
         const token = getToken();
@@ -867,13 +882,15 @@ export default {
             },
           }
         );
+        // Сохраняем результаты в aiDeadlines:
         aiDeadlines.value = response.data;
-        isAIResultModalOpen.value = true;
+        // Убираем автопоказ модалки отсюда,
+        // теперь каждая ситуация решает сама — открывать или нет:
+        // isAIResultModalOpen.value = true; 
       } catch (error) {
         console.error("Error AI generation", error);
       }
     };
-
 
     const submitAIGeneratedTasks = async () => {
       try {
@@ -898,6 +915,7 @@ export default {
         await fetchDeadlines();
         closeAIResultModal();
         closeAddTaskModal();
+        showAiNotification.value = false;
       } catch (error) {
         console.error("Error submitting AI tasks:", error);
       }
@@ -906,13 +924,13 @@ export default {
     /**
      * Группировка задач по дате.
      */
-     const groupedDeadlines = computed(() => {
+    const groupedDeadlines = computed(() => {
       return usual_deadlines.value.reduce((groups, task) => {
         const localDate = new Date(task.deadline_time);
         const year = localDate.getFullYear();
         const month = String(localDate.getMonth() + 1).padStart(2, "0");
         const day = String(localDate.getDate()).padStart(2, "0");
-        const dateKey = `${year}-${month}-${day}`; // Формируем ключ в локальном времени
+        const dateKey = `${year}-${month}-${day}`;
 
         if (!groups[dateKey]) {
           groups[dateKey] = [];
@@ -946,7 +964,6 @@ export default {
       }, {});
     });
 
-
     const formatDate = (dateString) => {
       const today = new Date();
       const tomorrow = new Date();
@@ -966,7 +983,6 @@ export default {
       });
     };
 
-
     const formatTime = (datetime) => {
       const time = new Date(datetime);
       return time.toLocaleTimeString("ru-RU", {
@@ -976,7 +992,6 @@ export default {
       });
     };
 
-
     const scrollLeft = () => {
       const deadlineList = deadlineListRef.value;
       if (deadlineList) {
@@ -984,14 +999,12 @@ export default {
       }
     };
 
-
     const scrollRight = () => {
       const deadlineList = deadlineListRef.value;
       if (deadlineList) {
         deadlineList.scrollBy({ left: 500, behavior: "smooth" });
       }
     };
-
 
     const openEditModal = (task) => {
       const deadlineDate = new Date(task.deadline_time);
@@ -1012,12 +1025,10 @@ export default {
       isModalOpen.value = true;
     };
 
-
     const closeEditModal = () => {
       isModalOpen.value = false;
       editTask.value = { id: null, description: "", date: "", time: "", priority: 0 };
     };
-
 
     const submitEdit = async () => {
       try {
@@ -1045,35 +1056,24 @@ export default {
       }
     };
 
-
-    const openAIModal = () => {
-      isAIModalOpen.value = true;
-    };
-
-
-    const closeAIModal = () => {
-      isAIModalOpen.value = false;
-      aiInput.value = "";
-      aiLoading.value = false;
-    };
-
-    /**
-     * Отправить запрос для генерации задач (AI).
-     * Сразу переключаем отображение на спиннер, а после ответа открываем форму Add New Task.
-     */
     const submitAI = async () => {
       if (aiInput.value.trim() === "") {
         alert("Please enter a task description.");
         return;
       }
-      aiLoading.value = true;
+
+      isAddTaskModalOpen.value = false;
+      showAiNotification.value = true;
+      aiNotificationText.value = "Составляем дедлайны...";
+      aiNotificationCompleted.value = false;
+      
       try {
         await AIGeneration(aiInput.value.trim());
-        closeAIModal();
+        aiNotificationText.value = "Добавьте дедлайны";
+        aiNotificationCompleted.value = true;
+        aiInput.value = "";
       } catch (error) {
         console.error("Error submitting AI task:", error);
-      } finally {
-        aiLoading.value = false;
       }
     };
 
@@ -1085,14 +1085,12 @@ export default {
       isAddTaskModalOpen.value = true;
     };
 
-
     const closeAddTaskModal = () => {
       isAddTaskModalOpen.value = false;
       newTaskData.value = { description: "", date: "", time: "" };
     };
 
-
-     const submitAddTask = async () => {
+    const submitAddTask = async () => {
       const { description, date, time, priority } = newTaskData.value;
       if (!description.trim()) {
         alert("Please fill in all fields.");
@@ -1140,6 +1138,7 @@ export default {
 
     const closeAIResultModal = () => {
       isAIResultModalOpen.value = false;
+      showAiNotification.value = false;
     };
 
     /**
@@ -1161,7 +1160,6 @@ export default {
       return '';
     };
 
-
     const openAIEditModal = (task) => {
       editAITask.value = { ...task };
       const deadline = new Date(task.deadline_time);
@@ -1172,11 +1170,9 @@ export default {
       isAIEditModalOpen.value = true;
     };
 
-
     const closeAIEditModal = () => {
       isAIEditModalOpen.value = false;
     };
-
 
     const submitAIEdit = () => {
       const newDeadline = new Date(`${editAITaskDate.value}T${editAITaskTime.value}`).toISOString();
@@ -1186,6 +1182,12 @@ export default {
         aiDeadlines.value[index] = { ...editAITask.value };
       }
       isAIEditModalOpen.value = false;
+    };
+
+    const openAIResultModalIfReady = () => {
+      if (aiNotificationCompleted.value) {
+        isAIResultModalOpen.value = true;
+      }
     };
 
     onMounted(async () => {
@@ -1215,11 +1217,7 @@ export default {
       setFilterCompleted,
       setFilterCurrent,
       dayFilters,
-      isAIModalOpen,
       aiInput,
-      aiLoading,
-      openAIModal,
-      closeAIModal,
       submitAI,
       isAddTaskModalOpen,
       openAddTaskModal,
@@ -1246,6 +1244,10 @@ export default {
       upcomingDeadlines,
       overdueDeadlines,
       indefiniteDeadlines,
+      showAiNotification,
+      aiNotificationText,
+      aiNotificationCompleted,
+      openAIResultModalIfReady,
     };
   },
 };
@@ -1268,7 +1270,7 @@ export default {
 
 .content-container {
   flex: 1;
-  padding: 1.25rem; /* 20px */
+  padding: 1.25rem;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -1289,7 +1291,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.25rem; /* 20px */
+  margin-bottom: 1.25rem;
 }
 
 .title {
@@ -1299,27 +1301,34 @@ export default {
 
 .header-buttons {
   display: flex;
-  gap: 0.625rem; /* 10px */
+  gap: 0.625rem;
 }
 
 .add-easier-button {
   background: linear-gradient(45deg, #3498db, #e67e22);
   color: white;
   border: none;
-  width: 9.375rem; /* 150px */
-  height: 3.125rem; /* 50px */
+  width: 9.375rem;
+  height: 3.125rem;
   cursor: pointer;
   font-size: 1rem;
   font-weight: bold;
-  border-radius: 0.5rem; /* 8px */
+  border-radius: 0.5rem;
   transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
   margin-left: -20%;
   box-shadow: 0 0.25rem 0.375rem rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  text-decoration: none;
+  line-height: 1;
+  padding: 0;
 }
 
 .add-easier-button:hover {
   background: linear-gradient(45deg, #2980b9, #d35400);
-  transform: translateY(-0.125rem); /* 2px */
+  transform: translateY(-0.125rem);
   box-shadow: 0 0.375rem 0.5rem rgba(0, 0, 0, 0.15);
 }
 
@@ -1332,12 +1341,12 @@ export default {
   background-color: white;
   color: #7f8c8d;
   border: 1px solid #ccc;
-  width: 9.375rem; /* 150px */
-  height: 3.125rem; /* 50px */
+  width: 9.375rem;
+  height: 3.125rem;
   cursor: pointer;
   font-size: 1rem;
   font-weight: bold;
-  border-radius: 0.5rem; /* 8px */
+  border-radius: 0.5rem;
   transition: background-color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s;
   box-shadow: 0 0.25rem 0.375rem rgba(0, 0, 0, 0.1);
 }
@@ -1345,7 +1354,7 @@ export default {
 .add-task-button:hover {
   background-color: #f0f0f0;
   border-color: #a0a0a0;
-  transform: translateY(-0.125rem); /* 2px */
+  transform: translateY(-0.125rem);
   box-shadow: 0 0.375rem 0.5rem rgba(0, 0, 0, 0.15);
 }
 
@@ -1363,10 +1372,10 @@ export default {
 
 .scroll-button {
   position: fixed;
-  width: 2.5rem; /* 40px */
-  height: 2.5rem; /* 40px */
+  width: 2.5rem;
+  height: 2.5rem;
   background-color: white;
-  border: 0.05rem solid #bdc3c7; /* 2px */
+  border: 0.05rem solid #bdc3c7;
   border-radius: 50%;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
@@ -1382,7 +1391,7 @@ export default {
 }
 
 .scroll-button.scroll-right {
-  right: 1.3rem; /* 30px */
+  right: 1.3rem;
   top: 27%;
   transform: translateY(-50%);
 }
@@ -1402,7 +1411,7 @@ export default {
   scroll-behavior: smooth;
   flex-wrap: nowrap;
   width: 100%;
-  margin: 0 3.75rem; /* 60px */
+  margin: 0 3.75rem;
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
@@ -1414,7 +1423,7 @@ export default {
 .deadline-day-wrapper {
   display: flex;
   flex-direction: column;
-  margin-right: 1.25rem; /* 20px */
+  margin-right: 1.25rem;
   position: relative;
 }
 
@@ -1424,17 +1433,28 @@ export default {
   flex-direction: column;
   align-items: center;
   background-color: #ffffff;
-  border-radius: 1.25rem; /* 20px */
-  padding: 0.9375rem; /* 15px */
+  border-radius: 1.25rem;
+  padding: 0.9375rem;
   box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.1);
-  width: 18.75rem; /* 300px */
+  width: 18.75rem;
+  max-height: calc(100vh - 20rem);
+  overflow: hidden;
+}
+
+.deadline-day .tasks {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.deadline-day .tasks .task-card {
+  flex: 0 0 auto;
 }
 
 .day-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.625rem; /* 10px */
+  margin-bottom: 0.625rem;
 }
 
 .day-title {
@@ -1446,24 +1466,24 @@ export default {
 
 .filter-buttons {
   position: absolute;
-  top: 0.625rem; /* 10px */
-  right: 0.625rem; /* 10px */
+  top: 0.625rem;
+  right: 0.625rem;
   display: flex;
-  gap: 0.3125rem; /* 5px */
+  gap: 0.3125rem;
   z-index: 10;
 }
 
 .filter-button {
   background: #fff;
-  border: 0.125rem solid #87CEEB; /* 2px */
+  border: 0.125rem solid #87CEEB;
   color: #87CEEB;
-  border-radius: 1.25rem; /* 20px */
-  padding: 0.375rem 1rem; /* 6px 16px */
+  border-radius: 1.25rem;
+  padding: 0.375rem 1rem;
   font-size: 0.9rem;
   font-weight: 600;
   transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s;
   cursor: pointer;
-  margin-bottom: 0.9375rem; /* 15px */
+  margin-bottom: 0.9375rem;
 }
 
 .filter-button:hover {
@@ -1490,15 +1510,15 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 3.125rem; /* 50px */
+  min-height: 3.125rem;
 }
 
 .task-card {
   display: flex;
   align-items: center;
   border: 1px solid #ccc;
-  border-radius: 1.25rem; /* 20px */
-  padding: 0.9375rem; /* 15px */
+  border-radius: 1.25rem;
+  padding: 0.9375rem;
   background-color: #ffffff;
   flex-direction: row;
   position: relative;
@@ -1524,8 +1544,8 @@ export default {
 }
 
 .task-status input {
-  width: 0.9375rem; /* 15px */
-  height: 0.9375rem; /* 15px */
+  width: 0.9375rem;
+  height: 0.9375rem;
   cursor: pointer;
 }
 
@@ -1551,12 +1571,12 @@ export default {
 .task-time-container {
   display: flex;
   align-items: center;
-  gap: 0.3125rem; /* 5px */
+  gap: 0.3125rem;
 }
 
 .time-icon {
-  width: 0.75rem; /* 12px */
-  height: 0.75rem; /* 12px */
+  width: 0.75rem;
+  height: 0.75rem;
   color: #555;
   flex-shrink: 0;
 }
@@ -1569,8 +1589,8 @@ export default {
 
 .deadline-bg-red {
   background-color: #ffcccc;
-  padding: 0.125rem 0.375rem; /* 2px 6px */
-  border-radius: 0.9375rem; /* 15px */
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.9375rem;
 }
 
 .deadline-bg-yellow {
@@ -1588,22 +1608,22 @@ export default {
 .new-task-form {
   display: flex;
   align-items: center;
-  gap: 0.625rem; /* 10px */
-  margin-top: 0.9375rem; /* 15px */
+  gap: 0.625rem;
+  margin-top: 0.9375rem;
 }
 
 .new-task-input {
   flex: 2;
-  padding: 0.3125rem; /* 5px */
-  height: 2.1875rem; /* 35px */
+  padding: 0.3125rem;
+  height: 2.1875rem;
   border: 1px solid #ccc;
-  border-radius: 3.125rem; /* 50px */
+  border-radius: 3.125rem;
   font-size: 0.9rem;
   color: #555;
   background-color: white;
   box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.1);
   transition: border-color 0.3s, box-shadow 0.3s;
-  padding-left: 0.625rem; /* 10px */
+  padding-left: 0.625rem;
   box-sizing: border-box;
 }
 
@@ -1643,8 +1663,8 @@ export default {
 }
 
 .create-task-button {
-  width: 2.5rem; /* 40px */
-  height: 2.5rem; /* 40px */
+  width: 2.5rem;
+  height: 2.5rem;
   color: gray;
   font-size: 1.2rem;
   border: none;
@@ -1659,10 +1679,10 @@ export default {
 
 .action-buttons {
   position: absolute;
-  top: 0.625rem; /* 10px */
-  right: 0.625rem; /* 10px */
+  top: 0.625rem;
+  right: 0.625rem;
   display: flex;
-  gap: 0.3125rem; /* 5px */
+  gap: 0.3125rem;
 }
 
 .edit-button,
@@ -1671,8 +1691,8 @@ export default {
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 0.3125rem; /* 5px */
-  border-radius: 0.3125rem; /* 5px */
+  padding: 0.3125rem;
+  border-radius: 0.3125rem;
   transition: background-color 0.3s, color 0.3s;
   font-size: 0.8rem;
   white-space: nowrap;
@@ -1681,8 +1701,8 @@ export default {
 .return-button {
   background-color: #2ecc71;
   color: white;
-  padding: 0.3125rem 0.625rem; /* 5px 10px */
-  border-radius: 0.9375rem; /* 15px */
+  padding: 0.3125rem 0.625rem;
+  border-radius: 0.9375rem;
   font-weight: bold;
   transition: background-color 0.3s, transform 0.2s;
 }
@@ -1711,9 +1731,9 @@ export default {
 
 .modal-content {
   background-color: #fff;
-  padding: 1.875rem; /* 30px */
-  border-radius: 0.625rem; /* 10px */
-  width: 25rem; /* 400px */
+  padding: 1.875rem;
+  border-radius: 0.625rem;
+  width: 25rem;
   max-width: 90%;
   box-shadow: 0 0.3125rem 0.9375rem rgba(0, 0, 0, 0.3);
   position: relative;
@@ -1729,30 +1749,30 @@ export default {
 }
 
 .modal-content label {
-  margin-bottom: 0.9375rem; /* 15px */
+  margin-bottom: 0.9375rem;
 }
 
 .modal-content input[type="text"],
 .modal-content input[type="time"],
 .modal-content input[type="date"] {
   width: 100%;
-  padding: 0.5rem; /* 8px */
-  margin-top: 0.3125rem; /* 5px */
+  padding: 0.5rem;
+  margin-top: 0.3125rem;
   box-sizing: border-box;
   border: 1px solid #ccc;
-  border-radius: 0.3125rem; /* 5px */
+  border-radius: 0.3125rem;
 }
 
 .modal-buttons {
   display: flex;
   justify-content: flex-end;
-  gap: 0.625rem; /* 10px */
+  gap: 0.625rem;
 }
 
 .modal-buttons button {
-  padding: 0.5rem 1rem; /* 8px 16px */
+  padding: 0.5rem 1rem;
   border: none;
-  border-radius: 0.3125rem; /* 5px */
+  border-radius: 0.3125rem;
   cursor: pointer;
 }
 
@@ -1771,14 +1791,14 @@ export default {
 }
 
 .ai-deadlines-list {
-  max-height: 18.75rem; /* 300px */
+  max-height: 18.75rem;
   overflow-y: auto;
-  margin-bottom: 1.25rem; /* 20px */
+  margin-bottom: 1.25rem;
 }
 
 .ai-task {
-  padding: 0.625rem; /* 10px */
-  border-bottom: 0.0625rem solid #ddd; /* 1px */
+  padding: 0.625rem;
+  border-bottom: 0.0625rem solid #ddd;
 }
 
 .ai-task:last-child {
@@ -1786,27 +1806,27 @@ export default {
 }
 
 .ai-task p {
-  margin: 0.3125rem 0; /* 5px 0 */
+  margin: 0.3125rem 0;
 }
 
 .ai-task-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.3125rem; /* 5px */
+  margin-bottom: 0.3125rem;
 }
 
 .loading-spinner {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 6.25rem; /* 100px */
+  min-height: 6.25rem;
 }
 
 .spinner {
   animation: spin 1s linear infinite;
-  width: 3.125rem; /* 50px */
-  height: 3.125rem; /* 50px */
+  width: 3.125rem;
+  height: 3.125rem;
 }
 
 @keyframes spin {
@@ -1841,9 +1861,6 @@ textarea.text-box {
   line-height: 1.5;
   margin-bottom: 0.8rem;
   margin-top: 0.5rem;
-}
-
-textarea.text-box {
   resize: none;
 }
 
@@ -1865,13 +1882,12 @@ textarea.text-box {
   background: #555;
 }
 
-
 .fixed-form-size {
   width: 25rem;
   max-width: 90%;
   min-height: 30rem;
-  padding: 1.875rem; /* 30px */
-  border-radius: 0.625rem; /* 10px */
+  padding: 1.875rem;
+  border-radius: 0.625rem;
   box-shadow: 0 0.3125rem 0.9375rem rgba(0, 0, 0, 0.3);
   background-color: #fff;
   position: relative;
@@ -2043,7 +2059,6 @@ h3 {
   margin-left: 0;
 }
 
-
 .all-deadline-card {
   width: 25vw;
   height: 60vh;
@@ -2059,7 +2074,6 @@ h3 {
   margin-bottom: 0.5rem;
 }
 
-
 .all-deadline-card .card-header {
   margin-top: 0;
   padding-bottom: 0.5rem;
@@ -2068,8 +2082,15 @@ h3 {
 }
 
 .all-deadline-card .card-content {
-  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
   overflow-y: auto;
+}
+
+.all-deadline-card .card-content .task-card {
+  flex-shrink: 0;
+  width: 100%;
 }
 
 .all-deadline-card .card-header h2 {
@@ -2090,7 +2111,6 @@ h3 {
 .all-deadline-card .task-card:hover .action-buttons {
   display: block;
 }
-
 
 .all-deadline-card .deadline-date {
   display: inline-block;
@@ -2165,7 +2185,7 @@ h3 {
 .priority-block {
   display: flex;
   flex-direction: column;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .priority-slider-container {
@@ -2174,7 +2194,6 @@ h3 {
   height: 35px;
   margin: 0;
 }
-
 
 .priority-slider {
   -webkit-appearance: none; 
@@ -2187,14 +2206,12 @@ h3 {
   padding: 0;
 }
 
-
 .priority-slider::-webkit-slider-runnable-track {
-  height: 4px;        
-  background: #ddd;  
+  height: 4px;
+  background: #ddd;
   border-radius: 2px;
-  margin-top: 16px; 
+  margin-top: 16px;
 }
-
 
 .priority-slider::-moz-range-track {
   height: 4px;
@@ -2205,7 +2222,7 @@ h3 {
 
 .priority-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 16px; 
+  width: 16px;
   height: 16px;
   border: 1px solid #ccc;
   border-radius: 50%;
@@ -2214,9 +2231,8 @@ h3 {
   margin-top: -6px;
 }
 
-
 .priority-slider::-moz-range-thumb {
-  width: 16px; 
+  width: 16px;
   height: 16px;
   border: 1px solid #ccc;
   border-radius: 50%;
@@ -2231,10 +2247,9 @@ h3 {
   left: 0;
   right: 0;
   height: 0;
-  pointer-events: none; 
+  pointer-events: none;
   z-index: 2;
 }
-
 
 .slider-ticks .tick {
   position: absolute;
@@ -2244,16 +2259,14 @@ h3 {
   top: 2px;
 }
 
-
 .slider-ticks .tick:nth-child(1) { left: 3%; }
 .slider-ticks .tick:nth-child(2) { left: 34%; }
 .slider-ticks .tick:nth-child(3) { left: 65%; }
 .slider-ticks .tick:nth-child(4) { left: 96%; }
 
-
 .priority-labels {
   display: flex;
-  margin-top: 0rem; 
+  margin-top: 0rem;
   width: 100%;
 }
 
@@ -2268,7 +2281,7 @@ h3 {
 
 .priority-stripe {
   position: absolute;
-  right: 0.5rem; /* отступ от правого края */
+  right: 0.5rem;
   top: 0rem;
   bottom: 0rem;
   width: 7px;
@@ -2284,5 +2297,27 @@ h3 {
 
 .priority-stripe.priority-1 {
   background-color: #e6ccff;
+}
+
+.ai-notification {
+  position: fixed;
+  bottom: 5rem; 
+  right: 1rem;
+  width: 20rem;  
+  height: 4rem;
+  padding: 1.5rem;
+  background-color: #fff;
+  border: 2px solid #ccc;
+  border-radius: 1rem;
+  z-index: 2000;
+  cursor: pointer;
+  transition: border-color 0.3s, background-color 0.3s;
+  font-size: 1.2rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.ai-notification.completed {
+  border-color: green;
+  background-color: #e6ffe6;
 }
 </style>

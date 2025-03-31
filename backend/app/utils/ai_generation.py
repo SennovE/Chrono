@@ -41,7 +41,8 @@ async def generate_deadline(response: DeadlineGenerate,
                     date = datetime.datetime.strptime(task["deadline_time"], f"%Y-%m-%dT%H:%M:%S")
                     db_task = DeadlineTaskCreateForm(
                         description=task["description"],
-                        deadline_time=date
+                        deadline_time=date,
+                        priority=task["priority"]
                     )
                     ans.append(db_task)
                     return ans
