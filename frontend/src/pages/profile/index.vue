@@ -45,8 +45,13 @@ onMounted(async () => {
 
 <style scoped>
 .profile-page {
+
+  overflow: hidden !important;
+
   background-color: #1e1e2e;
   color: #cdd6f4;         
+  height: 100vh; 
+  overflow: hidden; 
   font-family: "Roboto", sans-serif;  
   height: 100vh;
   overflow-y: auto;

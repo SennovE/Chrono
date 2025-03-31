@@ -109,7 +109,7 @@ export default {
     const loading = ref(true);
     const error = ref(null);
     // Возможные значения: 'day', 'week', 'calendar'
-    const taskStatsSelectedPeriod = ref('day');
+    const taskStatsSelectedPeriod = ref('calendar');
 
     // Для выбора года в календаре
     const selectedYear = ref(new Date().getFullYear());
