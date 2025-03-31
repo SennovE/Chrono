@@ -5,6 +5,8 @@ from app.utils.payment_manager import  PaymentAPI
 from typing import Annotated
 from app.utils.user import get_current_user
 from app.database.connection import get_session
+from fastapi.responses import JSONResponse
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.payment import CreateInvoiceRequest
 from app.database.models.payment import Payment
@@ -36,7 +38,13 @@ async def create_invoice_endpoint(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
+@api_router.get("/payments")
+async def get_users_debug(
+    session: AsyncSession = Depends(get_session)
+):
+    query = select(Payment)
+    result = await session.scalars(query)
+    return result.all()
 @api_router.post("/postback", status_code=200)
 async def handle_postback(
     status: str = Form(...),
@@ -47,11 +55,14 @@ async def handle_postback(
     token: str = Form(...),
     session: AsyncSession = Depends(get_session)
 ):
-    if (status == "success"):
-        result = await payment_success(session, invoice_id)
-        if (result):
-            return "Подписка активна"
+    try:
+        if status == "success":
+            result = await payment_success(session, invoice_id)
+            if result:
+                return JSONResponse(content={"message": "Подписка активна"}, status_code=200)
+            else:
+                raise HTTPException(status_code=500, detail="Платеж не создан")
         else:
-            raise HTTPException(status_code=500, detail='хз')
-    else:
-        raise HTTPException(status_code=500, detail="Платеж не выполнен")
+            raise HTTPException(status_code=500, detail="Платеж не выполнен")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ошибка при обработке платежа: {e}")
