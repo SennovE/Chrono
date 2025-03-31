@@ -6,6 +6,7 @@ from types import SimpleNamespace
 from uuid import uuid4
 
 import pytest
+import pytest_asyncio
 from alembic.command import upgrade
 from alembic.config import Config
 from httpx import ASGITransport, AsyncClient
@@ -15,11 +16,11 @@ from sqlalchemy_utils import create_database, database_exists, drop_database
 
 from app.main import getApp
 from app.config import get_settings
+from app.database.connection import refresh_engine
 from tests.utils import make_alembic_config
-from app.database.connection.session import TestSessionManager
 
 
-@pytest.fixture(scope="function")
+@pytest_asyncio.fixture(scope="function")
 async def postgres() -> str:
     """
     Создает временную БД для запуска теста.
@@ -29,6 +30,8 @@ async def postgres() -> str:
     tmp_name = ".".join([uuid4().hex, "pytest"])
     settings.POSTGRES_DB = tmp_name
     environ["POSTGRES_DB"] = tmp_name
+    settings.POSTGRES_HOST = 'localhost'
+    environ["POSTGRES_HOST"] = 'localhost'
 
     tmp_url = settings.database_uri_sync
     if not database_exists(tmp_url):
@@ -68,7 +71,7 @@ def alembic_engine():
     return create_async_engine(settings.databaseUri, echo=True)
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def migrated_postgres(postgres, alembic_config: Config):
     """
     Проводит миграции.
@@ -76,18 +79,18 @@ async def migrated_postgres(postgres, alembic_config: Config):
     await run_async_upgrade(alembic_config, postgres)
 
 
-@pytest.fixture
-async def client(migrated_postgres, manager: TestSessionManager = TestSessionManager()) -> AsyncClient:
+@pytest_asyncio.fixture
+async def client(migrated_postgres) -> AsyncClient:
     """
     Returns a client that can be used to interact with the application.
     """
     app = getApp()
-    manager.refresh()
+    refresh_engine()
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test/api/v1") as client:
         yield client
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def engine_async(postgres) -> AsyncEngine:
     engine = create_async_engine(postgres, future=True)
     yield engine
@@ -99,13 +102,13 @@ def session_factory_async(engine_async) -> sessionmaker:
     return sessionmaker(engine_async, class_=AsyncSession, expire_on_commit=False)
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def session(session_factory_async) -> AsyncSession:
     async with session_factory_async() as session:
         yield session
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def active_user_token(client: AsyncClient):
     data = {
         "username": "activeuser",

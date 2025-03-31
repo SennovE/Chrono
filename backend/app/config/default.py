@@ -36,7 +36,7 @@ class DefaultSettings(BaseSettings):
 
     PWD_CONTEXT: CryptContext = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-    model_config = SettingsConfigDict(env_file="../.env") 
+    model_config = SettingsConfigDict(env_file="../.env", extra='ignore') 
 
     @property
     def OAUTH2_SCHEME(self) -> OAuth2PasswordBearer:

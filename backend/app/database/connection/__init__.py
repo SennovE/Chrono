@@ -1,6 +1,7 @@
-from .session import get_session
+from .session import get_session, refresh_engine
 
 
 __all__ = [
-    "get_session"
+    "get_session",
+    "refresh_engine",
 ]

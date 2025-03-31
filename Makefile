@@ -25,7 +25,7 @@ db:
 	docker-compose up -d db
 
 test:
-	make db && $(TEST)
+	make db && cd backend && $(TEST)
 
 ALEMBIC_CMD = alembic
 TARGET_DIR = backend/app/database
