@@ -1,9 +1,10 @@
 <template>
   <div class="top-nav-start">
     <ul>
-      <li @click="router.push({name: 'Welcome'})"><b>Главная</b></li>
-      <li @click="router.push({name: 'Schedule Page'})"><b>Календарь</b></li>
-      <li @click="router.push({name: 'Deadlines Page'})"><b>Дедлайны</b></li>
+      <li @click="router.push({ name: 'Welcome' })"><b>Главная</b></li>
+      <li @click="router.push({ name: 'Schedule Page' })"><b>Календарь</b></li>
+      <li @click="router.push({ name: 'Deadlines Page' })"><b>Дедлайны</b></li>
+      <li class="right-button" @click="router.push({ name: 'Payment Page' })"><b>Оплата</b></li>
     </ul>
   </div>
 </template>
@@ -23,6 +24,7 @@ const router = useRouter();
 }
 
 .top-nav-start {
+  overflow: hidden;
   width: 100%;
   background: var(--mocha-bg);
   position: fixed;
