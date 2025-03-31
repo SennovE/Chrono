@@ -2184,7 +2184,6 @@ h3 {
 
 .priority-slider {
   width: 100%;
-  -webkit-appearance: none;
   background: #ddd;
   height: 4px;
   border-radius: 2px;
