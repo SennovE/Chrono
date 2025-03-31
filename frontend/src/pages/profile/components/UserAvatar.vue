@@ -180,7 +180,8 @@ export default {
 
 
 .user-avatar {
-  position: relative;
+  position: fixed;
+  top: 5%;
   width: 190px;
   height: 190px;
   border-radius: 50%;

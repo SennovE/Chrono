@@ -294,9 +294,10 @@ export default {
   padding: 20px;
   border-radius: 8px;
   width: 45%;
-  margin-top: 0px;
+  
   overflow: hidden;
- 
+  position: fixed;
+  top: 45%;
   color: #cdd6f4;
 }
 

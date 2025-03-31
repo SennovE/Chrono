@@ -44,18 +44,20 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 .profile-page {
-
-  overflow: hidden !important;
-
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
   background-color: #1e1e2e;
-  color: #cdd6f4;         
-  height: 100vh; 
-  overflow: hidden; 
-  font-family: "Roboto", sans-serif;  
-  height: 100vh;
-  overflow-y: auto;
+  color: #cdd6f4;
+  font-family: "Roboto", sans-serif;
   padding: 20px;
+  overflow: auto; /* позволит скроллить содержимое */
 }
 
 </style>

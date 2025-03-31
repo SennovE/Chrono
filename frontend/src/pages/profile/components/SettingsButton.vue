@@ -22,9 +22,9 @@ const handleLogout = async () => {
 <style scoped>
 .get-started-container_kera {
   overflow: hidden;
-  position: relative;
-  margin-left: 140px;
-  margin-top: 1px;
+  position: fixed;
+  top: 35%;
+  left: 8%;
 }
 
 .get-started {
