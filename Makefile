@@ -17,6 +17,8 @@ docker_clear:  ##@Clear all docker files
 	docker rmi $$(docker images -a -q)
 	docker volume rm $$(docker volume ls -q)
 	docker network prune -f
+update_migration:
+	alembic upgrade head
 
 ALEMBIC_CMD = alembic
 TARGET_DIR = backend/app/database
