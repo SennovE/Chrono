@@ -45,6 +45,11 @@ const routes = [
     component: () => import('../pages/settings/index.vue')
   },
   {
+    path: '/payment',
+    name: 'Payment Page',
+    component: () => import('../pages/payment/index.vue')
+  },
+  {
     path: '/debug',
     name: 'Debug',
     component: () => import('../pages/debug/index.vue')

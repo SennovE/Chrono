@@ -25,7 +25,7 @@ async def create_payment(session: AsyncSession, payment_id: str, email: str) -> 
 
 
 async def payment_success(session: AsyncSession, payment_id: str) -> bool:
-    query = select(Payment).where(Payment.id == payment_id)
+    query = select(Payment).where(Payment.id_user == payment_id)
     result = await session.execute(query)
     payment_record = result.scalar_one_or_none()
     if not payment_record:
