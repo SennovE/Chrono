@@ -18,7 +18,7 @@ from app.config import get_settings
 from tests.utils import make_alembic_config
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 async def postgres() -> str:
     """
     Создает временную БД для запуска теста.
@@ -29,7 +29,7 @@ async def postgres() -> str:
     settings.POSTGRES_DB = tmp_name
     environ["POSTGRES_DB"] = tmp_name
 
-    tmp_url = settings.databaseUriSync
+    tmp_url = settings.database_uri
     if not database_exists(tmp_url):
         create_database(tmp_url)
     try:

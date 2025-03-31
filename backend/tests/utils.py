@@ -6,7 +6,7 @@ from typing import Union
 from alembic.config import Config
 from configargparse import Namespace
 
-from app.config import getSettings
+from app.config import get_settings
 
 
 PROJECT_PATH = Path(__file__).parent.parent.resolve()
@@ -17,7 +17,7 @@ def make_alembic_config(cmd_opts: Union[Namespace, SimpleNamespace], base_path: 
     Создает объект конфигурации alembic на основе аргументов командной строки,
     подменяет относительные пути на абсолютные.
     """
-    database_uri = getSettings().databaseUriSync
+    database_uri = get_settings().databaseUriSync
 
     path_to_folder = cmd_opts.config
     # Подменяем путь до файла alembic.ini на абсолютный
