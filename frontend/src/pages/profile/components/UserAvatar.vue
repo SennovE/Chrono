@@ -273,15 +273,5 @@ export default {
   background: #4E342E;
 }
 
-@media (max-width: 600px) {
-  .user-avatar {
-    width: 120px;
-    height: 120px;
-  }
-  
-  .user-name {
-    font-size: 1em;
-    margin-top: 5px;
-  }
-}
+
 </style>

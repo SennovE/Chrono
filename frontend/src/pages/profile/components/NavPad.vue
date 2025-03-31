@@ -68,17 +68,4 @@ const router = useRouter();
   margin-right: 2%;
 }
 
-@media (max-width: 650px) {
-  .top-nav-start {
-    padding: 8px 2px;
-  }
-  .top-nav-start ul {
-    gap: 2px;
-  }
-  .top-nav-start li {
-    padding: 4px 10px;
-    font-size: 14px;
-    margin: 2px 0;
-  }
-}
 </style>

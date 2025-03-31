@@ -387,15 +387,17 @@ export default {
 <style scoped>
 .get-task-statistics {
   background: none;
-  padding: 20px;
+  padding: 1px;
   border-radius: 10px;
   width: 90%;
+  position: fixed;
+  top: 10%;
+  left: 50%;
   max-width: 700px;
-  height: 770px;
+  height: 800px;
   color: #cdd6f4;
-  position: relative;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  padding-left: 60%;
+
 }
 
 .task-stats-period-selector {
