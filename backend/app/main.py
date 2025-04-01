@@ -17,8 +17,8 @@ def getApp() -> FastAPI:
     description = "Микросервис для создания расписания."
 
     application = FastAPI(
-        docs_url="/api/swagger",
-        openapi_url="/api/openapi",
+        docs_url="/api/v1/swagger",
+        openapi_url="/api/v1/openapi",
         version="1.0.0",
         title="Chrono",
         description=description,
