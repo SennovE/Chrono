@@ -30,11 +30,11 @@ async def postgres() -> str:
     settings.POSTGRES_DB = tmp_name
     environ["POSTGRES_DB"] = tmp_name
 
-    tmp_url = settings.database_uri
+    tmp_url = settings.database_uri_sync
     if not database_exists(tmp_url):
         create_database(tmp_url)
     try:
-        yield settings.databaseUri
+        yield settings.database_uri
     finally:
         drop_database(tmp_url)
 

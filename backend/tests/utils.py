@@ -17,7 +17,7 @@ def make_alembic_config(cmd_opts: Union[Namespace, SimpleNamespace], base_path: 
     Создает объект конфигурации alembic на основе аргументов командной строки,
     подменяет относительные пути на абсолютные.
     """
-    database_uri = get_settings().databaseUriSync
+    database_uri = get_settings().database_uri_sync
 
     path_to_folder = cmd_opts.config
     # Подменяем путь до файла alembic.ini на абсолютный

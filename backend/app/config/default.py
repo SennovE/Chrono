@@ -67,6 +67,15 @@ class DefaultSettings(BaseSettings):
         )
     
     @property
+    def database_uri_sync(self) -> str:
+        """
+        Get uri for connection with database.
+        """
+        return "postgresql://{user}:{password}@{host}:{port}/{database}".format(
+            **self.database_settings,
+        )
+    
+    @property
     def google_oauth(self) -> OAuth:
         """
         Get google OAuth schema
