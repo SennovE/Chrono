@@ -16,6 +16,7 @@ from sqlalchemy_utils import create_database, database_exists, drop_database
 from app.main import getApp
 from app.config import get_settings
 from tests.utils import make_alembic_config
+from app.database.connection.session import TestSessionManager
 
 
 @pytest.fixture(scope="function")
@@ -76,11 +77,12 @@ async def migrated_postgres(postgres, alembic_config: Config):
 
 
 @pytest.fixture
-async def client(migrated_postgres) -> AsyncClient:
+async def client(migrated_postgres, manager: TestSessionManager = TestSessionManager()) -> AsyncClient:
     """
     Returns a client that can be used to interact with the application.
     """
     app = getApp()
+    manager.refresh()
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test/api/v1") as client:
         yield client
 
