@@ -10,11 +10,13 @@ class DeadlineTaskDebugResponse(BaseModel):
     deadline_time: datetime | None
     description: str
     status: int
+    priority: int | None
 
 
 class DeadlineTaskCreateForm(BaseModel):
     deadline_time: datetime | None = Field()
     description: str = Field()
+    priority: int = Field()
 
 
 class DeadlineTaskResponse(BaseModel):
