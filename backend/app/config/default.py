@@ -4,7 +4,6 @@ from passlib.context import CryptContext
 from authlib.integrations.starlette_client import OAuth
 from app.utils.s3_manager import S3Client
 from app.utils.payment_manager import PaymentAPI
-import os
 
 
 class DefaultSettings(BaseSettings):
@@ -64,6 +63,15 @@ class DefaultSettings(BaseSettings):
         Get uri for connection with database.
         """
         return "postgresql+asyncpg://{user}:{password}@{host}:{port}/{database}".format(
+            **self.database_settings,
+        )
+    
+    @property
+    def database_uri_sync(self) -> str:
+        """
+        Get uri for connection with database.
+        """
+        return "postgresql://{user}:{password}@{host}:{port}/{database}".format(
             **self.database_settings,
         )
     

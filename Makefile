@@ -1,5 +1,6 @@
 
 CODE = backend/app backend/tests
+TEST = poetry run python -m pytest --verbosity=2 --showlocals --log-level=DEBUG
 
 lint:  ##@Code Check code with pylint
 	poetry run python3 -m pylint $(CODE)
@@ -19,6 +20,12 @@ docker_clear:  ##@Clear all docker files
 	docker network prune -f
 update_migration:
 	alembic upgrade head
+
+db:
+	docker-compose up -d db
+
+test:
+	make db && $(TEST)
 
 ALEMBIC_CMD = alembic
 TARGET_DIR = backend/app/database
