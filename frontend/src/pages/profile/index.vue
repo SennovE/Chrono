@@ -58,10 +58,4 @@ onMounted(async () => {
   padding: 20px;
 }
 
-@media (max-width: 768px) {
-  .profile-page {
-    background-size: cover;
-    background-position: center;
-  }
-}
 </style>

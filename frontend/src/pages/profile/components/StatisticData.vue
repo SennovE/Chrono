@@ -23,7 +23,6 @@
       </button>
     </div>
 
-    <!-- Селектор года появляется только во вкладке "Календарь" -->
     <div v-if="taskStatsSelectedPeriod === 'calendar'" class="year-select">
       <label>
         Выберите год:
@@ -40,12 +39,10 @@
     </div>
     
     <div v-else>
-      <!-- Для "День" и "Неделя" отображается график -->
       <div v-if="taskStatsSelectedPeriod === 'day' || taskStatsSelectedPeriod === 'week'" class="chart-container">
   <BarChart :key="taskStatsSelectedPeriod" :chartData="chartData" :options="chartOptions" :chartType="chartType" />
 </div>
       
-      <!-- Вкладка "Календарь" – календарь по месяцам выбранного года -->
       <div v-else class="calendar-all-months">
         <div v-for="month in calendarByMonth" :key="month.month" class="month-container">
           <h3>{{ month.monthName }}</h3>
@@ -76,7 +73,6 @@
     
     <p v-if="error" class="error">{{ error }}</p>
 
-    <!-- Модальное окно для отображения истории задач выбранного дня -->
     <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
       <div class="modal-content">
         <h3>Задачи на {{ formatDate(selectedDay.date) }}</h3>
@@ -108,10 +104,7 @@ export default {
     const tasks = ref([]);
     const loading = ref(true);
     const error = ref(null);
-    // Возможные значения: 'day', 'week', 'calendar'
     const taskStatsSelectedPeriod = ref('calendar');
-
-    // Для выбора года в календаре
     const selectedYear = ref(new Date().getFullYear());
     const availableYears = computed(() => {
       const current = new Date().getFullYear();
@@ -158,8 +151,6 @@ export default {
     function redirectToLogin() {
       router.push({ name: "Login Page" });
     }
-
-    // График для вкладок "День" и "Неделя"
     const chartType = computed(() => 'bar');
 
     const chartData = computed(() => {
@@ -248,9 +239,6 @@ export default {
       };
     });
 
-    // -------------------------
-    // Календарь по месяцам для выбранного года
-    // -------------------------
     const tasksByDate = computed(() => {
       const map = {};
       const now = new Date();
@@ -327,9 +315,6 @@ export default {
       return months;
     });
 
-    // -------------------------
-    // Модальное окно для истории задач выбранного дня
-    // -------------------------
     const showModal = ref(false);
     const selectedDay = ref(null);
     const openDayModal = (day) => {
@@ -344,46 +329,35 @@ export default {
       const dayStr = selectedDay.value.date.toISOString().slice(0,10);
       return tasks.value.filter(task => task.deadline_time.toISOString().slice(0,10) === dayStr);
     });
-
-    // -------------------------
-    // Вспомогательные функции
-    // -------------------------
     const formatDate = date => date.toISOString().slice(0,10);
-
-    // Форматирование времени в формате HH:MM
     const formatTime = date => {
       const hours = date.getHours().toString().padStart(2, '0');
       const minutes = date.getMinutes().toString().padStart(2, '0');
       return `${hours}:${minutes}`;
     };
-
-    // Функция для определения цвета текста задачи
     const getTaskColor = (task) => {
       if (task.status === 1) {
-        return { color: 'green' }; // Сделано: зеленый
+        return { color: 'green' };
       } else if (task.status === 0) {
         if (task.deadline_time >= new Date()) {
-          return { color: 'green' }; // Запланировано: синий
+          return { color: 'green' };
         } else {
-          return { color: 'orange' }; // Просрочено: оранжевый
+          return { color: 'orange' };
         }
       } else if (task.status === 2) {
-        return { color: 'orange' }; // Просрочено: оранжевый
+        return { color: 'orange' };
       }
       return {};
     };
-
     const getDayColor = (count, maxCountValue) => {
       if (count === 0) return "#ebedf0";
       const ratio = count / maxCountValue;
       const lightness = 90 - ratio * 60;
       return `hsl(120, 50%, ${lightness}%)`;
     };
-
     onMounted(() => {
       fetchTasks();
     });
-
     return {
       tasks,
       loading,
@@ -412,17 +386,18 @@ export default {
 
 <style scoped>
 .get-task-statistics {
-  background-color: #1e1e2e;
-  padding: 20px;
+  background: none;
+  padding: 1px;
   border-radius: 10px;
   width: 90%;
+  position: fixed;
+  top: 10%;
+  left: 50%;
   max-width: 700px;
-  height: 770px;
+  height: 800px;
   color: #cdd6f4;
-  position: absolute;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  top: 100px;
-  left: 1000px;
+
 }
 
 .task-stats-period-selector {

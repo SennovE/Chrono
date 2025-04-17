@@ -289,14 +289,14 @@ export default {
 
 <style scoped>
 .task-carousel {
-  background-color: #1e1e2e; /* Тёмный фон Mocha */
+  background-color: #1e1e2e;
   border: 1px solid #302d41;
   padding: 20px;
   border-radius: 8px;
   width: 45%;
   margin-top: 0px;
   overflow: hidden;
-  /* Позиция не изменяется – панель остаётся там, где была */
+ 
   color: #cdd6f4;
 }
 
@@ -513,19 +513,5 @@ export default {
   opacity: 0.9;
 }
 
-@media (max-width: 768px) {
-  .task-carousel {
-    width: 85%;
-    padding: 10px;
-  }
-  .task-card {
-    padding: 8px;
-  }
-  .nav-button {
-    padding: 4px;
-    font-size: 16px;
-    width: 35px;
-    height: 35px;
-  }
-}
+
 </style>
